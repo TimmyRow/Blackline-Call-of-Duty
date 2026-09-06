@@ -16,7 +16,7 @@ export const CONTRACTS=[
  {id:'aces',title:'Clear skies',description:'Destroy two pirate interceptors in flight.',kind:'air',target:2,reward:180},
  {id:'signals',title:'Someone is still out there',description:'Resolve two frontier signals: rescues, wrecks or lost caches.',kind:'signals',target:2,reward:130}
 ];
-export function ensureProgression(c){c.upgrades??={};c.contracts??={};c.journal??=[];c.encountersCompleted??=[];c.oceanKills??=0;c.blueprints??=[];return c;}
+export function ensureProgression(c){c.upgrades??={};c.contracts??={};c.journal??=[];c.encountersCompleted??=[];c.oceanKills??=0;c.blueprints??=[];c.onboarding??={stage:'launch',introSeen:true,progress:0};return c;}
 export function journal(c,title,text,time=0){ensureProgression(c);c.journal.unshift({title:String(title).slice(0,100),text:String(text).slice(0,400),time:Math.max(0,time)});c.journal=c.journal.slice(0,40);}
 export function contractProgress(c,contract){const n=contract.kind==='site'?(c.completed.includes(contract.target)?1:0):contract.kind==='discoveries'?c.discovered.length:contract.kind==='air'?c.airKills:c.encountersCompleted?.length||0;return {current:n,target:contract.kind==='site'?1:contract.target};}
 export function acceptContract(c,id){ensureProgression(c);const contract=CONTRACTS.find(x=>x.id===id);if(!contract||c.contracts[id])return false;c.contracts[id]='active';return true;}
@@ -29,6 +29,7 @@ const vector=v=>Array.isArray(v)&&v.length===3&&v.every(x=>typeof x==='number'&&
 export function validateSave(raw){
  if(!raw||raw.version!==1||!raw.campaign||!vector(raw.position))return null;
  const v=raw.campaign,c=ensureProgression({completed:strings(v.completed),discovered:strings(v.discovered),tracked:typeof v.tracked==='string'?v.tracked:null,progress:{},salvage:num(v.salvage,0,1e7),raids:num(v.raids,0,6000),distanceWalked:num(v.distanceWalked,0,1e10),distanceFlown:num(v.distanceFlown,0,1e10),airKills:num(v.airKills,0,1e6),oceanKills:num(v.oceanKills,0,1e6),resuppliedAt:{},visited:{},encountersCompleted:strings(v.encountersCompleted)});
+ c.onboarding={stage:['cell','ship','launch','complete'].includes(v.onboarding?.stage)?v.onboarding.stage:'launch',introSeen:true,progress:0};
  c.blueprints=strings(v.blueprints).filter(id=>UPGRADES.some(u=>u.id===id));
  for(const u of UPGRADES)c.upgrades[u.id]=Math.floor(num(v.upgrades?.[u.id],0,u.max));for(const k of CONTRACTS)if(['active','complete'].includes(v.contracts?.[k.id]))c.contracts[k.id]=v.contracts[k.id];
  c.journal=Array.isArray(v.journal)?v.journal.filter(e=>e&&typeof e.title==='string'&&typeof e.text==='string').slice(0,40).map(e=>({title:e.title.slice(0,100),text:e.text.slice(0,400),time:num(e.time,0,1e9)})):[];

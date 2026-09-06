@@ -1,0 +1,25 @@
+{
+  "results": [
+    {
+      "name": "fresh player sees in-world arrival then escapes the crash",
+      "pass": true
+    },
+    {
+      "name": "walk out of wreck and hold E to recover the physical power cell",
+      "pass": true
+    },
+    {
+      "name": "follow road on foot, install the cell, board and lift off",
+      "pass": true
+    },
+    {
+      "name": "scrolling compass reads all four cardinal headings and ship shortcut works",
+      "pass": true
+    },
+    {
+      "name": "continue keeps recovered ship and never replays the opening",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

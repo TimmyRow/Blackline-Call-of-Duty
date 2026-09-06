@@ -1,6 +1,24 @@
 /** Deterministic survey coordinates. Terrain and discoveries share one seed. */
 export const SEA_LEVEL = 0;
 export const REGION_START = {x:0,z:110};
+const building=(a,c,w,d,h,label)=>({a,c,w,d,h,label});
+const BUILDING_LAYOUTS={
+ landing:[building(-33,-25,18,21,12,'PATHFINDER / 01'),building(32,-27,17,21,10,'FLIGHT STORES'),building(-34,15,18,19,9,'SQUAD QUARTERS'),building(34,18,17,21,11,'ORBITAL TRANSIT')],
+ harbour:[building(-29,-23,15,24,11,'NORTH FREIGHT'),building(29,-26,16,22,10,'CUSTOMS / 12'),building(-30,25,16,19,8,'SERVICE / 04'),building(31,26,16,20,9,'ENGINEERING'),building(-28,63,15,21,10,'DOCKYARD / 08'),building(29,65,17,20,8,'FLIGHT STORES')],
+ relay:[building(30,-26,19,25,6,'ARRAY CONTROL'),building(-30,25,16,19,5,'SIGNAL SERVICE')],
+ mining:[building(31,-26,18,25,9,'ORE REFINERY'),building(-30,25,16,19,6,'SHIFT BARRACKS')],
+ market:[building(-29,-26,17,22,9,'EXCHANGE STORES'),building(31,26,18,20,7,'TRANSIT CONTROL')],
+ salvage:[building(-30,25,17,20,7,'BREAKER WORKSHOP')],ruin:[]
+};
+export function settlementStyle(site){if(!site.id||site.id==='landing-services')return 'landing';if(site.id==='harbour'||site.id==='relay')return site.id;if(site.kind==='ruin')return 'ruin';if(site.id==='depot')return 'mining';return site.district||'mining';}
+export function getSettlementBuildings(site){return BUILDING_LAYOUTS[settlementStyle(site)]||BUILDING_LAYOUTS.mining;}
+export const ROADSIDE_STORIES=[
+ {id:'evacuation-stop',name:'Last Evacuation',x:-150,z:55,kind:'evacuation'},
+ {id:'roadside-repair',name:'Abandoned Repair Crew',x:177,z:32,kind:'repair'},
+ {id:'relay-feed',name:'Severed Northwatch Feed',x:-445,z:-300,kind:'power'},
+ {id:'supply-spill',name:'Scattered Ammunition Shipment',x:444,z:-207,kind:'cargo'},
+ {id:'coast-lookout',name:'Coastwatch Rest Stop',x:105,z:340,kind:'lookout'}
+];
 const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
 export function worldHash(x,z,s=0){let n=Math.imul(x|0,374761393)^Math.imul(z|0,668265263)^Math.imul(s+17,1274126177);n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;}
 function noise(x,z){const a=Math.floor(x),b=Math.floor(z),u=smooth(0,1,x-a),v=smooth(0,1,z-b);return (worldHash(a,b)*(1-u)+worldHash(a+1,b)*u)*(1-v)+(worldHash(a,b+1)*(1-u)+worldHash(a+1,b+1)*u)*v;}
@@ -45,8 +63,8 @@ function makeGeneratedSite(cx,cz){
  const y=rawHeight(x,z);if(y<9)return null;
  const roll=worldHash(cx,cz,3),kind=roll<.18?'ruin':roll<.56?'camp':'outpost';
  const names=['Blackglass','Wraith','Cinder','Redwater','Hollow','Vesper','Ashfall','Ironwake'];
- const district=worldHash(cx,cz,5)<.5?'mining':'market';
- return {id:`${kind}:${cx}:${cz}`,name:`${names[Math.floor(worldHash(cx,cz,4)*names.length)]} ${kind==='ruin'?'Relic':kind==='camp'?'Encampment':district==='mining'?'Extraction':'Freeport'}`,x,z,elevation:y,kind,district,faction:kind==='ruin'?'neutral':'pirate',description:kind==='ruin'?'An abandoned alien survey structure. Search the remains for supplies.':district==='mining'?'An occupied extraction town with workshops, ore conveyors and crew quarters.':'A pirate trading settlement of supply stalls, cargo warehouses and operations rooms.',radius:kind==='ruin'?45:62};
+ const districtRoll=worldHash(cx,cz,5),district=districtRoll<.34?'mining':districtRoll<.68?'market':'salvage';
+ return {id:`${kind}:${cx}:${cz}`,name:`${names[Math.floor(worldHash(cx,cz,4)*names.length)]} ${kind==='ruin'?'Relic':kind==='camp'?'Encampment':district==='mining'?'Extraction':district==='salvage'?'Breaker Yard':'Freeport'}`,x,z,elevation:y,kind,district,faction:kind==='ruin'?'neutral':'pirate',description:kind==='ruin'?'An abandoned alien survey structure. Search the remains for supplies.':district==='salvage'?'A scrapyard of broken survey ships, stripped engines and a working salvage workshop.':district==='mining'?'An occupied extraction town with workshops, ore conveyors and crew quarters.':'A pirate trading settlement of supply stalls, cargo warehouses and operations rooms.',radius:kind==='ruin'?45:62};
 }
 export function getWorldSites(x,z,radius=1800){
  const sites=[...REGION_SITES,...SPECIAL_SITES].filter(s=>Math.hypot(s.x-x,s.z-z)<=radius+s.radius);
@@ -64,8 +82,7 @@ export function heightAt(x,z){
  for(const s of candidates){const d=Math.hypot(x-s.x,z-s.z);if(d<110){h=s.elevation+(h-s.elevation)*smooth(s.radius+8,s.radius+42,d);
   // Grade complete building footprints, including the eight-metre terrain cell
   // around each edge. Choose the nearest foundation when adjacent districts meet.
-  const footprints=!('id' in s)?[[-33,-25,18,21],[32,-27,17,21],[-34,15,18,19],[34,18,17,21]]:s.kind==='ruin'?[]:[[-29,-23,15,24],[29,-26,16,22],[-30,25,16,19],[31,26,16,20],...(s.id==='harbour'?[[-28,63,15,21],[29,65,17,20]]:[])];
-  for(const [a,c,w,l]of footprints){const edge=Math.max(Math.abs(x-s.x-a)-w/2,Math.abs(z-s.z-c)-l/2);if(edge<nearestFootprint){nearestFootprint=edge;foundationHeight=s.elevation;}}
+  for(const {a,c,w,d:l}of getSettlementBuildings(s)){const edge=Math.max(Math.abs(x-s.x-a)-w/2,Math.abs(z-s.z-c)-l/2);if(edge<nearestFootprint){nearestFootprint=edge;foundationHeight=s.elevation;}}
  }}
  if(nearestFootprint<17)h=foundationHeight+(h-foundationHeight)*smooth(8,17,nearestFootprint);
  return h;

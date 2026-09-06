@@ -1,0 +1,59 @@
+{
+  "viewport": "1440x900",
+  "note": "Player health maintained during combat sampling to prevent death-menu measurements. 240 frames after warmup; Auto receives12seconds to adapt.",
+  "results": [
+    {
+      "scenario": "ground adaptive",
+      "quality": "auto",
+      "timing": {
+        "averageFPS": 64.74237928202221,
+        "medianMs": 16.599999999998545,
+        "p95Ms": 29.200000000000728,
+        "maxMs": 41.5
+      },
+      "resolutionScale": 1,
+      "drawCalls": 253,
+      "triangles": 780298,
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 18,
+        "colliders": 1199,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 54
+      },
+      "mode": "playing",
+      "guards": 33
+    },
+    {
+      "scenario": "boost streaming",
+      "quality": "high",
+      "timing": {
+        "averageFPS": 71.62041181685835,
+        "medianMs": 11.599999999998545,
+        "p95Ms": 37.5,
+        "maxMs": 152
+      },
+      "resolutionScale": 1,
+      "drawCalls": 94,
+      "triangles": 299940,
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 16,
+        "colliders": 921,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 0
+      },
+      "mode": "playing",
+      "guards": 0
+    }
+  ],
+  "errors": []
+}

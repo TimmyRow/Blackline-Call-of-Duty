@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
-import {isOnIndustrialRoad} from './industrial-roads';
+import {isOnIndustrialRoad,roadGroundHeight} from './industrial-roads';
 import {getEncounterSites} from './encounter-layout.mjs';
 import {createIndustrialMaterials} from './industrial-materials';
-import {heightAt,getWorldSites,getLandingPads,worldHash,REGION_START,WORLD_LANDMARKS} from './region-layout.mjs';
+import {heightAt,getWorldSites,getLandingPads,worldHash,REGION_START,WORLD_LANDMARKS,getSettlementBuildings,settlementStyle,ROADSIDE_STORIES} from './region-layout.mjs';
 
 type Site=ReturnType<typeof getWorldSites>[number];
 type Loaded={group:THREE.Group;colliders:RAPIER.Collider[];meshes:THREE.Object3D[];geometries:THREE.BufferGeometry[];materials:THREE.Material[];textures:THREE.Texture[];detail:THREE.Group;center:THREE.Vector3};
@@ -49,10 +49,27 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
   }
   if(foam.length){const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(foam,3));const mesh=new THREE.Mesh(geometry,foamMaterial);data.group.add(mesh);data.geometries.push(geometry);}
   const nearby=getWorldSites((cx+.5)*CHUNK,(cz+.5)*CHUNK,240),encounterClearings=getEncounterSites((cx+.5)*CHUNK,(cz+.5)*CHUNK,250),rocks:THREE.Matrix4[]=[],plants:THREE.Matrix4[]=[],dummy=new THREE.Object3D();
-  for(let i=0;i<100;i++){const x=(cx+worldHash(cx,cz,i*2+9))*CHUNK,z=(cz+worldHash(cx,cz,i*2+10))*CHUNK,y=heightAt(x,z);if(y<2||isOnIndustrialRoad(x,z,7)||encounterClearings.some(e=>Math.hypot(x-e.x,z-e.z)<(['convoy','patrol','friendly'].includes(e.kind)?50:28))||WORLD_LANDMARKS.some(l=>Math.hypot(x-l.x,z-l.z)<35)||nearby.some(s=>Math.hypot(x-s.x,z-s.z)<s.radius+15)||Math.hypot(x-REGION_START.x,z-REGION_START.z)<45)continue;
+  for(let i=0;i<100;i++){const x=(cx+worldHash(cx,cz,i*2+9))*CHUNK,z=(cz+worldHash(cx,cz,i*2+10))*CHUNK,y=heightAt(x,z);if(y<2||Math.hypot(x,z-220)<30||isOnIndustrialRoad(x,z,7)||encounterClearings.some(e=>Math.hypot(x-e.x,z-e.z)<(['convoy','patrol','friendly'].includes(e.kind)?50:28))||ROADSIDE_STORIES.some(l=>Math.hypot(x-l.x,z-l.z)<20)||WORLD_LANDMARKS.some(l=>Math.hypot(x-l.x,z-l.z)<35)||nearby.some(s=>Math.hypot(x-s.x,z-s.z)<s.radius+15)||Math.hypot(x-REGION_START.x,z-REGION_START.z)<45)continue;
    const rock=i%3===0,h=rock?1.2+worldHash(cx,cz,i+400)*5:3+worldHash(cx,cz,i+700)*9;dummy.position.set(x,y+h*(rock?.32:.62),z);dummy.rotation.set(rock?.2:0,worldHash(cx,cz,i+900)*6.28,rock?.12:0);dummy.scale.set(rock?h*.8:h*.4,h,rock?h*.7:h*.4);dummy.updateMatrix();(rock?rocks:plants).push(dummy.matrix.clone());
   }
   for(const [geometry,material,matrices] of [[rockGeo,rockMat,rocks],[treeGeo,plantMat,plants]] as const){if(!matrices.length)continue;const m=new THREE.InstancedMesh(geometry,material,matrices.length);matrices.forEach((t,i)=>m.setMatrixAt(i,t));m.receiveShadow=true;m.computeBoundingSphere();data.detail.add(m);}
+  // Small, different roadside scenes make the journey readable between districts.
+  // They use existing material batches and the exact triangle height sampler.
+  const roadsideBatches=new Map<THREE.Material,THREE.Matrix4[]>();
+  for(const story of ROADSIDE_STORIES){if(Math.floor(story.x/CHUNK)!==cx||Math.floor(story.z/CHUNK)!==cz)continue;
+   const piece=(dx:number,dy:number,dz:number,w:number,h:number,d:number,material:THREE.Material,solid=true)=>{const wx=story.x+dx,wz=story.z+dz;if(isOnIndustrialRoad(wx,wz,2+Math.max(w,d)/2))return;const wy=roadGroundHeight(wx,wz)+dy;dummy.position.set(wx,wy,wz);dummy.rotation.set(0,0,0);dummy.scale.set(w,h,d);dummy.updateMatrix();const list=roadsideBatches.get(material)||[];list.push(dummy.matrix.clone());roadsideBatches.set(material,list);if(solid)collider(data,wx,wy,wz,w,h,d);};
+   if(story.kind==='evacuation'||story.kind==='lookout'){
+    for(const a of [-4,4])for(const c of [-3,3])piece(a,1.7,c,.18,3.4,.18,steel);piece(0,3.5,0,9,.2,7,story.kind==='lookout'?teal:orange,false);piece(-2,.65,-2,4,1.3,.6,dark);piece(-2,1.3,-2,4,.13,.8,pale,false);
+    for(let i=0;i<5;i++){piece(-4+i*1.7,.35,4+(i%2),1.1,.7,.8,i%2?teal:rust);piece(-4+i*1.7,.76,4+(i%2),.35,.08,.5,steel,false);}piece(4,1.1,-2,.6,2.2,.6,yellow);piece(4,2.3,-2,.9,.3,1.3,dark,false);
+   }else if(story.kind==='repair'){
+    piece(0,.6,0,3.5,1.2,8,dark);piece(0,1.8,-2,3.6,2.4,3.1,teal);piece(0,2.2,-3.6,2.8,.9,.08,glass,false);for(const a of [-1.8,1.8])for(const c of [-2.5,2.5])piece(a,.6,c,.55,1.2,1.2,black);piece(6,.65,1,4,1.3,1.4,steel);for(let q=0;q<4;q++)piece(4.7+q*.8,1.4,1,.45,.25,.5,q%2?yellow:rust,false);piece(-4,.45,3,1.5,.9,1.5,rust);
+   }else if(story.kind==='power'){
+    for(const a of [-3,3])piece(a,6,0,.45,12,.45,steel);for(let h=2;h<13;h+=2)piece(0,h,0,6,.15,.3,rust,false);piece(0,11,0,11,.35,.4,steel);for(const a of [-4,0,4])piece(a,10.6,0,.4,.8,.4,cyan,false);piece(4,.45,5,12,.9,1.3,steel);piece(-5,1.5,3,2.6,3,3,dark);piece(-5,2.4,4.55,1.8,.1,.05,amber,false);
+   }else{
+    piece(0,.45,0,4,.9,11,dark);for(let i=0;i<9;i++){const dx=(i%3-1)*3.5,dz=Math.floor(i/3)*3-3;piece(dx,.55,dz,2.2,1.1,1.7,i%2?orange:teal);piece(dx,1.15,dz,2.25,.1,1.75,steel,false);piece(dx,.6,dz+.87,.2,.9,.04,yellow,false);}piece(-7,.6,-1,3.4,1.2,1.2,concrete);
+   }
+  }
+  for(const [material,matrices]of roadsideBatches){const mesh=new THREE.InstancedMesh(sharedBox,material,matrices.length);matrices.forEach((m,i)=>mesh.setMatrixAt(i,m));mesh.receiveShadow=true;mesh.castShadow=true;mesh.computeBoundingSphere();data.detail.add(mesh);data.meshes.push(mesh);occluders.push(mesh);}
   // Authored discoveries are part of terrain streaming, and use real collision.
   for(const landmark of WORLD_LANDMARKS){if(Math.floor(landmark.x/CHUNK)!==cx||Math.floor(landmark.z/CHUNK)!==cz||landmark.kind==='river')continue;
    const lx=landmark.x,lz=landmark.z,ly=heightAt(lx,lz),matrices:THREE.Matrix4[]=[];
@@ -133,7 +150,7 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
   }
   function barrier(a:number,c:number){block(a,.64,c,3.5,1.28,1.25,concrete);deco(a,1.3,c,3.55,.1,1.28,pale);for(let i=-3;i<=3;i++)deco(a+i*.42,.68,c+.635,.25,.76,.018,i%2?yellow:black,-.33);for(const side of [-1,1])deco(a+side*1.3,.16,c+.66,.18,.16,.06,amber);}
   function gantry(c:number,w=39,h=11){for(const side of [-1,1]){block(side*w/2,h/2,c,.5,h,.6,steel);deco(side*w/2,.12,c,1.2,.24,1.5,concrete);}deco(0,h,c,w+.8,.5,1.2,steel);deco(0,h+1.2,c,w,.1,.12,yellow);for(let a=-w/2;a<w/2;a+=2)deco(a,h+.7,c,.07,1.25,.07,steel);for(let a=-w/2;a<w/2;a+=3)deco(a+1.5,h-.6,c,3.3,.15,.2,rust,a%2?.4:-.4);sign(s.name.toUpperCase(),'FREIGHT ACCESS  /  KEEP CLEAR',0,h-.7,c+.68,11,1.6);}
-  function crane(a:number,c:number,h=29){for(const side of [-1,1])block(a+side*2.5,h/2,c,.7,h,.7,rust);for(let b=2;b<h;b+=3.5){deco(a,b,c,5,.25,.35,rust);deco(a,b+1.5,c,5.8,.22,.25,steel,.54);}deco(a+8,h,c,29,.5,1.2,rust);deco(a+8,h+2.5,c,29,.2,.4,steel);for(let i=-6;i<22;i+=2)deco(a+i,h+1.25,c,.17,2.5,.18,rust,-.45);deco(a+18,h-6,c,.05,12,.05,black);deco(a+18,h-12,c,.9,.7,.7,yellow);block(a-5,h-1.1,c,5,2.5,3,steel);deco(a-5,h-1,c+1.55,3,1.25,.06,glass);}
+  function crane(a:number,c:number,h=29){for(const side of [-1,1])block(a+side*2.5,h/2,c,.7,h,.7,rust);for(let b=2;b<h;b+=3.5){deco(a,b,c,5,.25,.35,rust);deco(a,b+1.5,c,5.8,.22,.25,steel,.54);}deco(a+8,h,c,29,.5,1.2,rust);deco(a+8,h+2.5,c,29,.2,.4,steel);for(let i=-6;i<22;i+=2)deco(a+i,h+1.25,c,.17,2.5,.18,rust,-.45);deco(a+18,h-6,c,.12,12,.12,black);deco(a+18,h-12,c,.9,.7,.7,yellow);block(a-5,h-1.1,c,5,2.5,3,steel);deco(a-5,h-1,c+1.55,3,1.25,.06,glass);}
   function yard(a:number,c:number){for(let i=0;i<3;i++){const q=a+i*2;block(q,.6,c,1.65,1.2,1.3,dark);deco(q,1.25,c,1.7,.1,1.35,steel);for(const side of [-1,1])deco(q+side*.52,.6,c+.67,.12,1.1,.05,yellow);}for(let j=0;j<3;j++)deco(a+2,.055,c+2+j*.18,5,.09,.12,rust);}
   function pad(a:number,c:number,r:number){block(a,.08,c,r*2,.16,r*2,asphalt);for(const side of [-1,1]){deco(a+side*(r-1),.18,c,.3,.035,r*1.8,yellow);deco(a,.18,c+side*(r-1),r*1.8,.035,.3,yellow);for(const end of [-1,1])deco(a+side*(r-.6),.24,c+end*(r-.6),.4,.16,.4,cyan);}deco(a-2,.19,c,.5,.03,7,pale);deco(a+2,.19,c,.5,.03,7,pale);deco(a,.19,c,4,.03,.5,pale);}
   function surfacedYard(start=false){
@@ -172,29 +189,41 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
    for(let i=0;i<7;i++){const angle=i/7*Math.PI*2;block(Math.cos(angle)*24,6+(i%3)*2,Math.sin(angle)*24,5,12+(i%3)*4,5,steel);}
    block(-18,16,-18,31,2,4,wall);block(22,4,5,11,8,7,dark);pad(0,35,13);
   }else{
-   // A compact freight district replaces four isolated boxes. The main lane and
-   // lateral alleys remain connected to the surrounding planet in every direction.
-   const harbour=s.id==='harbour';
-   building(-29,-23,15,24,harbour?11:8,'NORTH FREIGHT');building(29,-26,16,22,10,'CUSTOMS / 12');
-   building(-30,25,16,19,8,s.kind==='camp'?'CREW BARRACKS':'SERVICE / 04');building(31,26,16,20,9,s.id==='relay'?'ARRAY CONTROL':'ENGINEERING');
-   container(-15.8,-12,teal,0,'07');container(-15.8,-12,blue,1);container(16,-8,orange,0,'12');container(16,-8,teal,1);
-   container(-16,15,blue,0,'04');container(19,13,teal,0,'09');
-   for(const [a,c]of [[-6,23],[7,-26],[-8,-30],[27,4]])barrier(a,c);
-   yard(-34,8);yard(23,-8);yard(-26,-42);gantry(-37,41,12);
-   block(0,13,-49,1.3,26,1.3,dark);deco(0,25,-49,12,.5,2.5,steel);deco(0,26.5,-49,2,.25,2,amber);
-   if(s.id==='relay'){deco(0,31,-49,22,.8,5,pale);deco(0,33.5,-49,1,6,1,steel);}
+   const style=settlementStyle(s),harbour=style==='harbour';
+   for(const room of getSettlementBuildings(s))building(room.a,room.c,room.w,room.d,room.h,room.label);
+   // Shared landing/recovery space stays clear; each district has a distinct perimeter.
    pad(0,35,13);
-   if(harbour){building(-28,63,15,21,10,'DOCKYARD / 08');building(29,65,17,20,8,'FLIGHT STORES');container(-17,48,orange,0,'16');container(18,50,blue,0,'18');crane(-44,-43,31);crane(47,-47,37);}
-   else if(s.kind==='outpost')crane(-43,-43,27);
-   const mining=s.kind==='camp'||('district' in s&&s.district==='mining');
-   if(mining){
-    // An ore conveyor and extraction head provide a different industrial silhouette.
-    block(-39,2.1,-3,4,4.2,9,rust);deco(-39,4.5,-3,4.8,.3,10,yellow);for(let q=0;q<5;q++){deco(-40+q*.5,4.85,-3,.35,.4,8,ore);}for(const side of [-1,1])deco(-39+side*2.7,7,-3,.3,14,.35,steel);deco(-39,14,-3,6,.5,3,yellow);deco(-39,10,-3,1.1,7,1.1,dark);sign('ORE PROCESSING','SHIFT 03 / EXTRACTION ACTIVE',-39,5.8,2.1,5,1);
-   }else if(!harbour&&s.id!=='relay'){
-    for(const a of [-38,38]){deco(a,3.1,3,5.5,.2,8,a<0?orange:teal);for(const dx of [-2.4,2.4])for(const dz of [-3.5,3.5])block(a+dx,1.5,3+dz,.12,3,.12,steel);block(a, .7,1,4,1.4,1.5,dark);deco(a,1.5,1,4.2,.12,1.7,pale);}sign('FREEPORT EXCHANGE','FUEL / PARTS / FIELD SUPPLIES',38,2.4,7.1,5,1);
+   if(harbour){
+    container(-15.8,-12,teal,0,'07');container(-15.8,-12,blue,1);container(16,-8,orange,0,'12');container(16,-8,teal,1);container(-16,15,blue,0,'04');container(19,13,teal,0,'09');
+    for(const [a,c]of [[-6,23],[7,-26],[-8,-30],[27,4]])barrier(a,c);yard(-34,8);yard(23,-8);yard(-26,-42);gantry(-37,41,12);
+    container(-17,48,orange,0,'16');container(18,50,blue,0,'18');crane(-44,-43,31);crane(47,-47,37);
+   }else if(style==='relay'){
+    // A broad radio dish replaces the north-west warehouse; short service rooms
+    // and antenna terraces leave a recognisable open listening compound.
+    block(-29,.4,-25,26,.8,26,concrete);block(-29,6.5,-25,3,13,3,steel);
+    const profile=Array.from({length:12},(_,i)=>new THREE.Vector2(i*.88,Math.pow(i*.88,2)*.041));
+    const dishGeometry=new THREE.LatheGeometry(profile,28),dishMaterial=pale.clone();dishMaterial.side=THREE.DoubleSide;const dish=new THREE.Mesh(dishGeometry,dishMaterial);dish.position.set(x-29,y+13,z-25);dish.rotation.x=.67;dish.castShadow=true;data.group.add(dish);data.geometries.push(dishGeometry);data.materials.push(dishMaterial);collider(data,x-29,y+15,z-24,20,6,17);
+    deco(-29,15,-17,.25,11,.25,steel);deco(-29,20,-17,2,.8,1.4,amber);
+    for(const [a,c,h]of [[-42,7,20],[40,-46,27],[24,3,15]]){block(a,.3,c,5,.6,5,concrete);block(a,h/2,c,.65,h,.65,steel);for(let k=3;k<h;k+=4){deco(a,k,c,5,.16,.3,pale);deco(a,k+.65,c,.2,1.4,4.5,steel);}deco(a,h+.3,c,.65,.5,.65,amber);}
+    container(29,5,blue,0,'RF');barrier(-8,-29);barrier(8,-29);sign('NORTHWATCH ARRAY','LISTENING SECTOR / KEEP TRANSMITTERS CLEAR',0,5,-43,12,1.7);
+   }else if(style==='mining'){
+    // Open excavation machinery takes two warehouse footprints, with a conveyor
+    // and terraced ore stockpile instead of another four-building courtyard.
+    for(let level=0;level<3;level++)block(-31,level*.9+.45,-27,23-level*4,.9,22-level*4,ore);
+    block(29,1.4,22,17,2.8,15,rust);for(const side of [-1,1]){block(29+side*7,6,22,.6,12,.6,steel);deco(29+side*7,12.5,22,.8,.35,15,yellow);}deco(29,12,22,16,.6,8,yellow);block(29,7,22,1.2,10,1.2,dark);
+    for(let k=0;k<8;k++){const c=-24+k*4;block(-40,2.2,c,3.5,.35,3.8,steel);deco(-40,2.42,c,3.1,.08,3.6,black);for(const side of [-1,1])deco(-40+side*1.8,2.65,c,.1,.5,3.9,yellow);if(k%2===0)block(-40,1,c,.3,2,.3,steel);deco(-40,2.7,c,1.3,.5,1.7,ore);}
+    crane(-43,-43,24);container(17,-24,orange,0,'ORE');yard(24,1);barrier(-8,-27);sign('TIDEBREAK EXTRACTION','ORE TRANSFER / ACTIVE MACHINERY',29,4,30.1,10,1.4);
+   }else if(style==='salvage'){
+    // Broken hull sections form irregular cover and reveal a scrapyard from the air.
+    for(const [a,c,flip]of [[-28,-26,-1],[30,-25,1],[30,22,-1]]){block(a,1.2,c,7,2.4,18,rust);block(a+flip*4,2.9,c-5,6,3.5,7,dark);deco(a,4.8,c-6,5,.15,8,teal);block(a-flip*7,.6,c+3,13,1.2,5,steel);deco(a-flip*10,1.1,c+4,5,.25,4,yellow);for(const dx of [-2.3,2.3])block(a+dx,1.6,c+10,1.8,3.2,3,dark);for(let q=0;q<6;q++)deco(a,2.5,c-7+q*2.8,7.4,.15,.35,pale);}
+    crane(-43,-43,23);yard(-24,-3);yard(22,-4);container(13,-35,orange,0,'CUT');sign('BREAKER YARD','RECOVER / REPAIR / RETURN TO SERVICE',0,5,-44,11,1.6);
+   }else{
+    // Two covered trading lanes replace the symmetrical warehouse grid.
+    for(const a of [-29,29])for(const c of [-1,10]){deco(a,3.4,c,10,.2,8,a<0?orange:teal);for(const dx of [-4.6,4.6])for(const dz of [-3.5,3.5])block(a+dx,1.6,c+dz,.14,3.2,.14,steel);block(a,.7,c-2,8,1.4,1.5,dark);deco(a,1.46,c-2,8.2,.12,1.7,pale);for(let i=-2;i<=2;i++)deco(a+i*1.3,1.75,c-2,.75,.45,.8,i%2?yellow:blue);}
+    container(28,-28,orange,0,'MKT');container(-29,28,teal,0,'MED');yard(20,-42);sign('FREEPORT EXCHANGE','FUEL / PARTS / FIELD SUPPLIES',0,5,-44,11,1.6);for(const a of [-42,42])streetlight(a,10);
    }
    // Barely lit service clutter, drains and pipe supports restore human scale.
-   for(const side of [-1,1])for(const c of [-29,-11,8,27]){deco(side*10,.04,c,.48,.04,1.25,black);for(let j=0;j<8;j++)deco(side*10,.068,c-.5+j*.14,.46,.025,.03,steel);deco(side*23,3.2,c,1.1,.3,.35,rust);}
+   for(const side of [-1,1])for(const c of [-29,-11,8,27]){deco(side*10,.04,c,.48,.04,1.25,black);for(let j=0;j<8;j++)deco(side*10,.068,c-.5+j*.14,.46,.025,.03,steel);deco(side*23,3.2,c,1.1,.3,.35,rust);deco(side*23,1.6,c,.15,3.2,.15,steel);}
   }
   // An obvious recoverable locker marks the on-foot interaction, separate from the landing pad.
   if(s.id!=='landing-services'){block(0,.7,-3,2.4,1.4,1.3,dark);block(0,1.5,-3,2.5,.18,1.4,steel);

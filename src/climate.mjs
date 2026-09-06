@@ -1,12 +1,12 @@
 /** A saved expedition clock drives gradual atmosphere changes; no wall-clock timers. */
 export const DAY_DURATION = 2400;
-export const WEATHER_DURATION = 330;
+export const WEATHER_DURATION = 150;
 const clamp=x=>Math.max(0,Math.min(1,x));
 const smooth=x=>{x=clamp(x);return x*x*(3-2*x);};
-const pattern=[.62,.95,.18,0,.32,.78,1,.12];
+const pattern=[0,.08,.48,.05,0,.12,1,.08,0,.1];
 export function climateAt(time=0,override={}){
  const elapsed=Math.max(0,Number.isFinite(time)?time:0);
- const hour=override.hour===undefined?(19.1+elapsed/DAY_DURATION*24)%24:((override.hour%24)+24)%24;
+ const hour=override.hour===undefined?(9.2+elapsed/DAY_DURATION*24)%24:((override.hour%24)+24)%24;
  const phase=elapsed/WEATHER_DURATION,index=Math.floor(phase),blend=smooth((phase-index-.65)/.35);
  let rain=pattern[index%pattern.length]+(pattern[(index+1)%pattern.length]-pattern[index%pattern.length])*blend;
  if(override.weather==='clear')rain=0;else if(override.weather==='rain')rain=.62;else if(override.weather==='storm')rain=1;
