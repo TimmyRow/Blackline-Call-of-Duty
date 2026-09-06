@@ -7,7 +7,7 @@ const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:
 const page=await browser.newPage({viewport:{width:1440,height:900}}),results=[],errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 const snapshot=()=>page.evaluate(()=>window.blacklineQA.snapshot());
-const advance=async seconds=>{const target=(await snapshot()).time+seconds;await page.waitForFunction(t=>window.blacklineQA.snapshot().time>=t,target,{timeout:90000});};
+const advance=async(seconds,keepAlive=false)=>{const target=(await snapshot()).time+seconds;await page.waitForFunction(({target,keepAlive})=>{const q=window.blacklineQA,s=q.snapshot();if(keepAlive&&s.health<60)q.damage(-60);return s.time>=target;},{target,keepAlive},{timeout:90000});};
 const test=async(name,run)=>{try{results.push({name,pass:true,detail:await run()});}catch(e){results.push({name,pass:false,error:e.message,snapshot:await snapshot()});}console.log(JSON.stringify(results.at(-1)));};
 const move=async(x,z)=>{await page.evaluate(({x,y,z})=>window.blacklineQA.teleport3(x,y,z),{x,y:heightAt(x,z)+1.7,z});await advance(.15);};
 const harbour=REGION_SITES.find(s=>s.id==='harbour');
@@ -15,11 +15,11 @@ try{
  await page.goto(process.env.GAME_URL||'http://localhost:5180/');await page.waitForFunction(()=>!!window.blacklineQA,{timeout:60000});
  await page.evaluate(()=>{window.blacklineQA.start();window.blacklineQA.look(0,0);});
  await move(harbour.x,harbour.z+50);assert(await page.evaluate(()=>window.blacklineQA.regroup()));
- await test('Q focuses a hostile; both comrades engage at range and kill without player fire',async()=>{
+ await test('Q focuses a hostile; comrades provide limited support without clearing the camp',async()=>{
   const initial=await snapshot();const target=await page.evaluate(()=>{const s=window.blacklineQA.snapshot();return s.enemyPositions.filter(e=>e.active&&e.health>0&&e.site==='harbour').find(e=>!window.blacklineQA.blocked(s.position,[e.position[0],e.position[1]+1.3,e.position[2]]));});assert(target,'A harbour guard must be visible from approach');
   const [px,py,pz]=initial.position,dx=target.position[0]-px,dz=target.position[2]-pz;await page.evaluate(({yaw,pitch})=>window.blacklineQA.look(yaw,pitch),{yaw:Math.atan2(-dx,-dz),pitch:Math.atan2(target.position[1]+1.3-py,Math.hypot(dx,dz))});await advance(.1);await page.keyboard.press('q');
-  assert.equal((await snapshot()).squad.order,'attack');await advance(13);const after=await snapshot();
-  assert.equal(after.mode,'playing');assert.equal(after.ammo,initial.ammo);assert(after.kills>initial.kills);assert(after.squad.members.every(m=>m.shotsFired>0&&m.damageDealt>0));assert(after.squad.members.some(m=>m.kills>0));
+  assert.equal((await snapshot()).squad.order,'attack');await advance(13,true);const after=await snapshot();
+  assert.equal(after.mode,'playing');assert.equal(after.ammo,initial.ammo);assert(after.kills-initial.kills<3);assert(after.squad.members.every(m=>m.shotsFired>0&&m.damageDealt>0));assert(after.squad.members.reduce((n,m)=>n+m.damageDealt,0)<250);
   await page.screenshot({path:'qa/adventure-squad-combat.png'});return {kills:after.kills,ammo:after.ammo,members:after.squad.members.map(({name,shotsFired,damageDealt,kills})=>({name,shotsFired,damageDealt,kills}))};
  });
  await test('B holds comrades while the player takes a separate approach',async()=>{

@@ -1,6 +1,6 @@
 # BLACKLINE — Orison: The Open Frontier
 
-A Three.js first-person expedition across a procedurally streamed planet landscape. Travel on foot or pilot the Kestrel dropship, raid pirate settlements, recover relics, board ocean vessels, and land at an elevated station. Vale and Rook fight, focus targets, provide ammunition and travel aboard your ship.
+A Three.js first-person expedition across a procedurally streamed planet landscape. Travel on foot, pilot the Kestrel dropship or captain the Wayfarer launch. Raid pirate settlements, investigate frontier signals, recover relics and land at an elevated station. Vale and Rook provide restrained support while you lead the fighting.
 
 This is a playable procedural prototype, below AAA production quality. Its new geography continues beyond the starting area, but it is not a spherical planet, a complete universe simulator, or a No Man's Sky equivalent. Space travel uses continuous altitude in the same world; the station is at 1,800 metres.
 
@@ -29,20 +29,28 @@ Desktop WebGL 2, keyboard and mouse required. Click **Begin Expedition**. Use a 
 | J | Request ammunition from nearby squad | — |
 | R / G | Reload / grenade | — |
 | Tab | Planet atlas | Planet atlas |
+| I | Journal, contracts, refits and saving | Journal, contracts, refits and saving |
 | Esc / P / M | Pause / mute | Pause / mute |
 
-Kestrel starts to your right. Walk beside it and press F, then Space to lift off. Cruise at 140 m/s or boost to 420 m/s; use Ctrl to descend. Release thrust to slow before landing. The ship checks its full swept hull against physical buildings and terrain, and refuses airborne or open-ocean disembarkation. Oceans can be crossed in flight; landing is supported on marked carrier and station pads.
+Kestrel starts to your right. Walk beside it and press F, then Space to lift off. Base cruise speed is 140 m/s, or 420 m/s with boost; refits increase performance. Use Ctrl to descend and release thrust to slow before landing. The ship checks its swept hull against physical buildings and terrain, and refuses airborne or open-ocean disembarkation. Land on marked carrier and station pads to explore on foot.
+
+At CNS Wayfarer, approach the launch dock and press F to take the helm. W/S controls throttle, A/D steers, and Shift increases speed. Release throttle and slow before pressing F to leave the helm onto the launch deck. The squad travels aboard with you. Watch for the armed Corsair coastal patrol.
+
+**Auto** visual quality is the default: sustained low frame rates reduce rendering resolution. Choose **Performance** in settings to reduce resolution and disable shadows and bloom, or **High** to retain those effects. Performance depends on hardware and travel conditions.
 
 ## Adventure
 
 - Deterministic terrain and discoveries extend beyond the starter peninsula. Only 49 terrain chunks remain active around the player; distant physics and geometry are released. There are 64 discoverable sites within 4.5 km of the start, with more generated farther away.
 - The original rainy industrial direction is restored around compact warehouse districts: weathered corrugated containers, subdivided lit windows, catwalks, roof machinery, loading clutter, cranes and cyan/amber streetlights. Pathfinder Landing now starts inside a developed logistics district.
 - Five winding roads (about 2.7 km) connect the authored starter districts with directional signs, lane markings, drains and utility furniture. Road geometry follows the actual terrain triangles; the wider procedural planet remains open.
-- Settlements have buildings, physical cover, guards and supplies. Local hostile encounters stream into a pool of up to 48 infantry; each camp has 6 guards and the pirate vessel 8.
-- Clear pirates and hold E near the central supply locker to claim cargo. Ruins provide salvage. Captured pirate locations become resupply bases. Discoveries and captures remain recorded during the current expedition; there is no mandatory three-point route or extraction finale.
-- CNS Wayfarer is a friendly ocean carrier where the squad can regroup and resupply. The Corsair vessel is a hostile boarding target. The orbital station offers a walkable deck reached by actual flight.
-- Pirate interceptors appear during high-altitude flight. Aim Kestrel's cannons to destroy them and recover salvage.
-- Vale fires assault bursts; Rook provides precision fire. Q designates a target, J supplies ammunition with a cooldown, and hold E revives a downed comrade. Squad activity and kills appear in the HUD. Both squadmates travel aboard Kestrel and disembark onto the local surface.
+- Settlements have furnished workshop and living spaces, solid interior floors, physical cover, guards and supplies. Industrial districts retain their roads and signs; farther out, ridgelines, a tidal river, a basalt shelter and wreck landmarks provide destinations beyond camps.
+- A 40-minute day/night cycle changes the lighting. Clear weather, rain and storms change the sky, visibility, wind and wet surfaces; the HUD reports local time and conditions.
+- Frontier signals include wrecks, caches, stranded friendlies and hostile encounters. Friendly scouts can exchange fire with nearby pirates. Local infantry use a bounded pool of up to 48 actors; these encounters are not a persistent planet-wide war simulation.
+- Clear pirates and hold E near the central supply locker to claim cargo. Ruins and discoveries provide salvage. Captured pirate locations become resupply bases. There is no mandatory three-point route or extraction finale.
+- CNS Wayfarer provides squad resupply and a pilotable launch. The Corsair is a hostile boarding target, with a separate moving coastal patrol. Meridian Anchorage has a walkable deck and interior spaces reached by actual flight.
+- Kestrel has a cockpit, damage and repair, and rechargeable cannons for dogfights against pirate interceptors. Salvage funds thruster, hull and cannon upgrades, as well as player armour and weapon handling refits at friendly or secured bases.
+- Vale and Rook fire less aggressively than before, with limited support range and damage so they do not clear camps for you. They seek nearby cover and can help a downed buddy. Q focuses a hostile, B switches hold/follow, J requests ammunition with a cooldown, and holding E revives a nearby downed comrade. Squad activity appears in the HUD; both companions travel aboard your vehicles.
+- Press I for optional contracts, field notes, refits and manual saving. Complete contracts for salvage; a recovered pulse-lattice blueprint reduces cannon refit costs. Expedition progress also saves automatically in this browser, including discoveries, captured bases, contracts and upgrades. **Continue Expedition** restores it; **New Expedition** starts fresh. Saves do not sync between browsers or devices and can be lost if browser storage is cleared.
 - The atlas samples actual terrain and coastline. Drag to pan, wheel or buttons to zoom, and choose any listed site to set a bearing. It never teleports the player.
 
 ## Verification
@@ -52,13 +60,14 @@ npm test
 npm run build
 node qa/adventure-flight-test.mjs
 node qa/adventure-ground-test.mjs
-node qa/adventure-performance.mjs
+node qa/frontier-test.mjs
+node qa/frontier-performance.mjs
 ```
 
-Browser scripts require the dev server and Chromium; set CHROME_PATH as needed. Read current art-restoration evidence in `qa/INDUSTRIAL-RESTORATION-REVIEW.md`; gameplay foundations are documented in `qa/ADVENTURE-REVIEW.md`. Earlier harbour/region QA reports and scripts document superseded builds and are historical.
+Browser scripts require the dev server and Chromium; check each script's browser executable path for your machine. Frontier results and screenshots are in `qa/frontier-results.json`, `qa/frontier-*.png` and `qa/refinement-*.png`. Earlier art-restoration, harbour and region reports document preceding builds. The ground suite has been updated for the reduced squad role. Read `qa/LIVING-FRONTIER-REVIEW.md` for the current visual review, validation and performance evidence.
 
 ## Technical and scope notes
 
 TypeScript/Vite/Three.js with Rapier collision, terrain streaming, character controllers and vehicle sweeps. Assets and audio are procedural and contain no Call of Duty or No Man's Sky assets. Read-only runtime diagnostics are at `window.blackline.snapshot()`; development-only scenario helpers are excluded from production. Output is `dist/` with the existing private Sites configuration.
 
-Ocean vessels and the station are stationary structures: you can land and board them, but cannot pilot the boats. There are no interplanetary jumps, multiplayer, durable campaign saves, authored cinematic missions, complex navigation meshes, destructible buildings or production character animation. Restarting an expedition resets its discoveries and captures. Float precision and memory limits still apply at extreme travel distances; long-session and cross-device performance are not certified.
+The large carrier, Corsair boarding vessel and station remain stationary; the launch is pilotable and the coastal patrol moves. There are no interplanetary jumps, multiplayer, cloud saves, authored cinematic campaigns, complex navigation meshes, destructible buildings or production character animation. Local saves resume from a safe position rather than preserving every live simulation detail. Float precision and memory limits still apply at extreme travel distances; long-session and cross-device performance are not certified. Visual comparisons against actual Call of Duty and No Man's Sky references informed refinements, but BLACKLINE does not match their graphics or production quality.

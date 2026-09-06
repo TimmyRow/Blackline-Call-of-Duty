@@ -12,8 +12,20 @@ function rawHeight(x,z){
  const r=Math.hypot(x*.75,(z+380)*.9),island=38-Math.max(0,r-520)*.11+noise(x/230,z/230)*28;
  h=h+(island-h)*(1-smooth(1050,1600,r));const approach=Math.hypot(x,z-70);h=19+(h-19)*smooth(190,550,approach);
  for(const p of [{x:240,z:900},{x:-650,z:1140}]){const d=Math.hypot(x-p.x,z-p.z);h=-23+(h+23)*smooth(120,330,d);}
+ // Remote continents gain ridgelines and a tidal river. The authored coast and
+ // its road network remain exactly as surveyed; site terraces flatten afterward.
+ const frontier=smooth(1650,2300,Math.hypot(x,z));
+ const ridge=Math.pow(1-Math.abs(noise(x/740+52,z/740-17)*2-1),7)*135;
+ h+=ridge*frontier;
+ const river=Math.abs(x-(2450+Math.sin(z/490)*180+Math.sin(z/1700)*320));
+ h+=(Math.min(h,-4)-h)*(1-smooth(24,82,river))*frontier;
  return h;
 }
+export const WORLD_LANDMARKS=[
+ {id:'basalt-gate',name:'Basalt Gate',x:-290,z:-210,kind:'cave',description:'A sheltered basalt arch above the coastal road.'},
+ {id:'survey-wreck',name:'Fallen Surveyor',x:340,z:-570,kind:'wreck',description:'A fractured survey vessel in the northern hills.'},
+ {id:'tidal-river',name:'Glasswater Estuary',x:2450,z:0,kind:'river',description:'A broad tidal channel cuts through the frontier ridges.'}
+];
 export const REGION_SITES=[
  {id:'harbour',name:'Cold Harbour',x:0,z:-10,elevation:18,kind:'outpost',faction:'pirate',description:'Occupied colonial freight settlement. Recover the pirate route ledger.',action:'Recover the invasion manifest',verb:'RECOVER INVASION MANIFEST',effect:'Patrol positions revealed on the field map',radius:65,holdSeconds:3},
  {id:'relay',name:'Northwatch Array',x:-690,z:-540,elevation:52,kind:'outpost',faction:'pirate',description:'A surveillance compound on the northern heights.',action:'Disable the surveillance relay',verb:'DISABLE SURVEILLANCE',effect:'Enemy detection range reduced across the region',radius:60,holdSeconds:4},
@@ -33,7 +45,8 @@ function makeGeneratedSite(cx,cz){
  const y=rawHeight(x,z);if(y<9)return null;
  const roll=worldHash(cx,cz,3),kind=roll<.18?'ruin':roll<.56?'camp':'outpost';
  const names=['Blackglass','Wraith','Cinder','Redwater','Hollow','Vesper','Ashfall','Ironwake'];
- return {id:`${kind}:${cx}:${cz}`,name:`${names[Math.floor(worldHash(cx,cz,4)*names.length)]} ${kind==='ruin'?'Relic':kind==='camp'?'Encampment':'Settlement'}`,x,z,elevation:y,kind,faction:kind==='ruin'?'neutral':'pirate',description:kind==='ruin'?'An abandoned alien survey structure. Search the remains for supplies.':'Independent pirate activity beyond the colonial defence line.',radius:kind==='ruin'?45:62};
+ const district=worldHash(cx,cz,5)<.5?'mining':'market';
+ return {id:`${kind}:${cx}:${cz}`,name:`${names[Math.floor(worldHash(cx,cz,4)*names.length)]} ${kind==='ruin'?'Relic':kind==='camp'?'Encampment':district==='mining'?'Extraction':'Freeport'}`,x,z,elevation:y,kind,district,faction:kind==='ruin'?'neutral':'pirate',description:kind==='ruin'?'An abandoned alien survey structure. Search the remains for supplies.':district==='mining'?'An occupied extraction town with workshops, ore conveyors and crew quarters.':'A pirate trading settlement of supply stalls, cargo warehouses and operations rooms.',radius:kind==='ruin'?45:62};
 }
 export function getWorldSites(x,z,radius=1800){
  const sites=[...REGION_SITES,...SPECIAL_SITES].filter(s=>Math.hypot(s.x-x,s.z-z)<=radius+s.radius);
@@ -47,7 +60,14 @@ export function heightAt(x,z){
  // Jittered cell sites need only the surrounding nine cells when flattening terrain.
  const cx=Math.floor(x/CELL),cz=Math.floor(z/CELL);
  for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const site=generatedSite(cx+i,cz+j);if(site)candidates.push(site);}
- for(const s of candidates){const d=Math.hypot(x-s.x,z-s.z);if(d<110)h=s.elevation+(h-s.elevation)*smooth(s.radius+8,s.radius+42,d);}
+ let nearestFootprint=Infinity,foundationHeight=0;
+ for(const s of candidates){const d=Math.hypot(x-s.x,z-s.z);if(d<110){h=s.elevation+(h-s.elevation)*smooth(s.radius+8,s.radius+42,d);
+  // Grade complete building footprints, including the eight-metre terrain cell
+  // around each edge. Choose the nearest foundation when adjacent districts meet.
+  const footprints=!('id' in s)?[[-33,-25,18,21],[32,-27,17,21],[-34,15,18,19],[34,18,17,21]]:s.kind==='ruin'?[]:[[-29,-23,15,24],[29,-26,16,22],[-30,25,16,19],[31,26,16,20],...(s.id==='harbour'?[[-28,63,15,21],[29,65,17,20]]:[])];
+  for(const [a,c,w,l]of footprints){const edge=Math.max(Math.abs(x-s.x-a)-w/2,Math.abs(z-s.z-c)-l/2);if(edge<nearestFootprint){nearestFootprint=edge;foundationHeight=s.elevation;}}
+ }}
+ if(nearestFootprint<17)h=foundationHeight+(h-foundationHeight)*smooth(8,17,nearestFootprint);
  return h;
 }
 export function getLandingPads(x,z,radius=1800){

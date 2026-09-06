@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 type WeaponState = { time: number; moving: number; sprinting: boolean; aiming: boolean; reload: number; recoil: number };
-type EnemyState = { time: number; moving: boolean; firing: boolean; dead: boolean };
+type EnemyState = { time: number; moving: boolean; firing: boolean; dead: boolean; crouching?:boolean; alert?:boolean };
 
 // These objects only present simulation state. Hit decisions and movement belong to the game.
 const black = new THREE.MeshStandardMaterial({ color: 0x131a1c, roughness: .52, metalness: .65 });
@@ -307,14 +307,25 @@ export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle
   const flashGroup = new THREE.Group(); muzzle.add(flashGroup); flashGroup.visible = false;
   const core = mesh(flashGroup, new THREE.ConeGeometry(.045, .22, 7, 1, true), flashMaterial, 0, 0, -.1); core.rotation.x = -Math.PI / 2;
   const halo = mesh(flashGroup, new THREE.ConeGeometry(.073, .13, 5, 1, true), flashMaterial, 0, 0, -.07); halo.rotation.x = -Math.PI / 2;
+  const bolt = box(rifle,.046,.012,-.265,.008,.018,.07,edge,.002);
+  const casings: {mesh:THREE.Mesh,life:number,velocity:THREE.Vector3}[]=[];
+  const casingGeometry=new THREE.CylinderGeometry(.0035,.0035,.018,6),casingMaterial=new THREE.MeshStandardMaterial({color:0xb49a54,metalness:.8,roughness:.32});
+  for(let i=0;i<8;i++){const casing=new THREE.Mesh(casingGeometry,casingMaterial);camera.add(casing);casing.visible=false;casings.push({mesh:casing,life:0,velocity:new THREE.Vector3()});}
+  let casingIndex=0,kick=0;
   let flashTime = 0;
   let aim = 0;
   let sprint = 0;
   let phase = 0;
   return {
     group, muzzle,
-    flash: () => { flashTime = .058; flashGroup.rotation.z = Math.random() * Math.PI * 2; },
+    flash: () => { flashTime = .058;kick=1;
+      const casing=casings[casingIndex++%casings.length];casing.life=.65;casing.mesh.visible=true;
+      casing.mesh.position.set(group.position.x+.07,group.position.y+.03,group.position.z-.25);
+      casing.velocity.set(.65,.5,-.18);casing.mesh.rotation.set(.5,0,.4);
+      flashGroup.rotation.z = Math.random() * Math.PI * 2; },
     update: (dt, opts) => {
+      kick=Math.max(0,kick-dt*15);bolt.position.z=-.265+kick*.06;
+      for(const casing of casings){if(casing.life<=0)continue;casing.life-=dt;casing.mesh.visible=casing.life>0&&group.visible;casing.velocity.y-=dt*2.8;casing.mesh.position.addScaledVector(casing.velocity,dt);casing.mesh.rotation.x+=dt*12;casing.mesh.rotation.z+=dt*8;}
       const blend = 1 - Math.exp(-dt * 13);
       aim = THREE.MathUtils.lerp(aim, opts.aiming && !opts.sprinting && !opts.reload ? 1 : 0, blend);
       sprint = THREE.MathUtils.lerp(sprint, opts.sprinting ? 1 : 0, blend);
@@ -326,9 +337,9 @@ export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle
       group.position.set(
         THREE.MathUtils.lerp(.245, 0, aim) + bobX - reload * .07,
         THREE.MathUtils.lerp(-.254, -.133, aim) - bobY - sprint * .065 - reload * .13,
-        THREE.MathUtils.lerp(-.11, -.075, aim) + opts.recoil * .052 + reload * .08,
+        THREE.MathUtils.lerp(-.11, -.075, aim) + opts.recoil * .052 + kick*.022 + reload * .08,
       );
-      group.rotation.set(opts.recoil * .045 + sprint * .18 + reload * .34, .055 * (1 - aim) + sprint * -.28, -.025 * (1 - aim) + bobX * .55 + sprint * -.23 + reload * -.60);
+      group.rotation.set(opts.recoil * .045 + kick*.027 + sprint * .18 + reload * .34, .055 * (1 - aim) + sprint * -.28, -.025 * (1 - aim) + bobX * .55 + sprint * -.23 + reload * -.60);
       group.position.y += Math.sin(opts.time * 1.8) * .0008 * (1 - aim);
       mag.position.y = -.067 - (opts.reload > .18 && opts.reload < .76 ? Math.sin((opts.reload - .18) / .58 * Math.PI) * .21 : 0);
       mag.rotation.x = -.08 - reload * .08;
@@ -338,7 +349,13 @@ export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle
   };
 }
 
-export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes: THREE.Object3D[]; update: (dt: number, opts: EnemyState) => void } {
+export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes: THREE.Object3D[]; update: (dt: number, opts: EnemyState) => void; hit:()=>void } {
+  if(!enemySolid.bumpMap){
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const c=canvas.getContext('2d')!;
+    c.fillStyle='#858585';c.fillRect(0,0,128,128);
+    for(let x=0;x<128;x+=4)for(let y=0;y<128;y+=4){c.fillStyle=(x+y)%8?'#929292':'#777777';c.fillRect(x,y,3,2);}
+    const weave=new THREE.CanvasTexture(canvas);weave.wrapS=weave.wrapT=THREE.RepeatWrapping;weave.repeat.set(7,7);enemySolid.bumpMap=weave;enemySolid.bumpScale=.006;enemySolid.roughness=.82;enemySolid.metalness=.14;enemySolid.needsUpdate=true;
+  }
   const group = new THREE.Group(); group.name = 'BLACKLINE / hostile operator'; scene.add(group);
   const rig = new THREE.Group(); group.add(rig);
   const hitMeshes: THREE.Object3D[] = [];
@@ -426,24 +443,27 @@ export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes
   const muzzleFlash = mesh(muzzle, new THREE.OctahedronGeometry(.078), flashMaterial, 0, 0, -.075); muzzleFlash.scale.z = 2.5; muzzleFlash.visible = false;
   let death = 0;
   let walk = 0;
+  let impact=0,crouch=0;
   return {
-    group, hitMeshes,
+    group, hitMeshes, hit:()=>{impact=1;},
     update: (dt, opts) => {
+      impact=Math.max(0,impact-dt*6);crouch=THREE.MathUtils.damp(crouch,opts.crouching&&!opts.dead?1:0,8,dt);
       death = THREE.MathUtils.damp(death, opts.dead ? 1 : 0, opts.dead ? 5 : 20, dt);
       walk = THREE.MathUtils.damp(walk, opts.moving && !opts.dead ? 1 : 0, 9, dt);
       const stride = Math.sin(opts.time * 8.5);
-      legs[0].rotation.x = stride * .49 * walk;
-      legs[1].rotation.x = -stride * .49 * walk;
+      legs[0].rotation.x = stride * .49 * walk+crouch*.4;
+      legs[1].rotation.x = -stride * .49 * walk-crouch*.35;
       torso.position.y = 1.13 + Math.abs(Math.cos(opts.time * 8.5)) * .025 * walk;
-      torso.rotation.y = stride * .035 * walk;
+      torso.rotation.y = stride * .035 * walk+impact*.11;
+      torso.rotation.x=-crouch*.12-impact*.16;
       arms[0].rotation.x = stride * .04 * walk;
       arms[1].rotation.x = -stride * .04 * walk;
-      head.rotation.y = Math.sin(opts.time * .9) * .035;
+      head.rotation.y = Math.sin(opts.time * .9) * (opts.alert?.015:.13);
       rig.rotation.x = death * -1.45;
       rig.rotation.z = death * .19;
-      rig.position.y = death * .14;
+      rig.position.y = death * .14-crouch*.24;
       torso.rotation.z = death * -.12;
-      weapon.rotation.x = -.025 + (opts.firing ? Math.sin(opts.time * 65) * .021 : 0) + death * .35;
+      weapon.rotation.x = -.025 + (opts.firing ? Math.sin(opts.time * 65) * .021 : 0) + death * .35+(opts.alert?0:.10)+impact*.1;
       muzzleFlash.visible = opts.firing && !opts.dead && Math.sin(opts.time * 47) > .45;
       muzzleFlash.rotation.z = opts.time * 15;
     },

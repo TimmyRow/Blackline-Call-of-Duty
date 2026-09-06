@@ -1,23 +1,23 @@
 {
   "results": [
     {
-      "name": "Q focuses a hostile; both comrades engage at range and kill without player fire",
+      "name": "Q focuses a hostile; comrades provide limited support without clearing the camp",
       "pass": true,
       "detail": {
-        "kills": 6,
+        "kills": 1,
         "ammo": 30,
         "members": [
           {
             "name": "VALE",
-            "shotsFired": 24,
-            "damageDealt": 344,
-            "kills": 3
+            "shotsFired": 7,
+            "damageDealt": 50,
+            "kills": 0
           },
           {
             "name": "ROOK",
-            "shotsFired": 9,
-            "damageDealt": 256,
-            "kills": 3
+            "shotsFired": 5,
+            "damageDealt": 60,
+            "kills": 1
           }
         ]
       }
@@ -34,34 +34,34 @@
           {
             "name": "VALE",
             "role": "ASSAULT",
-            "health": 60,
+            "health": 79,
             "position": [
-              -2.5158731937408447,
-              17.806412506103516,
-              41.32244110107422
+              -2.893007755279541,
+              17.870016860961915,
+              40.86336135864258
             ],
             "down": false,
             "status": "HOLDING",
             "combatTarget": null,
-            "shotsFired": 24,
-            "damageDealt": 344,
-            "kills": 3
+            "shotsFired": 7,
+            "damageDealt": 50,
+            "kills": 0
           },
           {
             "name": "ROOK",
             "role": "MARKSMAN",
-            "health": 80,
+            "health": 100,
             "position": [
-              3.100224494934082,
-              17.7442138671875,
-              42.27915954589844
+              2.5462145805358887,
+              17.76513557434082,
+              42.07748794555664
             ],
             "down": false,
             "status": "HOLDING",
             "combatTarget": null,
-            "shotsFired": 9,
-            "damageDealt": 256,
-            "kills": 3
+            "shotsFired": 5,
+            "damageDealt": 60,
+            "kills": 1
           }
         ]
       }
@@ -87,14 +87,14 @@
       "name": "atlas pans and zooms across the planet; choosing a procedural destination does not teleport",
       "pass": true,
       "detail": {
-        "tracked": "outpost:0:0",
+        "tracked": "encounter:wreck:landing",
         "beforePosition": [
-          1.999996542930603,
+          1.9999970197677612,
           19.675029974272757,
           -9.000001907348633
         ],
         "afterPosition": [
-          1.999996542930603,
+          1.9999970197677612,
           19.67500893563935,
           -9.000001907348633
         ]
@@ -114,7 +114,7 @@
       "pass": true,
       "detail": {
         "kills": 0,
-        "guards": 24
+        "guards": 33
       }
     }
   ],

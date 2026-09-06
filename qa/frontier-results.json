@@ -1,0 +1,61 @@
+{
+  "results": [
+    {
+      "name": "weather and day/night update visually while pausing holds time",
+      "pass": true,
+      "details": {
+        "cycle": 2400
+      }
+    },
+    {
+      "name": "journal accepts optional contract and buys real refits at base",
+      "pass": true,
+      "details": {
+        "s": {
+          "handling": 1,
+          "engine": 1
+        }
+      }
+    },
+    {
+      "name": "nearby wreck rewards exploration once",
+      "pass": true,
+      "details": {
+        "salvage": 1310
+      }
+    },
+    {
+      "name": "support companions contribute without clearing the camp for the player",
+      "pass": true,
+      "details": {
+        "damage": 68,
+        "kills": 0
+      }
+    },
+    {
+      "name": "real raid completes contract then saves and continues across reload",
+      "pass": true,
+      "details": {
+        "salvage": 1530,
+        "position": [
+          1.999999761581421,
+          19.67502985460482,
+          -8.999999046325684
+        ]
+      }
+    },
+    {
+      "name": "carrier launch moves with helm input and exits to its physical deck",
+      "pass": true,
+      "details": {
+        "position": [
+          289,
+          4.424982778243358,
+          881.8764038085938
+        ],
+        "travelled": 71
+      }
+    }
+  ],
+  "errors": []
+}

@@ -60,3 +60,11 @@ test('ship cannons respect cooldown and recharge',()=>{
  for(let i=0;i<50;i++){tick(ship,[],9);ship.fire();}
  assert.ok(ship.snapshot().energy<10);tick(ship,[],600);assert.equal(ship.snapshot().energy,100);world.free();
 });
+
+test('dropship upgrades affect hull capacity and cannon damage and restore only safe landing positions',()=>{
+ const world=new RAPIER.World({x:0,y:-9.81,z:0}),ship=createFlight(new THREE.Scene(),world);
+ ship.setUpgrades({engine:2,shield:2,cannon:3});assert.equal(ship.snapshot().maxHealth,150);assert.equal(ship.health,150);
+ ship.board(ship.position.clone());assert.equal(ship.fire().damage,81);ship.hurt(10);assert.ok(ship.health>140);ship.repair();assert.equal(ship.health,150);
+ const safe={x:ship.position.x,y:ship.position.y,z:ship.position.z};tick(ship,['Space'],120);assert.equal(ship.restoreAt(safe),true);assert.equal(ship.landed,true);assert.equal(ship.piloting,false);
+ assert.equal(ship.restoreAt({x:240,y:3,z:1040}),false);assert.equal(ship.restoreAt({x:NaN,y:0,z:0}),false);world.free();
+});

@@ -3,3 +3,4 @@ dist/
 qa/*.webm
 qa/reference.webp
 qa/comparison.png
+qa/reference-*.png

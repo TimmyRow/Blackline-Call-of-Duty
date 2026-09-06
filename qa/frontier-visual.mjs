@@ -1,0 +1,6 @@
+import {chromium} from '@playwright/test';
+import assert from 'node:assert/strict';
+const b=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||'C:/Users/jcrow/AppData/Local/ms-playwright/chromium-1234/chrome-win64/chrome.exe',args:['--enable-webgl','--ignore-gpu-blocklist']}),p=await b.newPage({viewport:{width:1440,height:900}}),errors=[];
+p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
+try{await p.goto('http://localhost:5180');await p.waitForFunction(()=>window.blacklineQA,null,{timeout:90000});
+for(const [name,x,y,z,yaw,pitch,hour,weather]of [['road',0,18.5,109,0,0,19,'rain'],['interior',-33,17.8,85,0,-.1,10,'clear'],['river',2450,120,0,.6,-.1,10,'clear'],['storm',0,18.5,109,0,0,16,'storm']]){await p.evaluate(({x,y,z,yaw,pitch,hour,weather})=>{const q=window.blacklineQA;q.start();q.setClimate({hour,weather});q.teleport3(x,y,z);q.look(yaw,pitch);},{x,y,z,yaw,pitch,hour,weather});await p.waitForTimeout(450);await p.evaluate(()=>window.blacklineQA.photo());await p.screenshot({path:`qa/final-${name}.png`});}assert.equal(errors.length,0,errors.join('\n'));console.log('Four final visual captures; no shader or page errors.');}finally{await b.close();}

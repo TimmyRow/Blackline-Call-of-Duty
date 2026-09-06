@@ -1,0 +1,163 @@
+{
+  "viewport": "1440x900",
+  "note": "Player health maintained during combat sampling to prevent death-menu measurements. 240 frames after warmup; Auto receives12seconds to adapt.",
+  "results": [
+    {
+      "scenario": "ground combat",
+      "quality": "high",
+      "timing": {
+        "averageFPS": 45.9286192706736,
+        "medianMs": 21.700000000000728,
+        "p95Ms": 29.600000000000364,
+        "maxMs": 37.5
+      },
+      "resolutionScale": 1,
+      "drawCalls": 258,
+      "triangles": 785454,
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 18,
+        "colliders": 1450,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 54
+      },
+      "mode": "playing",
+      "guards": 33
+    },
+    {
+      "scenario": "ground adaptive",
+      "quality": "auto",
+      "timing": {
+        "averageFPS": 45.68122121069181,
+        "medianMs": 21.400000000001455,
+        "p95Ms": 30,
+        "maxMs": 33.39999999999782
+      },
+      "resolutionScale": 0.7000000000000001,
+      "drawCalls": 258,
+      "triangles": 785454,
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 18,
+        "colliders": 1450,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 54
+      },
+      "mode": "playing",
+      "guards": 33
+    },
+    {
+      "scenario": "ground performance",
+      "quality": "low",
+      "timing": {
+        "averageFPS": 48.37051816894347,
+        "medianMs": 20.19999999999709,
+        "p95Ms": 28.799999999995634,
+        "maxMs": 85.29999999999563
+      },
+      "resolutionScale": 1,
+      "drawCalls": 245,
+      "triangles": 785441,
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 18,
+        "colliders": 1450,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 54
+      },
+      "mode": "playing",
+      "guards": 33
+    },
+    {
+      "scenario": "boost streaming",
+      "quality": "high",
+      "timing": {
+        "averageFPS": 73.12837076137102,
+        "medianMs": 11,
+        "p95Ms": 37.099999999998545,
+        "maxMs": 128.6999999999971
+      },
+      "resolutionScale": 1,
+      "drawCalls": 95,
+      "triangles": 336518,
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 16,
+        "colliders": 1240,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 0
+      },
+      "mode": "playing",
+      "guards": 0
+    },
+    {
+      "scenario": "storm adaptive",
+      "quality": "auto",
+      "timing": {
+        "averageFPS": 50.22811937549708,
+        "medianMs": 19.19999999999709,
+        "p95Ms": 28.099999999998545,
+        "maxMs": 33.5
+      },
+      "resolutionScale": 0.7000000000000001,
+      "drawCalls": 264,
+      "triangles": 785534,
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 18,
+        "colliders": 1450,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 54
+      },
+      "mode": "playing",
+      "guards": 33
+    },
+    {
+      "scenario": "boat travel",
+      "quality": "auto",
+      "timing": {
+        "averageFPS": 49.417287814520385,
+        "medianMs": 18.29999999998836,
+        "p95Ms": 31.69999999999709,
+        "maxMs": 43.90000000000873
+      },
+      "resolutionScale": 0.7000000000000001,
+      "drawCalls": 228,
+      "triangles": 588826,
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 21,
+        "colliders": 1795,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 26
+      },
+      "mode": "playing",
+      "guards": 12
+    }
+  ],
+  "errors": []
+}
