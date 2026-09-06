@@ -1,0 +1,134 @@
+{
+  "results": [
+    {
+      "name": "real boarding, takeoff, boost travel, airborne exit denial",
+      "pass": true,
+      "detail": {
+        "before": [
+          12,
+          18.31,
+          114
+        ],
+        "after": [
+          12,
+          162.32687310838182,
+          -515.6829092446256
+        ],
+        "distanceFlown": 740.207886051233
+      }
+    },
+    {
+      "name": "real descent and squad disembark on carrier",
+      "pass": true,
+      "detail": {
+        "landed": [
+          240,
+          14.31,
+          920
+        ],
+        "player": [
+          240,
+          13.835091608220882,
+          901
+        ],
+        "squad": [
+          {
+            "name": "VALE",
+            "position": [
+              241.15077209472656,
+              12.113983917236329,
+              913.2332153320312
+            ]
+          },
+          {
+            "name": "ROOK",
+            "position": [
+              245.98170471191406,
+              12.115092086791993,
+              913.01025390625
+            ]
+          }
+        ],
+        "resupplied": true
+      }
+    },
+    {
+      "name": "real descent and squad disembark on station",
+      "pass": true,
+      "detail": {
+        "landed": [
+          1150,
+          1802.3100000000002,
+          498
+        ],
+        "player": [
+          1155.699951171875,
+          1801.8350097700525,
+          498
+        ],
+        "squad": [
+          {
+            "name": "VALE",
+            "position": [
+              1153.0999755859375,
+              1800.11494140625,
+              498
+            ]
+          },
+          {
+            "name": "ROOK",
+            "position": [
+              1158.300048828125,
+              1800.11494140625,
+              498
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "real descent and squad disembark on corsair",
+      "pass": true,
+      "detail": {
+        "landed": [
+          -650,
+          11.31,
+          1158
+        ],
+        "player": [
+          -644.2999877929688,
+          10.835095398132596,
+          1158
+        ],
+        "squad": [
+          {
+            "name": "VALE",
+            "position": [
+              -646.9000244140625,
+              9.115092086791993,
+              1158
+            ]
+          },
+          {
+            "name": "ROOK",
+            "position": [
+              -641.7000122070312,
+              9.11508731842041,
+              1158
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "real cockpit fire destroys a moving pirate interceptor",
+      "pass": true,
+      "detail": {
+        "airKills": 1,
+        "salvage": 80,
+        "energy": 87
+      }
+    }
+  ],
+  "errors": []
+}

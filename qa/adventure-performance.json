@@ -1,0 +1,48 @@
+{
+  "gpu": "ANGLE (Intel, Intel(R) UHD Graphics (0x0000A788) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "viewport": "1440x900",
+  "preset": "High",
+  "results": [
+    {
+      "scenario": "ground combat",
+      "timing": {
+        "frames": 180,
+        "averageFPS": 99.63467286484253,
+        "medianMs": 8.399999999999636,
+        "p95Ms": 20.90000000000009,
+        "maxMs": 25.100000000000364
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 18,
+        "colliders": 778,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true
+      },
+      "guards": 24,
+      "flightDistance": 0
+    },
+    {
+      "scenario": "boost streaming",
+      "timing": {
+        "frames": 180,
+        "averageFPS": 108.96543374296267,
+        "medianMs": 8.300000000001091,
+        "p95Ms": 12.600000000000364,
+        "maxMs": 112.5
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 16,
+        "colliders": 716,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true
+      },
+      "guards": 0,
+      "flightDistance": 1114.2094572664173
+    }
+  ],
+  "errors": []
+}

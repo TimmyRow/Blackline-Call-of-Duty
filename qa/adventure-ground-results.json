@@ -1,0 +1,122 @@
+{
+  "results": [
+    {
+      "name": "Q focuses a hostile; both comrades engage at range and kill without player fire",
+      "pass": true,
+      "detail": {
+        "kills": 6,
+        "ammo": 30,
+        "members": [
+          {
+            "name": "VALE",
+            "shotsFired": 24,
+            "damageDealt": 342,
+            "kills": 4
+          },
+          {
+            "name": "ROOK",
+            "shotsFired": 9,
+            "damageDealt": 258,
+            "kills": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "B holds comrades while the player takes a separate approach",
+      "pass": true,
+      "detail": {
+        "order": "hold",
+        "embarked": false,
+        "supplyReady": true,
+        "supplyCooldown": 0,
+        "members": [
+          {
+            "name": "VALE",
+            "role": "ASSAULT",
+            "health": 46,
+            "position": [
+              -2.901885509490967,
+              17.886515426635743,
+              39.77214431762695
+            ],
+            "down": false,
+            "status": "HOLDING",
+            "combatTarget": null,
+            "shotsFired": 24,
+            "damageDealt": 342,
+            "kills": 4
+          },
+          {
+            "name": "ROOK",
+            "role": "MARKSMAN",
+            "health": 100,
+            "position": [
+              3.1081578731536865,
+              17.744652557373048,
+              42.2718620300293
+            ],
+            "down": false,
+            "status": "HOLDING",
+            "combatTarget": null,
+            "shotsFired": 9,
+            "damageDealt": 258,
+            "kills": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "J supplies ammunition once and enforces its cooldown",
+      "pass": true,
+      "detail": {
+        "reserve": 120,
+        "cooldown": 60
+      }
+    },
+    {
+      "name": "cleared pirate cargo grants salvage and leaves the adventure playing",
+      "pass": true,
+      "detail": {
+        "salvage": 100,
+        "raids": 1,
+        "mode": "playing"
+      }
+    },
+    {
+      "name": "atlas pans and zooms across the planet; choosing a procedural destination does not teleport",
+      "pass": true,
+      "detail": {
+        "tracked": "outpost:0:0",
+        "beforePosition": [
+          1.9999970197677612,
+          19.67500893563935,
+          -9.000001907348633
+        ],
+        "afterPosition": [
+          1.9999970197677612,
+          19.67500893563935,
+          -9.000001907348633
+        ]
+      }
+    },
+    {
+      "name": "captured pirate camp becomes a squad resupply base",
+      "pass": true,
+      "detail": {
+        "health": 100,
+        "reserve": 300,
+        "salvage": 100
+      }
+    },
+    {
+      "name": "new expedition resets kills, claimed sites and hostile health",
+      "pass": true,
+      "detail": {
+        "kills": 0,
+        "guards": 24
+      }
+    }
+  ],
+  "errors": []
+}
