@@ -1,0 +1,82 @@
+{
+  "summary": {
+    "passed": 4,
+    "failed": 0
+  },
+  "errors": [],
+  "results": [
+    {
+      "name": "walk continuously from landing through the former arena boundary",
+      "pass": true,
+      "detail": {
+        "start": [
+          0,
+          3.6752404685332687,
+          110
+        ],
+        "finish": [
+          -0.07223489135503769,
+          1.6750995997397236,
+          13.091593742370605
+        ],
+        "simulatedSeconds": 15.06666666666701,
+        "distanceWalked": 96.90850836301769,
+        "regions": [
+          "South Landing",
+          "Harbour Approach"
+        ],
+        "samples": 35
+      }
+    },
+    {
+      "name": "real held interactions complete sites in arbitrary order, apply effects, and require return extraction",
+      "pass": true,
+      "detail": {
+        "completed": [
+          "relay",
+          "depot",
+          "harbour"
+        ],
+        "partials": {
+          "relay": 1.0650000000000008,
+          "depot": 1.060000000000001,
+          "harbour": 1.1100000000000008
+        },
+        "movementAfterCompletion": 2.8632888793945312,
+        "mode": "won"
+      }
+    },
+    {
+      "name": "walk relay road slopes with continuous grounded movement",
+      "pass": true,
+      "detail": {
+        "samples": 64,
+        "finish": [
+          -110.07120513916016,
+          12.67509956359859,
+          -99.3247299194336
+        ]
+      }
+    },
+    {
+      "name": "field map tracks mission buttons and B changes two allies orders",
+      "pass": true,
+      "detail": {
+        "tracked": "depot",
+        "squadMembers": 2,
+        "followed": [
+          4.6793419513187,
+          4.700394759715813
+        ],
+        "holdDrift": [
+          0,
+          0
+        ],
+        "rejoined": [
+          10.823752379707898,
+          10.830384527556827
+        ]
+      }
+    }
+  ]
+}

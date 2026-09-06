@@ -1,4 +1,6 @@
-# Verification and visual review
+# Verification and visual review — original harbour prototype
+
+This report describes the earlier enclosed harbour build. Current connected-region verification is in `REGION-REVIEW.md`; the current visual assessment is in `FINAL-VISUAL-REVIEW.md`. The performance figures below are historical and do not describe the expanded region.
 
 ## Gameplay
 

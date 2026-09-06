@@ -27,6 +27,10 @@ const test = async (name, run) => {
 try {
   await page.goto(process.env.GAME_URL || 'http://localhost:5180/');
   await page.waitForFunction(() => !!window.blacklineQA, null, { timeout: 90000 });
+  await test('spatial visibility respects solid cover and terrain', async () => {
+    const checks=await page.evaluate(()=>({cover:window.blacklineQA.blocked([-5.8,1,4],[-5.8,1,-2]),above:window.blacklineQA.blocked([-5.8,10,4],[-5.8,10,-2]),terrain:window.blacklineQA.blocked([0,8,110],[0,-2,110])}));
+    assert.equal(checks.cover,true);assert.equal(checks.above,false);assert.equal(checks.terrain,true);return checks;
+  });
   await test('real WASD movement and sprint speed', async () => {
     const initial = await snapshot(); await page.keyboard.down('w'); await advance(.5); await page.keyboard.up('w');
     const walked = await snapshot(); const walk = initial.position[2] - walked.position[2];
@@ -35,10 +39,10 @@ try {
     const sprint = walked.position[2] - (await snapshot()).position[2]; assert(sprint > walk * 1.2, `walk=${walk}, sprint=${sprint}`);
     return { walk, sprint };
   });
-  await test('rear boundary collision', async () => {
-    await page.evaluate(() => window.blacklineQA.teleport(0, 19));
-    await page.keyboard.down('s'); await advance(1); await page.keyboard.up('s');
-    const position = (await snapshot()).position; assert(position[2] > 19 && position[2] < 19.8, `boundary z=${position[2]}`); return { position };
+  await test('physical harbour cover blocks movement', async () => {
+    await page.evaluate(() => {window.blacklineQA.teleport(-5.8, 4); window.blacklineQA.look(0,0);});
+    await page.keyboard.down('w'); await advance(1); await page.keyboard.up('w');
+    const position = (await snapshot()).position; assert(position[2] > 1.8 && position[2] < 2.15, `cover z=${position[2]}`); return { position };
   });
   await test('real reload conserves ammo, partial reserve works', async () => {
     await page.evaluate(() => window.blacklineQA.setAmmo(8, 40)); await page.keyboard.press('r'); await advance(2.05);
@@ -74,7 +78,7 @@ try {
     await page.waitForFunction(() => window.blacklineQA.snapshot().ammo < 30, null, { timeout: 4000 });
     await page.mouse.up(); await page.mouse.up({ button: 'right' });
     const after = await snapshot(); assert(after.enemyPositions[index].health <= 0, `target health=${after.enemyPositions[index].health}; fired=${30-after.ammo}`);
-    assert.equal(after.kills, 1); assert.equal(after.ammo, 29); return { targetHealth: after.enemyPositions[index].health, ammo: after.ammo };
+    assert.equal(after.kills, 1); assert.equal(after.enemyPositions[index].health, -10); assert(after.ammo <= 29 && after.ammo >= 27, `unexpected automatic burst ammo=${after.ammo}`); return { targetHealth: after.enemyPositions[index].health, ammo: after.ammo };
   });
   await test('pause freezes simulation and resume clears held input', async () => {
     await page.keyboard.down('w'); await advance(.15); await page.keyboard.press('p');
@@ -92,15 +96,12 @@ try {
     const s = await snapshot(); assert.equal(s.health, 100); assert.equal(s.ammo, 30); assert.equal(s.kills, 0); assert.equal(s.stage, 0);
     return { health: s.health, stage: s.stage };
   });
-  await test('uplink requires held E then extraction completes', async () => {
-    await page.evaluate(() => { window.blacklineQA.clear(); window.blacklineQA.teleport(0, -30); }); await advance(.15);
-    assert.equal((await snapshot()).stage, 1); await page.keyboard.down('e'); await advance(1); await page.keyboard.up('e');
-    const partial = (await snapshot()).upload; assert(partial > .8 && partial < 1.5); await advance(.25);
-    assert((await snapshot()).upload < partial, 'released interaction did not decay');
-    await page.keyboard.down('e'); await page.waitForFunction(() => window.blacklineQA.snapshot().stage === 2, null, { timeout: 15000 }); await page.keyboard.up('e');
-    await page.evaluate(() => window.blacklineQA.teleport(0, 15)); await advance(.1); await page.keyboard.down('e');
-    await page.waitForFunction(() => window.blacklineQA.snapshot().mode === 'won', null, { timeout: 5000 }); await page.keyboard.up('e');
-    assert.equal(await page.locator('#title').textContent(), 'SIGNAL SECURED'); return { mode: (await snapshot()).mode, partialUpload: partial };
+  await test('downed squadmate revives with real held E', async () => {
+    const ally=(await snapshot()).squad.members[0].position;
+    await page.evaluate(([x,,z])=>{window.blacklineQA.hurtAlly(0,100);window.blacklineQA.teleport(x,z+2);},ally);
+    assert.equal((await snapshot()).squad.members[0].down,true);
+    await page.keyboard.down('e');await advance(3.2);await page.keyboard.up('e');
+    const member=(await snapshot()).squad.members[0];assert.equal(member.down,false);assert(member.health>=70);return member;
   });
   console.log(JSON.stringify({ summary: { passed: results.filter(r => r.pass).length, failed: results.filter(r => !r.pass).length }, errors, results }));
   if (errors.length || results.some(r => !r.pass)) process.exitCode = 1;

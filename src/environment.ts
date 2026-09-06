@@ -1,10 +1,14 @@
 import * as THREE from 'three';
+import { buildRegion } from './region';
+import { heightAt } from './region-layout.mjs';
 
 export type ArenaCollider = { x: number; y: number; z: number; hx: number; hy: number; hz: number };
 
 /** The environment owns presentation only. Collision boxes are adapted to Rapier by the game. */
 export function buildEnvironment(scene: THREE.Scene): {
   colliders: ArenaCollider[]; occluders: THREE.Object3D[];
+  terrain: { vertices: Float32Array; indices: Uint32Array };
+  setSiteComplete: (id: string, complete: boolean) => void;
   update: (dt: number, time: number, player: THREE.Vector3) => void;
 } {
   const colliders: ArenaCollider[] = [];
@@ -69,7 +73,7 @@ export function buildEnvironment(scene: THREE.Scene): {
   });
   environmentMap.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = environmentMap; scene.environmentIntensity = 1.7;
-  scene.background = new THREE.Color('#142b38'); scene.fog = new THREE.FogExp2('#1a3642', .015);
+  scene.background = new THREE.Color('#728e9d'); scene.fog = new THREE.FogExp2('#728e9d', .0038);
   const mat = (color: THREE.ColorRepresentation, roughness = .62, metalness = .15, map?: THREE.Texture) => new THREE.MeshStandardMaterial({ color, roughness, metalness, map });
   const steel = mat('#3c5056', .37, .8, steelMap);
   const darkSteel = mat('#34454e', .48, .6, steelMap);
@@ -143,9 +147,9 @@ export function buildEnvironment(scene: THREE.Scene): {
       totalEmissiveRadiance += wetLamp(vec3(0.0,3.6,-35.0), vec3(.16,.85,1.0), waterMask);
     `);
   };
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(160, 180), groundMaterial);
-  ground.rotation.x = -Math.PI / 2; ground.position.set(0, -.012, -25); ground.receiveShadow = true; root.add(ground);
-  colliders.push({ x: 0, y: -.5, z: -12, hx: 50, hy: .5, hz: 70 });
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(43, 61), groundMaterial);
+  ground.rotation.x = -Math.PI / 2; ground.position.set(0, .012, -10.5); ground.receiveShadow = true; root.add(ground);
+
 
   // Traffic paint and tyre wear live in one atlas rather than hundreds of meshes.
   const laneMap = canvasTexture(1024, 2048, ctx => {
@@ -160,8 +164,8 @@ export function buildEnvironment(scene: THREE.Scene): {
     ctx.globalCompositeOperation = 'destination-out';
     for (let i = 0; i < 24000; i++) { ctx.fillStyle = `rgba(0,0,0,${.2 + random() * .8})`; ctx.fillRect(random() * 1024, random() * 2048, 1 + random() * 7, 1 + random() * 12); }
   });
-  const lane = new THREE.Mesh(new THREE.PlaneGeometry(42, 70), new THREE.MeshStandardMaterial({ map: laneMap, transparent: true, roughness: .42, metalness: .1, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }));
-  lane.rotation.x = -Math.PI / 2; lane.position.set(0, .012, -10); lane.receiveShadow = true; root.add(lane);
+  const lane = new THREE.Mesh(new THREE.PlaneGeometry(42, 60), new THREE.MeshStandardMaterial({ map: laneMap, transparent: true, roughness: .42, metalness: .1, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }));
+  lane.rotation.x = -Math.PI / 2; lane.position.set(0, .026, -10); lane.receiveShadow = true; root.add(lane);
 
   function sign(text: string, sub: string, x: number, y: number, z: number, width: number, height: number, color = '#c7e4de') {
     const tex = canvasTexture(1024, 256, ctx => {
@@ -204,54 +208,22 @@ export function buildEnvironment(scene: THREE.Scene): {
     detail(x, size + .045, z, size * 1.34, .09, size * 1.06, darkSteel);
   }
 
-  // Perimeter warehouses, service catwalks and an elevated customs gantry.
-  solid(-25, 6, -12, 6, 12, 73, wall); solid(25, 7, -14, 6, 14, 75, darkSteel);
-  solid(0, 5, -46, 54, 10, 6, wall);
-  solid(-23, 1, 21, 5, 2, 2, concrete); solid(23, 1, 21, 5, 2, 2, concrete);
-  colliders.push({ x: 0, y: 4, z: 22, hx: 25, hy: 4, hz: .5 });
-  for (const side of [-1, 1]) {
-    for (let z = -43; z < 24; z += 5) {
-      detail(side * 21.86, 5.3, z, .25, 10.6, .3, steel);
-      detail(side * 21.6, 8.4, z + 1.7, .09, 1.15, 2.65, random() > .35 ? cyanGlow : black);
-      detail(side * 21.5, 8.4, z + 1.7, .15, .07, 2.75, steel);
-      for (const dz of [.8, 1.7, 2.6]) detail(side * 21.48, 8.4, z + dz, .15, 1.2, .065, steel);
-    }
-    detail(side * 21.6, 5.8, -10, .7, .22, 70, darkSteel);
-    detail(side * 21, 5.65, -10, 1.8, .12, 70, steel);
-    detail(side * 20.16, 6.85, -10, .06, .065, 70, yellow);
-    detail(side * 20.16, 6.25, -10, .05, .055, 70, steel);
-    for (let z = -43; z < 24; z += 2.5) detail(side * 20.16, 6.25, z, .07, 1.3, .07, steel);
-    // A broken roofline and service bays interrupt the large warehouse volumes.
-    for (let i = 0; i < 4; i++) {
-      const z = 15 - i * 17 + (side < 0 ? 4 : -2), h = i % 2 ? 2.1 : 3.5;
-      detail(side * 24.3, 12.3 + h / 2 + (side > 0 ? 2 : 0), z, 4.8, h, 7.2, i % 2 ? steel : rusty);
-      detail(side * 21.45, 2, z, .1, 3.8, 4, darkSteel);
-      for (let y = .3; y < 3.8; y += .25) detail(side * 21.34, y, z, .09, .065, 3.85, pale);
-      detail(side * 20.45, 4.1, z, 2.9, .18, 4.7, rusty);
-      detail(side * 21.2, 4.35, z, .11, .12, 3.3, i % 2 ? amberGlow : cyanGlow);
-      detail(side * 21.38, 2.1, z + 3.3, .3, 1.2, .7, pale);
-      detail(side * 21.12, 2.1, z + 3.3, .04, .08, .4, redGlow);
-    }
-    const ladderZ = side < 0 ? -3.5 : -34;
-    for (const dz of [-.42, .42]) detail(side * 21.1, 5.8, ladderZ + dz, .075, 11.6, .075, yellow);
-    for (let y = .2; y < 11.8; y += .37) detail(side * 21.1, y, ladderZ, .075, .055, .88, steel);
+  // Freestanding port buildings leave broad approaches around all four sides.
+  for (const [x, z, w, d, h] of [[-34, -8, 10, 14, 6.2], [35, -20, 12, 16, 7.4], [-27, -45, 11, 8, 5]]) {
+    const base = heightAt(x, z);
+    solid(x, base + h / 2, z, w, h, d, wall);
+    detail(x, base + h + .12, z, w + .9, .24, d + .9, rusty);
+    detail(x, base + 2.3, z + d / 2 + .04, w * .65, 1.4, .08, darkSteel);
+    for (let dx = -w * .25; dx <= w * .25; dx += 1.4) detail(x + dx, base + 2.3, z + d / 2 + .09, 1.1, 1.1, .035, cyanGlow);
+    detail(x - w * .33, base + 1.25, z + d / 2 + .08, 1.4, 2.5, .08, steel);
+    for (const dx of [-w * .4, w * .4]) detail(x + dx, base + h * .5, z + d * .5, .12, h, .12, pale);
   }
-  for (let x = -21; x <= 21; x += 7) {
-    detail(x, 10.4, -45, .35, 1.5, .35, steel); detail(x, 6.3, -42.9, 4.4, 2.7, .11, darkSteel);
-    detail(x, 7.4, -42.78, 3.7, .2, .06, cyanGlow);
-  }
-  sign('NORTH FREIGHT', 'TERMINAL 07   /   AUTHORIZED PERSONNEL ONLY', -9, 10.3, -42.72, 17, 3.9);
-  sign('BLACKLINE', 'CUSTOMS INTERDICTION ZONE', 14, 8.8, -42.72, 9.5, 2.3, '#e0a75c');
-  // Exit doors and their luminous frame make the destination legible from spawn.
-  solid(0, 2.6, -39, 7, 5.2, .6, darkSteel);
-  for (let y = .25; y < 5; y += .28) detail(0, y, -38.68, 6.65, .045, .06, steel);
-  detail(-3.65, 2.7, -38.4, .13, 5.4, .13, cyanGlow); detail(3.65, 2.7, -38.4, .13, 5.4, .13, cyanGlow);
-  detail(0, 5.38, -38.4, 7.4, .15, .13, cyanGlow);
-  sign('UPLINK', '07  /  SIGNAL CONTROL', 0, 6.55, -38.5, 7.6, 1.65, '#89e9e3');
-  const insertionSign = sign('EXTRACTION', 'SOUTH GATE  /  RETURN TO INSERTION', 0, 5.7, 20.5, 8, 1.8, '#e4b65a');
-  insertionSign.rotation.y = Math.PI;
-  for (const x of [-5, 5]) detail(x, 3.55, 20.5, .16, 7.1, .16, steel);
-  detail(0, 6.8, 20.5, 10.2, .18, .2, steel);
+  sign('COLD HARBOUR', 'ORISON COLONY / MILITARY FREIGHT', -9, 6.3, -42.72, 12, 2.6);
+  for (const x of [-15, -3]) detail(x, 3.1, -42.8, .16, 6.2, .16, steel);
+  const approachSign = sign('NORTHWATCH  /  TIDEBREAK', 'COAST ROAD  /  SOUTH LANDING BEHIND YOU', 0, 6.5, 20.5, 12, 1.8, '#e4b65a');
+  approachSign.rotation.y = Math.PI;
+  for (const x of [-6.5, 6.5]) detail(x, 3.55, 20.5, .16, 7.1, .16, steel);
+  detail(0, 7.5, 20.5, 13.2, .18, .2, steel);
   const extractionLight = new THREE.PointLight('#66e5ff', 35, 16, 2); extractionLight.position.set(0, 3.6, -35); root.add(extractionLight);
   for (const x of [-10.8, 10.8]) { solid(x, 4.4, -31.5, .5, 8.8, .5, steel); detail(x, .1, -31.5, 1, .2, 1, concrete); }
   detail(0, 8.6, -31.5, 22, .5, 1.1, steel);
@@ -263,12 +235,6 @@ export function buildEnvironment(scene: THREE.Scene): {
     const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 10), material);
     mesh.position.set(x, y, z); if (axis === 'z') mesh.rotation.x = Math.PI / 2; if (axis === 'x') mesh.rotation.z = Math.PI / 2;
     root.add(mesh); return mesh;
-  }
-  for (const side of [-1, 1]) {
-    for (let i = 0; i < 3; i++) {
-      pipe(side * (21.15 - i * .38), 3.8 + i * .28, -11, .15 - i * .025, 66, i === 0 ? rusty : steel, 'z');
-      for (let z = -39; z < 22; z += 8) detail(side * (21.15 - i * .38), 3.8 + i * .28, z, .38, .4, .1, darkSteel);
-    }
   }
   for (let i = 0; i < 6; i++) {
     const x = i % 2 ? 19.5 : -19.3, z = 16 - i * 8.6;
@@ -316,7 +282,7 @@ export function buildEnvironment(scene: THREE.Scene): {
     const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(-22, 10.5, z), new THREE.Vector3(-10, 9, z + .1), new THREE.Vector3(0, 8.3, z + .3), new THREE.Vector3(10, 9, z + .1), new THREE.Vector3(22, 10.5, z)]);
     root.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 24, .025, 4, false), black));
   }
-  sign('RESTRICTED', 'LIVE OPERATIONS  /  NO UNAUTHORIZED ACCESS', 0, 8.2, -31, 6.8, 1.5, '#e4b65a');
+  sign('ORISON / 07', 'COLONIAL DEFENCE FORCE', 0, 8.2, -31, 6.8, 1.5, '#e4b65a');
 
   // Long-distance silhouettes retain scale through fog: cranes, tanks and towers.
   function crane(x: number, z: number, scale: number, facing: number) {
@@ -335,11 +301,6 @@ export function buildEnvironment(scene: THREE.Scene): {
     detail(x, h + 2.3 * scale, z, .16, .25, .16, redGlow);
   }
   crane(-35, -60, 1.2, 1); crane(29, -66, 1.45, -1); crane(50, -33, 1, -1);
-  for (let i = 0; i < 18; i++) {
-    const x = -100 + i * 12, h = 8 + random() * 22, z = -83 - random() * 25;
-    detail(x, h / 2, z, 6 + random() * 5, h, 8, darkSteel);
-    if (i % 3 === 0) { detail(x, h + 4, z, .3, 8, .3, steel); detail(x, h + 8.1, z, .18, .2, .18, redGlow); }
-  }
   const moon = new THREE.DirectionalLight('#b7cfe0', 2.8); moon.position.set(-22, 38, 12);
   moon.castShadow = true; moon.shadow.mapSize.set(2048, 2048); moon.shadow.camera.left = -32; moon.shadow.camera.right = 32;
   moon.shadow.camera.top = 35; moon.shadow.camera.bottom = -35; moon.shadow.camera.near = .5; moon.shadow.camera.far = 110;
@@ -398,10 +359,16 @@ export function buildEnvironment(scene: THREE.Scene): {
     mesh.position.set((i % 2 ? 1 : -1) * (10 + random() * 9), 1.8, 11 - i * 6); mesh.userData.baseX = mesh.position.x; root.add(mesh); mists.push(mesh);
   }
   const beacon = new THREE.PointLight('#ff4b22', 6, 7); beacon.position.set(-3.9, 4.8, -37.8); root.add(beacon);
+  const region = buildRegion(scene, colliders, occluders);
   return {
-    colliders, occluders,
+    colliders, occluders, terrain: region.terrain, setSiteComplete: region.setSiteComplete,
     update(dt, time, player) {
       wetTime.value = time;
+      region.update(dt, time, player);
+      rain.position.set(player.x, player.y, player.z);
+      const shadowX=Math.floor(player.x/32)*32,shadowY=Math.floor(player.y/8)*8,shadowZ=Math.floor(player.z/32)*32;
+      moon.position.set(shadowX - 22, shadowY + 38, shadowZ + 12);
+      moon.target.position.set(shadowX, shadowY, shadowZ - 14);
       const step = Math.min(dt, .05);
       for (let i = 0; i < rainCount; i++) {
         const n = i * 6, fall = rainVelocity[i] * step;
