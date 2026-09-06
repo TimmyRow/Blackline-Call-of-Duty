@@ -7,18 +7,21 @@
       "scenario": "ground combat",
       "timing": {
         "frames": 180,
-        "averageFPS": 99.63467286484253,
-        "medianMs": 8.399999999999636,
-        "p95Ms": 20.90000000000009,
-        "maxMs": 25.100000000000364
+        "averageFPS": 49.28806133561057,
+        "medianMs": 20.600000000000364,
+        "p95Ms": 33.29999999999927,
+        "maxMs": 45.80000000000109
       },
       "world": {
         "terrainChunks": 49,
         "loadedSites": 18,
-        "colliders": 778,
+        "colliders": 995,
         "chunkSize": 256,
         "streamRadius": 768,
-        "procedural": true
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 54
       },
       "guards": 24,
       "flightDistance": 0
@@ -27,21 +30,24 @@
       "scenario": "boost streaming",
       "timing": {
         "frames": 180,
-        "averageFPS": 108.96543374296267,
-        "medianMs": 8.300000000001091,
-        "p95Ms": 12.600000000000364,
-        "maxMs": 112.5
+        "averageFPS": 74.43245254931152,
+        "medianMs": 12.5,
+        "p95Ms": 16.700000000000728,
+        "maxMs": 104
       },
       "world": {
         "terrainChunks": 49,
-        "loadedSites": 16,
-        "colliders": 716,
+        "loadedSites": 17,
+        "colliders": 968,
         "chunkSize": 256,
         "streamRadius": 768,
-        "procedural": true
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 0
       },
       "guards": 0,
-      "flightDistance": 1114.2094572664173
+      "flightDistance": 1423.170711611949
     }
   ],
   "errors": []

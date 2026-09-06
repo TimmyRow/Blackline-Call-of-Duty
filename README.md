@@ -36,6 +36,8 @@ Kestrel starts to your right. Walk beside it and press F, then Space to lift off
 ## Adventure
 
 - Deterministic terrain and discoveries extend beyond the starter peninsula. Only 49 terrain chunks remain active around the player; distant physics and geometry are released. There are 64 discoverable sites within 4.5 km of the start, with more generated farther away.
+- The original rainy industrial direction is restored around compact warehouse districts: weathered corrugated containers, subdivided lit windows, catwalks, roof machinery, loading clutter, cranes and cyan/amber streetlights. Pathfinder Landing now starts inside a developed logistics district.
+- Five winding roads (about 2.7 km) connect the authored starter districts with directional signs, lane markings, drains and utility furniture. Road geometry follows the actual terrain triangles; the wider procedural planet remains open.
 - Settlements have buildings, physical cover, guards and supplies. Local hostile encounters stream into a pool of up to 48 infantry; each camp has 6 guards and the pirate vessel 8.
 - Clear pirates and hold E near the central supply locker to claim cargo. Ruins provide salvage. Captured pirate locations become resupply bases. Discoveries and captures remain recorded during the current expedition; there is no mandatory three-point route or extraction finale.
 - CNS Wayfarer is a friendly ocean carrier where the squad can regroup and resupply. The Corsair vessel is a hostile boarding target. The orbital station offers a walkable deck reached by actual flight.
@@ -53,7 +55,7 @@ node qa/adventure-ground-test.mjs
 node qa/adventure-performance.mjs
 ```
 
-Browser scripts require the dev server and Chromium; set CHROME_PATH as needed. Read current evidence in `qa/ADVENTURE-REVIEW.md`. Earlier harbour/region QA reports and scripts document superseded builds and are historical.
+Browser scripts require the dev server and Chromium; set CHROME_PATH as needed. Read current art-restoration evidence in `qa/INDUSTRIAL-RESTORATION-REVIEW.md`; gameplay foundations are documented in `qa/ADVENTURE-REVIEW.md`. Earlier harbour/region QA reports and scripts document superseded builds and are historical.
 
 ## Technical and scope notes
 

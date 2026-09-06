@@ -10,14 +10,14 @@
           {
             "name": "VALE",
             "shotsFired": 24,
-            "damageDealt": 342,
-            "kills": 4
+            "damageDealt": 344,
+            "kills": 3
           },
           {
             "name": "ROOK",
             "shotsFired": 9,
-            "damageDealt": 258,
-            "kills": 2
+            "damageDealt": 256,
+            "kills": 3
           }
         ]
       }
@@ -34,34 +34,34 @@
           {
             "name": "VALE",
             "role": "ASSAULT",
-            "health": 46,
+            "health": 60,
             "position": [
-              -2.901885509490967,
-              17.886515426635743,
-              39.77214431762695
+              -2.5158731937408447,
+              17.806412506103516,
+              41.32244110107422
             ],
             "down": false,
             "status": "HOLDING",
             "combatTarget": null,
             "shotsFired": 24,
-            "damageDealt": 342,
-            "kills": 4
+            "damageDealt": 344,
+            "kills": 3
           },
           {
             "name": "ROOK",
             "role": "MARKSMAN",
-            "health": 100,
+            "health": 80,
             "position": [
-              3.1081578731536865,
-              17.744652557373048,
-              42.2718620300293
+              3.100224494934082,
+              17.7442138671875,
+              42.27915954589844
             ],
             "down": false,
             "status": "HOLDING",
             "combatTarget": null,
             "shotsFired": 9,
-            "damageDealt": 258,
-            "kills": 2
+            "damageDealt": 256,
+            "kills": 3
           }
         ]
       }
@@ -89,12 +89,12 @@
       "detail": {
         "tracked": "outpost:0:0",
         "beforePosition": [
-          1.9999970197677612,
-          19.67500893563935,
+          1.999996542930603,
+          19.675029974272757,
           -9.000001907348633
         ],
         "afterPosition": [
-          1.9999970197677612,
+          1.999996542930603,
           19.67500893563935,
           -9.000001907348633
         ]
