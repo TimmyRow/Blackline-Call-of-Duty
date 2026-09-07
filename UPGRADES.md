@@ -100,3 +100,10 @@ Verification: 94 automated rule/input tests passed, plus Edge controller, openin
 Menu (three lines) now toggles the map; View (left of Menu) pauses. X interacts; B cancels/back and stops movement, including braking Kestrel and the launch. A starts/confirms/jumps; left stick moves, right stick looks, RT shoots. RB reloads; D-pad down crouches/descends; D-pad left opens the journal/squad. Previous mapping descriptions above record earlier versions and are superseded by this layout.
 
 Unit coverage verifies these exact bindings, held-action cancellation, neutral-stick recovery and menu separation. The controller-only Edge journey includes X quest/ship interactions and B braking both vehicles.
+
+
+## Controller input conflict repair
+
+- Controller mode persists and blocks emulated keyboard/mouse input from taking over gameplay. Real gamepad actions remain mapped to the requested layout.
+- Added a live Controller Setup test for actual button/stick input, missing browser input and unrecognized mappings. No settings outside BLACKLINE are changed.
+- Regression coverage combines raw gamepad actions with desktop mouse events, matching the reported A-shoots / left-stick-camera symptom. Physical validation by the player is still required.

@@ -130,3 +130,12 @@ The controller pass adds latched sprint/crouch, active-pad selection when a dorm
 Reference: [Minecraft controls](https://www.minecraft.net/en-us/article/minecraft-controls), particularly left-stick movement/click-to-sprint, right-stick look and A/B movement buttons. BLACKLINE retains its FPS trigger, reload and weapon bindings.
 
 `node qa/controller-complete-test.mjs` exercises fresh start, settings, walk/strafe, jump, sprint/crouch, combat, NPC quests, refits, squad orders, map, launch, hangar purchase and flight using simulated Xbox input. Scenario positions and later quest progression are injected; gameplay actions use the controller adapter. `qa/controller-ui-test.mjs` checks map/tab focus and screenshots; phone/tablet controller settings are checked separately. Physical Xbox hardware remains untested.
+
+
+### Controller / desktop mouse overlap
+
+Xbox input now takes exclusive ownership once a controller is detected. Emulated mouse clicks/motion and keyboard events no longer switch back to mouse control or activate a second game action. This preference is saved separately from expedition progress. Use Input Setup > Keyboard and mouse to switch back deliberately.
+
+CONTROLLER SETUP on the menu opens a paused live input test. It shows the actual browser-reported controller name, mapping, last button and both stick pairs, plus a clear message when no Gamepad API input arrives. This is a diagnostic, not a calibration/remapping wizard. It does not change Steam or Windows settings.
+
+`node qa/controller-desktop-overlap-test.mjs` checks simultaneous controller/mouse events for the reported A-shooting and left-stick-camera symptoms, normal RT/right-stick controls, live input reporting and switching back to mouse. The real user controller was not operated during automated testing. Windows reports an Xbox Wireless Controller and Steam running; Steam involvement is a hypothesis, not a confirmed cause.

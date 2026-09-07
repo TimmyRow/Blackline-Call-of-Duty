@@ -1,0 +1,11 @@
+{
+  "checks": [
+    "A plus an emulated left mouse click jumps without firing or switching input mode",
+    "Left stick plus emulated mouse movement walks without turning the camera",
+    "Right stick still turns camera and RT still fires",
+    "Live diagnostic displays actual button and stick channels without menu actions",
+    "Hold B exits the diagnostic using only the controller",
+    "Explicit keyboard/mouse selection restores normal mouse input"
+  ],
+  "errors": []
+}

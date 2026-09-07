@@ -4,3 +4,5 @@
 .controller-guide label{position:relative;padding-right:42px}.controller-guide output{position:absolute;right:0;bottom:0;font:12px monospace;color:#f3d39a}.controller-guide .controller-setting-tip{font-size:12px;line-height:1.5;color:#a4bac0}.controller-guide #pad-settings-status{font-size:12px}
 #settings{top:max(76px,9vh);max-height:calc(100dvh - 130px);overflow-y:auto;width:min(580px,90vw);overscroll-behavior:contain}.controller-guide label{margin:16px 0!important}.controller-active #settings>label:first-of-type{display:none}body.touch-device #settings{max-height:none}
 #settings{scroll-padding:18px}.controller-guide label:has(input[type=checkbox]){flex-direction:row!important;align-items:center;gap:12px!important}
+
+#pad-input-setup{border-bottom:1px solid #74929955;padding-bottom:16px;margin-bottom:20px}#pad-input-setup p{font-size:13px;line-height:1.6;color:#c3d6d7}#pad-input-test{font-family:monospace;overflow-wrap:anywhere;color:#f3d39a!important}#pad-live-test{padding:12px;background:#163440;border:1px solid #66838a}
