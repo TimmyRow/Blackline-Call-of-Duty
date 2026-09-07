@@ -1,26 +1,27 @@
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
 import {createEnemy} from './actors';
-import {canSupport,supportShot,mayBuddyRevive} from './squad-tactics.mjs';
+import {canSupport,supportShot,medicAid} from './squad-tactics.mjs';
 import {REGION_START,heightAt} from './region-layout.mjs';
 
-export type SquadTarget={position:THREE.Vector3,health:number};
+export type SquadTarget={position:THREE.Vector3,health:number,id?:string,active?:boolean};
 export type SquadShot={name:string,role:string,damage:number,hit?:boolean};
 type Member={name:string,role:string,position:THREE.Vector3,health:number,visual:ReturnType<typeof createEnemy>,body:RAPIER.RigidBody,collider:RAPIER.Collider,controller:RAPIER.KinematicCharacterController,cooldown:number,moving:boolean,firing:number,revive:number,target:SquadTarget|null,scan:number,burst:number,shotsFired:number,damageDealt:number,kills:number,status:string,avoidSide:number,avoidUntil:number,stuck:number,lastPosition:THREE.Vector3,steerUntil:number,steeringAngle:number,canAdvance:boolean,cover:THREE.Vector3|null,coverUntil:number,buddyAid:number};
 
 export function createSquad(scene:THREE.Scene,world:RAPIER.World){
- let order:'follow'|'hold'|'attack'='follow',embarked=false,focus:SquadTarget|null=null,supplyCooldown=0,radioCooldown=0;
+ let order:'follow'|'hold'|'attack'='follow',embarked=false,focus:SquadTarget|null=null,supplyCooldown=0,medicCooldown=0,radioCooldown=0;
+ let focusId:string|undefined;
  const holdPositions:THREE.Vector3[]=[],members:Member[]=[];
  const up=new THREE.Vector3(0,1.45,0),targetHeight=new THREE.Vector3(0,1.25,0),probeShape=new RAPIER.Capsule(.59,.27);
  const fixedFlags=RAPIER.QueryFilterFlags.EXCLUDE_SENSORS;
  const squadSurface=(collider:RAPIER.Collider)=>{const parent=collider.parent();return !parent||parent.isFixed()||!!(parent.userData as {squadPlatform?:boolean}|undefined)?.squadPlatform;};
  for(let i=0;i<2;i++){
-  const x=REGION_START.x+(i?2.7:-2.7),z=REGION_START.z-3,visual=createEnemy(scene);
+  const x=REGION_START.x+(i?2.7:-2.7),z=REGION_START.z-3,visual=createEnemy(scene);visual.setRole('shielded');
   visual.group.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=false;const original=o.material as THREE.MeshStandardMaterial,material=original.clone();if(material.emissive&&material.emissive.getHex()!==0&&material.emissiveIntensity>0){material.emissive.set(0x29cbef);material.color.set(0x55cbe7);}o.material=material;}});
   const stripe=new THREE.Mesh(new THREE.BoxGeometry(.4,.08,.015),new THREE.MeshBasicMaterial({color:i?0x91bcbc:0x6199ad}));stripe.position.set(0,1.28,-.235);visual.group.add(stripe);
   const position=new THREE.Vector3(x,heightAt(x,z),z),body=world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(x,position.y+.95,z));
   const collider=world.createCollider(RAPIER.ColliderDesc.capsule(.6,.28),body),controller=world.createCharacterController(.025);controller.enableAutostep(.48,.2,true);controller.enableSnapToGround(.7);
-  members.push({name:i?'ROOK':'VALE',role:i?'MARKSMAN':'ASSAULT',position,health:100,visual,body,collider,controller,cooldown:.3+i*.5,moving:false,firing:0,revive:0,target:null,scan:0,burst:0,shotsFired:0,damageDealt:0,kills:0,status:'FOLLOWING',avoidSide:i?1:-1,avoidUntil:0,stuck:0,lastPosition:position.clone(),steerUntil:0,steeringAngle:0,canAdvance:true,cover:null,coverUntil:0,buddyAid:0});holdPositions.push(position.clone());visual.group.position.copy(position);
+  members.push({name:i?'ROOK':'VALE',role:i?'SUPPLY':'MEDIC',position,health:100,visual,body,collider,controller,cooldown:.3+i*.5,moving:false,firing:0,revive:0,target:null,scan:0,burst:0,shotsFired:0,damageDealt:0,kills:0,status:'FOLLOWING',avoidSide:i?1:-1,avoidUntil:0,stuck:0,lastPosition:position.clone(),steerUntil:0,steeringAngle:0,canAdvance:true,cover:null,coverUntil:0,buddyAid:0});holdPositions.push(position.clone());visual.group.position.copy(position);
  }
  function place(m:Member,p:THREE.Vector3){m.position.copy(p);m.lastPosition.copy(p);const bodyPosition={x:p.x,y:p.y+.95,z:p.z};m.body.setTranslation(bodyPosition,true);m.body.setNextKinematicTranslation(bodyPosition);m.visual.group.position.copy(p);m.stuck=0;m.avoidUntil=0;m.steerUntil=0;}
  function safeGround(x:number,z:number,expectedFeet:number){
@@ -34,9 +35,10 @@ export function createSquad(scene:THREE.Scene,world:RAPIER.World){
   members,
   get order(){return order;},
   get embarked(){return embarked;},
-  toggle(){order=order==='hold'?'follow':'hold';focus=null;members.forEach((m,i)=>holdPositions[i].copy(m.position));return order;},
-  attack(target:SquadTarget){if(target.health<=0||embarked)return false;focus=target;order='attack';for(const m of members){m.scan=0;m.cooldown=Math.min(m.cooldown,.2);}return true;},
+  toggle(){order=order==='hold'?'follow':'hold';focus=null;members.forEach((m,i)=>{holdPositions[i].copy(m.position);m.target=null;});return order;},
+  attack(target:SquadTarget){if(target.health<=0||target.active===false||embarked)return false;focus=target;focusId=target.id;order='attack';for(const m of members){m.scan=0;m.cooldown=Math.min(m.cooldown,.2);}return true;},
   supply(player?:THREE.Vector3){if(embarked||supplyCooldown>0||!members.some(m=>m.health>0&&(!player||m.position.distanceTo(player)<12)))return false;supplyCooldown=60;return true;},
+  medic(player:THREE.Vector3,health:number,level=0){const medic=members[0],heal=medicAid({health,distance:medic.position.distanceTo(player),cooldown:medicCooldown,available:!embarked&&medic.health>0,level});if(heal>0){medicCooldown=60;medic.status='MEDICAL ASSIST';}return heal;},
   registerKill(name:string){const m=members.find(m=>m.name===name);if(m)m.kills++;},
   embark(){embarked=true;focus=null;order='follow';for(const m of members){m.collider.setEnabled(false);m.visual.group.visible=false;m.target=null;m.moving=false;m.firing=0;m.status='ABOARD';}},
   disembark(player:THREE.Vector3,yaw:number){
@@ -60,22 +62,21 @@ export function createSquad(scene:THREE.Scene,world:RAPIER.World){
    embarked=false;order='follow';focus=null;
    members.forEach((m,i)=>{place(m,places[i]);holdPositions[i].copy(places[i]);m.collider.setEnabled(m.health>0);m.visual.group.visible=true;m.scan=0;m.status=m.health>0?'FOLLOWING':'DOWN';});return true;
   },
-  reset(){order='follow';embarked=false;focus=null;supplyCooldown=0;radioCooldown=0;members.forEach((m,i)=>{const x=REGION_START.x+(i?2.7:-2.7),z=REGION_START.z-3;place(m,new THREE.Vector3(x,heightAt(x,z),z));holdPositions[i].copy(m.position);m.health=100;m.revive=0;m.buddyAid=0;m.cover=null;m.coverUntil=0;m.cooldown=.4+i*.25;m.collider.setEnabled(true);m.visual.group.visible=true;m.target=null;m.scan=0;m.burst=0;m.shotsFired=0;m.damageDealt=0;m.kills=0;m.status='FOLLOWING';});},
-  snapshot(){return {order,embarked,supplyReady:supplyCooldown<=0,supplyCooldown:Math.ceil(supplyCooldown),members:members.map(m=>({name:m.name,role:m.role,health:Math.round(m.health),position:m.position.toArray(),down:m.health<=0,status:m.status,combatTarget:m.target?.health&&m.target.health>0?m.target.position.toArray():null,shotsFired:m.shotsFired,damageDealt:m.damageDealt,kills:m.kills}))};},
+  reset(){order='follow';embarked=false;focus=null;supplyCooldown=0;medicCooldown=0;radioCooldown=0;members.forEach((m,i)=>{const x=REGION_START.x+(i?2.7:-2.7),z=REGION_START.z-3;place(m,new THREE.Vector3(x,heightAt(x,z),z));holdPositions[i].copy(m.position);m.health=100;m.revive=0;m.buddyAid=0;m.cover=null;m.coverUntil=0;m.cooldown=.4+i*.25;m.collider.setEnabled(true);m.visual.group.visible=true;m.target=null;m.scan=0;m.burst=0;m.shotsFired=0;m.damageDealt=0;m.kills=0;m.status='FOLLOWING';});},
+  snapshot(){return {order,embarked,medicReady:medicCooldown<=0,medicCooldown:Math.ceil(medicCooldown),supplyReady:supplyCooldown<=0,supplyCooldown:Math.ceil(supplyCooldown),members:members.map(m=>({name:m.name,role:m.role,health:Math.round(m.health),position:m.position.toArray(),down:m.health<=0,status:m.status,combatTarget:m.target?.health&&m.target.health>0?m.target.position.toArray():null,shotsFired:m.shotsFired,damageDealt:m.damageDealt,kills:m.kills}))};},
   hurt(index:number,amount:number){const m=members[index];if(!m||m.health<=0||embarked)return;m.health=Math.max(0,m.health-amount);m.visual.hit();if(m.health<=0){m.collider.setEnabled(false);m.status='DOWN';m.target=null;}},
   reviveNear(player:THREE.Vector3,held:boolean,dt:number){if(embarked)return null;const m=members.find(m=>m.health<=0&&m.position.distanceTo(player)<3.3);for(const other of members)if(other!==m)other.revive=0;if(!m)return null;m.revive=held?m.revive+dt:Math.max(0,m.revive-dt);if(m.revive>=3){m.health=70;m.revive=0;m.collider.setEnabled(true);m.status='FOLLOWING';}return {name:m.name,progress:m.revive/3};},
   step(dt:number,time:number,player:THREE.Vector3,yaw:number,targets:SquadTarget[],blocked:(a:THREE.Vector3,b:THREE.Vector3)=>boolean,onFire:(target:SquadTarget,from:THREE.Vector3,to:THREE.Vector3,info?:SquadShot)=>void,onEvent?:(message:string)=>void){
-   supplyCooldown=Math.max(0,supplyCooldown-dt);radioCooldown=Math.max(0,radioCooldown-dt);if(embarked)return;
-   if(focus&&focus.health<=0){focus=null;order='follow';onEvent?.('VALE: Marked target down. Moving with you.');}
+   supplyCooldown=Math.max(0,supplyCooldown-dt);medicCooldown=Math.max(0,medicCooldown-dt);radioCooldown=Math.max(0,radioCooldown-dt);if(embarked)return;
+   if(focus&&(focus.health<=0||focus.active===false||focus.id!==focusId)){const dead=focus.health<=0;focus=null;order='follow';for(const member of members)member.target=null;onEvent?.(dead?'VALE: Marked target down. Moving with you.':'VALE: Lost the marked contact. Moving with you.');}
    for(let i=0;i<members.length;i++){
     const m=members[i],current=m.body.translation();m.position.set(current.x,current.y-.95,current.z);
     if(m.health<=0){m.moving=false;continue;}m.cooldown-=dt;m.firing=Math.max(0,m.firing-dt);m.scan-=dt;
     const eye=m.position.clone().add(up);
     if(m.scan<=0||(m.target&&m.target.health<=0)){
-     const previous=m.target;m.scan=.18+i*.04;m.target=null;let closest=34*34;
+     const previous=m.target;m.scan=.18+i*.04;m.target=null;
      if(focus&&focus.health>0&&canSupport({memberDistance:focus.position.distanceTo(m.position),playerDistance:focus.position.distanceTo(player),focused:true})&&!blocked(eye,focus.position.clone().add(targetHeight)))m.target=focus;
-     if(!m.target)for(const candidate of targets){if(candidate.health<=0||!canSupport({memberDistance:candidate.position.distanceTo(m.position),playerDistance:candidate.position.distanceTo(player),holding:order==='hold'}))continue;const d=candidate.position.distanceToSquared(m.position);if(d>=closest||blocked(eye,candidate.position.clone().add(targetHeight)))continue;closest=d;m.target=candidate;}
-     if(m.target&&!previous&&radioCooldown<=0){onEvent?.(`${m.name}: Contact nearby. Covering you.`);radioCooldown=9;}
+     if(m.target&&!previous&&radioCooldown<=0){onEvent?.(`${m.name}: Engaging your marked target.`);radioCooldown=9;}
     }
     const target=m.target,offset=(i?1:-1)*3.2;
     let destination=order==='hold'?holdPositions[i].clone():player.clone().add(new THREE.Vector3(offset*Math.cos(yaw)+3*Math.sin(yaw),0,-offset*Math.sin(yaw)+3*Math.cos(yaw)));
@@ -92,7 +93,7 @@ export function createSquad(scene:THREE.Scene,world:RAPIER.World){
     }else m.cover=null;
     const buddy=members.find(other=>other!==m&&other.health<=0);
     const threatDistance=targets.reduce((nearest,t)=>t.health>0?Math.min(nearest,t.position.distanceTo(m.position)):nearest,Infinity);
-    const reviving=!!buddy&&mayBuddyRevive(m.position.distanceTo(buddy.position),threatDistance,order==='hold');
+    const reviving=false;
     if(reviving&&buddy){destination.copy(buddy.position);if(m.position.distanceTo(buddy.position)<2.2){buddy.buddyAid+=dt;if(buddy.buddyAid>=5){buddy.health=55;buddy.buddyAid=0;buddy.collider.setEnabled(true);onEvent?.(`${m.name}: You're back. Stay near cover.`);}}}
     if(buddy&&!reviving)buddy.buddyAid=0;
     const dist=Math.hypot(destination.x-m.position.x,destination.z-m.position.z),playerDistance=Math.hypot(player.x-m.position.x,player.z-m.position.z);

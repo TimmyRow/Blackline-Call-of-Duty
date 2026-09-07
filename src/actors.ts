@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 type WeaponState = { time: number; moving: number; sprinting: boolean; aiming: boolean; reload: number; recoil: number };
-type EnemyState = { time: number; moving: boolean; firing: boolean; dead: boolean; crouching?:boolean; alert?:boolean };
+type EnemyState = { time: number; moving: boolean; firing: boolean; dead: boolean; crouching?:boolean; alert?:boolean; charging?:boolean; shield?:number };
 
 // These objects only present simulation state. Hit decisions and movement belong to the game.
 const black = new THREE.MeshStandardMaterial({ color: 0x131a1c, roughness: .52, metalness: .65 });
@@ -271,7 +271,7 @@ function buildRifle(parent: THREE.Object3D, detailed: boolean) {
   return { rifle, mag, muzzle };
 }
 
-export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle: THREE.Object3D; update: (dt: number, opts: WeaponState) => void; flash: () => void } {
+export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle: THREE.Object3D; update: (dt: number, opts: WeaponState) => void; flash: () => void; setWeapon:(kind:string)=>void } {
   const group = new THREE.Group(); group.name = 'MK18 / first person'; camera.add(group);
   const { rifle, mag, muzzle } = buildRifle(group, true);
   group.position.set(.245, -.254, -.11);
@@ -303,6 +303,13 @@ export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle
   mergeRigid(rifle, true);
   rifle.add(mag); mergeRigid(mag, true);
   weaponSurfaceMaterials(rifle);
+  // The compact induction housing changes the profile without duplicating a view model.
+  const induction=new THREE.Group();rifle.add(induction);induction.visible=false;
+  const ion=new THREE.MeshStandardMaterial({color:0x64eaff,emissive:0x26cde9,emissiveIntensity:1.5,roughness:.3,metalness:.6});
+  for(const side of [-1,1]){box(induction,side*.065,.013,-.53,.034,.13,.33,graphite,.008);for(let i=0;i<4;i++)box(induction,side*.084,.013,-.43-i*.062,.008,.088,.018,ion);}
+  cylinder(induction,0,.009,-.79,.042,.08,ion,'z',10);
+  mergeRigid(induction,true);
+  let weaponKind='ballistic';
   const flashMaterial = new THREE.MeshBasicMaterial({ color: 0xffdb96, transparent: true, opacity: .9, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, toneMapped: false });
   const flashGroup = new THREE.Group(); muzzle.add(flashGroup); flashGroup.visible = false;
   const core = mesh(flashGroup, new THREE.ConeGeometry(.045, .22, 7, 1, true), flashMaterial, 0, 0, -.1); core.rotation.x = -Math.PI / 2;
@@ -318,8 +325,9 @@ export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle
   let phase = 0;
   return {
     group, muzzle,
+    setWeapon:(kind)=>{weaponKind=kind==='energy'?'energy':'ballistic';induction.visible=weaponKind==='energy';mag.visible=weaponKind==='ballistic';group.name=weaponKind==='energy'?'ARC-9 / energy':'BR-7 / ballistic';flashMaterial.color.set(weaponKind==='energy'?0x67eaff:0xffdb96);},
     flash: () => { flashTime = .058;kick=1;
-      const casing=casings[casingIndex++%casings.length];casing.life=.65;casing.mesh.visible=true;
+      const casing=casings[casingIndex++%casings.length];casing.life=weaponKind==='energy'?0:.65;casing.mesh.visible=casing.life>0;
       casing.mesh.position.set(group.position.x+.07,group.position.y+.03,group.position.z-.25);
       casing.velocity.set(.65,.5,-.18);casing.mesh.rotation.set(.5,0,.4);
       flashGroup.rotation.z = Math.random() * Math.PI * 2; },
@@ -349,7 +357,7 @@ export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle
   };
 }
 
-export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes: THREE.Object3D[]; update: (dt: number, opts: EnemyState) => void; hit:()=>void } {
+export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes: THREE.Object3D[]; update: (dt: number, opts: EnemyState) => void; hit:()=>void; setRole:(role:string)=>void } {
   if(!enemySolid.bumpMap){
     const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const c=canvas.getContext('2d')!;
     c.fillStyle='#858585';c.fillRect(0,0,128,128);
@@ -439,13 +447,27 @@ export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes
   hitMeshes.length = 0;
   rig.traverse(o => { if (o instanceof THREE.Mesh) hitMeshes.push(o); });
   head.traverse(o => { if (o instanceof THREE.Mesh) o.userData.head = true; });
+  const standardHits=[...hitMeshes],roleParts=new Map<string,THREE.Group>();
+  const cyan=new THREE.MeshStandardMaterial({color:0x79d7ff,emissive:0x217abc,emissiveIntensity:.65,metalness:.5,roughness:.3});
+  const violet=new THREE.MeshBasicMaterial({color:0xee88ff,toneMapped:false});
+  const part=(name:string)=>{const value=new THREE.Group();rig.add(value);value.visible=false;roleParts.set(name,value);return value;};
+  const shield=part('shielded');
+  for(const side of [-1,1]){box(shield,side*.34,1.15,-.30,.20,.83,.10,cyan,.035);box(shield,side*.34,1.15,-.36,.03,.64,.02,edge);}
+  const heavy=part('heavy');for(const side of [-1,1])box(heavy,side*.31,1.43,0,.33,.27,.41,graphite,.04);box(heavy,0,1.24,.25,.55,.68,.22,graphite,.03);mergeEnemyRigid(heavy,true);
+  const sniper=part('sniper');cylinder(sniper,.1,1.20,-1.1,.026,.65,graphite);box(sniper,0,1.78,.02,.10,.24,.13,graphite);const sniperCue=box(sniper,0,1.70,-.15,.20,.05,.03,violet);
+  const scout=part('scout');for(const side of [-1,1])box(scout,side*.12,1.69,.04,.027,.31,.07,amber);
+  const drone=part('drone');box(drone,0,1.30,0,.58,.30,.40,graphite,.04);box(drone,0,1.30,-.23,.26,.09,.035,cyan);for(const side of [-1,1]){box(drone,side*.43,1.25,0,.43,.075,.25,edge);cylinder(drone,side*.58,1.23,0,.18,.09,graphite,'y',8);}
+  mergeEnemyRigid(drone,true);
+  let role='scout';
+  const setRole=(next:string)=>{role=roleParts.has(next)?next:'scout';for(const [key,value] of roleParts)value.visible=key===role;const humanoid=role!=='drone';torso.visible=humanoid;pelvis.visible=humanoid;legs.forEach(l=>l.visible=humanoid);rig.scale.set(role==='heavy'?1.12:role==='scout'?.90:1,role==='scout'?.94:1,1);hitMeshes.length=0;if(humanoid)hitMeshes.push(...standardHits);roleParts.get(role)!.traverse(o=>{if(o instanceof THREE.Mesh)hitMeshes.push(o);});group.name=`BLACKLINE / ${role}`;};
+  setRole('scout');
   const flashMaterial = new THREE.MeshBasicMaterial({ color: 0xffc170, transparent: true, opacity: .92, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
   const muzzleFlash = mesh(muzzle, new THREE.OctahedronGeometry(.078), flashMaterial, 0, 0, -.075); muzzleFlash.scale.z = 2.5; muzzleFlash.visible = false;
   let death = 0;
   let walk = 0;
   let impact=0,crouch=0;
   return {
-    group, hitMeshes, hit:()=>{impact=1;},
+    group, hitMeshes, setRole, hit:()=>{impact=1;},
     update: (dt, opts) => {
       impact=Math.max(0,impact-dt*6);crouch=THREE.MathUtils.damp(crouch,opts.crouching&&!opts.dead?1:0,8,dt);
       death = THREE.MathUtils.damp(death, opts.dead ? 1 : 0, opts.dead ? 5 : 20, dt);
@@ -462,6 +484,9 @@ export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes
       rig.rotation.x = death * -1.45;
       rig.rotation.z = death * .19;
       rig.position.y = death * .14-crouch*.24;
+      if(role==='drone')rig.position.y+=Math.sin(opts.time*2.2)*.12;
+      sniperCue.scale.setScalar(opts.charging?1.8:1);sniperCue.visible=!!opts.charging;
+      cyan.emissiveIntensity=opts.shield===0?.08:.65+impact;
       torso.rotation.z = death * -.12;
       weapon.rotation.x = -.025 + (opts.firing ? Math.sin(opts.time * 65) * .021 : 0) + death * .35+(opts.alert?0:.10)+impact*.1;
       muzzleFlash.visible = opts.firing && !opts.dead && Math.sin(opts.time * 47) > .45;

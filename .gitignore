@@ -4,3 +4,6 @@ qa/*.webm
 qa/reference.webp
 qa/comparison.png
 qa/reference-*.png
+
+# Reproducible visual QA captures from the browser scripts
+artifacts/

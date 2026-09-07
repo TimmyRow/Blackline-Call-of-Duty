@@ -1,8 +1,16 @@
-# BLACKLINE — Orison: The Open Frontier
+# BLACKLINE — Orison & Vesper
 
-A Three.js first-person expedition across a procedurally streamed planet landscape. Travel on foot, pilot the Kestrel dropship or captain the Wayfarer launch. Raid pirate settlements, investigate frontier signals, recover relics and land at an elevated station. Vale and Rook provide restrained support while you lead the fighting.
+A Three.js first-person expedition across two procedurally streamed planet regions. Travel on foot, pilot the Kestrel dropship or captain the Wayfarer launch. Raid pirate settlements, investigate frontier signals, recover relics and land at an elevated station. Vale and Rook provide restrained support while you lead the fighting.
 
-This is a playable procedural prototype, below AAA production quality. Its new geography continues beyond the starting area, but it is not a spherical planet, a complete universe simulator, or a No Man's Sky equivalent. Space travel uses continuous altitude in the same world; the station is at 1,800 metres.
+This is a playable procedural prototype, below AAA production quality. Its new geography continues beyond the starting area, but it is not a spherical planet, a complete universe simulator, or a No Man's Sky equivalent. Local flight uses continuous altitude; Meridian station is at 1,800 metres. Journal transit connects the Orison and Vesper coordinate sectors.
+
+## Frontier expansion
+
+The [18-item upgrade record](UPGRADES.md) describes the playable additions and remaining limits. **V** scans nearby signals, **X** swaps ballistic/energy weapons, **K** requests a medic, and **I** opens contracts, refits and planet travel. Touch players use More and Journal. To travel, fly above 250 m ground clearance with speed below 80 m/s and at least 30 hull / 30 energy. Vesper includes a friendly port where you can land, disembark and refit.
+
+Track Corsair to follow the new engine-disable, boarding, prisoner rescue and cargo sequence. Selected objectives share map/compass pins, including saved distant destinations. Pirates have five roles and call reinforcements; securing local bases reduces nearby garrisons.
+
+Validation includes `node qa/expansion-test.mjs`, `node qa/expansion-mobile-test.mjs`, `node qa/stability-test.mjs`, and the navigation/world browser scripts in `tests/`. These use Edge, Chromium mobile emulation and WebKit; physical Apple-device certification is not available in this workspace.
 
 ## Play locally
 
@@ -83,7 +91,7 @@ Browser scripts require the dev server and Chromium; check each script's browser
 
 TypeScript/Vite/Three.js with Rapier collision, terrain streaming, character controllers and vehicle sweeps. Assets and audio are procedural and contain no Call of Duty or No Man's Sky assets. Read-only runtime diagnostics are at `window.blackline.snapshot()`; development-only scenario helpers are excluded from production. Output is `dist/` with the existing private Sites configuration.
 
-The large carrier, Corsair boarding vessel and station remain stationary; the launch is pilotable and the coastal patrol moves. There are no interplanetary jumps, multiplayer, cloud saves, authored cinematic campaigns, complex navigation meshes, destructible buildings or production character animation. Local saves resume from a safe position rather than preserving every live simulation detail. Float precision and memory limits still apply at extreme travel distances; long-session and cross-device performance are not certified. Visual comparisons against actual Call of Duty and No Man's Sky references informed refinements, but BLACKLINE does not match their graphics or production quality.
+The large carrier, Corsair boarding vessel and station remain stationary; the launch is pilotable and the coastal patrol moves. There is journal-based transit between two planet regions, but no spherical orbital simulation, multiplayer, cloud saves, authored cinematic campaigns, complex navigation meshes, destructible buildings or production character animation. Local saves resume from a safe position rather than preserving every live simulation detail. Float precision and memory limits still apply at extreme travel distances; long-session and cross-device performance are not certified. Halo-style military sci-fi and No Man's Sky exploration guide the current direction; BLACKLINE does not match their production quality.
 
 ### Clear flight view
 
@@ -97,4 +105,6 @@ The current build caps desktop framebuffer allocation at 3.69 megapixels (mobile
 
 `node qa/stability-test.mjs` passed in installed Windows Edge: takeoff/boost, 18 settlement transitions, repeated quality changes, a 4K resize and two injected graphics interruptions. Repeated streaming held at 224 geometries and 36 textures in the sampled destination; collected JavaScript heap stayed around 19–21 MB. This is a bounded automated test, not a claim that every crash is eliminated. The reported spontaneous Edge tab exit was not reproduced. All 46 unit tests, seven mobile Chromium checks, the WebKit smoke check and the production build pass.
 
-See [the next-upgrade list](UPGRADES.md), led by matching tracked-objective pins on the map and compass. Pins are planned, not implemented in this stability update.
+See [the next-upgrade list](UPGRADES.md), led by matching tracked-objective pins on the map and compass. That earlier planning list is now implemented as the frontier expansion described in UPGRADES.md.
+
+Expansion validation: 64 unit tests, seven desktop expedition checks, four new mobile expedition checks, seven existing mobile checks plus WebKit, and five Edge stability scenarios pass. Three subagents implemented/reviewed combat, navigation and world destinations; actual screenshots exposed and corrected blocked observation glazing, deleted compass markers and dry-world horizon holes.

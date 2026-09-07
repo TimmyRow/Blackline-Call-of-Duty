@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "New weapon, scanner and medic actions work through touch More menu",
+    "Touch takeoff and journal travel reach Vesper",
+    "Touch landing, disembarking and new reactor refit work at Sunfall",
+    "Tracked destination and refit survive an actual page reload"
+  ],
+  "errors": []
+}

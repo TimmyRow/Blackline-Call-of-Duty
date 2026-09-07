@@ -23,7 +23,7 @@ export function createFlight(scene:THREE.Scene,world:RAPIER.World,initial?:{x:nu
  const thrustMaterial=new THREE.MeshBasicMaterial({color:0x36bdeb,transparent:true,opacity:.58,depthWrite:false,toneMapped:false});
  const screen=new THREE.MeshBasicMaterial({color:0x173d4b,toneMapped:false});
  const engines:THREE.Mesh[]=[],gear:THREE.Group[]=[];
- const upgrades={engine:0,shield:0,cannon:0};let damageFlash=0,gearBlend=1,panelTick=-1;
+ const upgrades={engine:0,shield:0,cannon:0,reactor:0};let damageFlash=0,gearBlend=1,panelTick=-1;
  const warning=new THREE.MeshBasicMaterial({color:0xff492f,transparent:true,opacity:0,depthWrite:false,toneMapped:false});
  const panelCanvas=typeof document==='undefined'?null:document.createElement('canvas');
  if(panelCanvas){panelCanvas.width=512;panelCanvas.height=256;}
@@ -98,7 +98,8 @@ export function createFlight(scene:THREE.Scene,world:RAPIER.World,initial?:{x:nu
   get piloting(){return piloting;},get landed(){return landed;},get health(){return health;},
   reset,
   restoreAt(saved:{x:number,y:number,z:number}){if(![saved.x,saved.y,saved.z].every(Number.isFinite))return false;const floor=surface(saved.x,saved.z,saved.y);if(!floor.safe||Math.abs(saved.y-floor.y-GEAR_HEIGHT)>3)return false;reset();position.set(saved.x,floor.y+GEAR_HEIGHT,saved.z);group.position.copy(position);body.setTranslation(position,true);body.setNextKinematicTranslation(position);padName=floor.name;return true;},
-  setUpgrades(levels:Partial<typeof upgrades>){const before=maxHealth();for(const key of ['engine','shield','cannon'] as const)if(levels[key]!==undefined)upgrades[key]=Math.min(3,Math.max(0,Math.floor(Number(levels[key])||0)));health=Math.min(maxHealth(),health+Math.max(0,maxHealth()-before));},
+  transferTo(target:{x:number,y:number,z:number}){if(!piloting||energy<30||![target.x,target.y,target.z].every(Number.isFinite))return false;const floor=surface(target.x,target.z,target.y);if(target.y<floor.y+GEAR_HEIGHT+20)return false;position.set(target.x,target.y,target.z);velocity.set(0,0,0);energy-=30;landed=false;yaw=0;pitch=0;body.setTranslation(position,true);body.setNextKinematicTranslation(position);body.setRotation(identity,true);body.setNextKinematicRotation(identity);group.position.copy(position);return true;},
+  setUpgrades(levels:Partial<typeof upgrades>){const before=maxHealth();for(const key of ['engine','shield','cannon','reactor'] as const)if(levels[key]!==undefined)upgrades[key]=Math.min(3,Math.max(0,Math.floor(Number(levels[key])||0)));health=Math.min(maxHealth(),health+Math.max(0,maxHealth()-before));},
   board(player:THREE.Vector3){if(piloting||!landed||health<=0||player.distanceTo(position)>9)return false;piloting=true;shell.visible=false;cockpit.visible=false;return true;},
   tryExit(){
    if(!piloting||!landed)return null;
@@ -116,7 +117,7 @@ export function createFlight(scene:THREE.Scene,world:RAPIER.World,initial?:{x:nu
   hurt:damage,
   repair(amount=100){health=Math.min(maxHealth(),health+Math.max(0,amount));},
   step(dt:number,input:FlightInput){
-   fireCooldown=Math.max(0,fireCooldown-dt);impactCooldown=Math.max(0,impactCooldown-dt);energy=Math.min(100,energy+dt*13);
+   fireCooldown=Math.max(0,fireCooldown-dt);impactCooldown=Math.max(0,impactCooldown-dt);energy=Math.min(100,energy+dt*13*(1+upgrades.reactor*.15));
    if(!piloting){if(landed)health=Math.min(maxHealth(),health+dt*.7);return;}
    yaw=input.yaw;pitch=THREE.MathUtils.clamp(input.pitch,-1.45,1.45);
    const keys=input.keys,boost=keys.has('ShiftLeft')||keys.has('ShiftRight');

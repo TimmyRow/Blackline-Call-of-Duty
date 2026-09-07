@@ -13,14 +13,14 @@
       "graphics": {
         "lost": false,
         "recoveries": 0,
-        "geometries": 224,
+        "geometries": 230,
         "textures": 36,
         "enemyPool": 33
       },
       "world": {
         "terrainChunks": 49,
         "loadedSites": 14,
-        "colliders": 881,
+        "colliders": 1079,
         "chunkSize": 256,
         "streamRadius": 768,
         "procedural": true,
@@ -28,21 +28,21 @@
         "roadKilometres": 2.7,
         "roadFurniture": 0
       },
-      "heap": 19114052
+      "heap": 23933864
     },
     {
       "lap": 1,
       "graphics": {
         "lost": false,
         "recoveries": 0,
-        "geometries": 224,
+        "geometries": 230,
         "textures": 36,
         "enemyPool": 33
       },
       "world": {
         "terrainChunks": 49,
         "loadedSites": 14,
-        "colliders": 881,
+        "colliders": 1079,
         "chunkSize": 256,
         "streamRadius": 768,
         "procedural": true,
@@ -50,21 +50,21 @@
         "roadKilometres": 2.7,
         "roadFurniture": 0
       },
-      "heap": 20444872
+      "heap": 23974600
     },
     {
       "lap": 2,
       "graphics": {
         "lost": false,
         "recoveries": 0,
-        "geometries": 224,
+        "geometries": 230,
         "textures": 36,
         "enemyPool": 33
       },
       "world": {
         "terrainChunks": 49,
         "loadedSites": 14,
-        "colliders": 881,
+        "colliders": 1079,
         "chunkSize": 256,
         "streamRadius": 768,
         "procedural": true,
@@ -72,7 +72,7 @@
         "roadKilometres": 2.7,
         "roadFurniture": 0
       },
-      "heap": 19250368
+      "heap": 23921656
     }
   ],
   "errors": [],

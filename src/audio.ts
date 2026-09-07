@@ -7,6 +7,12 @@ export class Sound {
   private shotVoices=0;
   private ambience:GainNode|null=null;
   private ambienceFilter:BiquadFilterNode|null=null;
+  private ambienceSource:AudioBufferSourceNode|null=null;
+  private engine:GainNode|null=null;
+  private engineOscillators:OscillatorNode[]=[];
+  private voices=0;
+  /** Two continuous engine voices are reused for every flight and smoothed to prevent clicks. */
+  setFlight(active:boolean,speed=0,boost=false,orbit=false){if(!this.ctx)return;const t=this.ctx.currentTime,throttle=Math.max(0,Math.min(1,speed/180));this.engine?.gain.setTargetAtTime(active?(.018+throttle*.06+(boost?.03:0))*(orbit?.7:1):0,t,.18);this.engineOscillators.forEach((osc,i)=>osc.frequency.setTargetAtTime((i?92:46)+throttle*(i?72:35)+(boost?20:0),t,.2));}
   setWeather(rain:number,wind:number){if(!this.ctx)return;const t=this.ctx.currentTime;this.ambience?.gain.setTargetAtTime(.2+Math.max(0,Math.min(1,rain))*.8+Math.max(0,Math.min(1,wind))*.2,t,1.5);this.ambienceFilter?.frequency.setTargetAtTime(240+rain*850+wind*180,t,1.5);}
   setListener(position:{x:number,y:number,z:number},yaw:number){this.listener={...position,yaw};}
   shotAt(position:{x:number,y:number,z:number}){
@@ -23,23 +29,27 @@ export class Sound {
     const buffer = this.ctx.createBuffer(1,this.ctx.sampleRate*3,this.ctx.sampleRate);
     const data = buffer.getChannelData(0); for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*.075;
     const source = this.ctx.createBufferSource(); source.buffer=buffer; source.loop=true;
-    const filter=this.ctx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=850;const ambience=this.ctx.createGain();ambience.gain.value=.5;this.ambience=ambience;this.ambienceFilter=filter;source.connect(filter);filter.connect(ambience);ambience.connect(this.master);source.start();
+    const filter=this.ctx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=850;const ambience=this.ctx.createGain();ambience.gain.value=.5;this.ambience=ambience;this.ambienceFilter=filter;this.ambienceSource=source;source.connect(filter);filter.connect(ambience);ambience.connect(this.master);source.start();
+    this.engine=this.ctx.createGain();this.engine.gain.value=0;this.engine.connect(this.master);for(const freq of [46,92]){const osc=this.ctx.createOscillator();osc.type='sine';osc.frequency.value=freq;osc.connect(this.engine);osc.start();this.engineOscillators.push(osc);}
   }
   toggle() { this.muted=!this.muted; if(this.master) this.master.gain.value=this.muted?0:.32; }
   noise(duration:number, volume:number, frequency:number, pan=0) {
-    if(!this.ctx||!this.master) return;
+    if(!this.ctx||!this.master||this.muted||this.voices>=24) return;this.voices++;
     const t=this.ctx.currentTime;let buffer=this.noiseBuffers.get(duration);
-    if(!buffer){buffer=this.ctx.createBuffer(1,Math.ceil(this.ctx.sampleRate*duration),this.ctx.sampleRate);const data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/data.length*6);this.noiseBuffers.set(duration,buffer);}
+    if(!buffer){buffer=this.ctx.createBuffer(1,Math.ceil(this.ctx.sampleRate*duration),this.ctx.sampleRate);const data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.exp(-i/data.length*6);if(this.noiseBuffers.size<16)this.noiseBuffers.set(duration,buffer);}
     const src=this.ctx.createBufferSource(), filter=this.ctx.createBiquadFilter(), gain=this.ctx.createGain();
     src.buffer=buffer; filter.type='lowpass';filter.frequency.value=frequency;gain.gain.setValueAtTime(volume,t);
-    const stereo=this.ctx.createStereoPanner();stereo.pan.value=pan;src.connect(filter);filter.connect(gain);gain.connect(stereo);stereo.connect(this.master);src.start();src.onended=()=>{src.disconnect();filter.disconnect();gain.disconnect();stereo.disconnect();};
+    const stereo=this.ctx.createStereoPanner();stereo.pan.value=pan;src.connect(filter);filter.connect(gain);gain.connect(stereo);stereo.connect(this.master);src.start();src.onended=()=>{this.voices=Math.max(0,this.voices-1);src.disconnect();filter.disconnect();gain.disconnect();stereo.disconnect();};
   }
   tone(freq:number,duration:number,volume=.2,end=80,pan=0) {
-    if(!this.ctx||!this.master)return; const t=this.ctx.currentTime,osc=this.ctx.createOscillator(),gain=this.ctx.createGain();
+    if(!this.ctx||!this.master||this.muted||this.voices>=24)return;this.voices++; const t=this.ctx.currentTime,osc=this.ctx.createOscillator(),gain=this.ctx.createGain();
     osc.type='triangle';osc.frequency.setValueAtTime(freq,t);osc.frequency.exponentialRampToValueAtTime(end,t+duration);
-    gain.gain.setValueAtTime(volume,t);gain.gain.exponentialRampToValueAtTime(.001,t+duration);const stereo=this.ctx.createStereoPanner();stereo.pan.value=pan;osc.connect(gain);gain.connect(stereo);stereo.connect(this.master);osc.start();osc.stop(t+duration);osc.onended=()=>{osc.disconnect();gain.disconnect();stereo.disconnect();};
+    gain.gain.setValueAtTime(volume,t);gain.gain.exponentialRampToValueAtTime(.001,t+duration);const stereo=this.ctx.createStereoPanner();stereo.pan.value=pan;osc.connect(gain);gain.connect(stereo);stereo.connect(this.master);osc.start();osc.stop(t+duration);osc.onended=()=>{this.voices=Math.max(0,this.voices-1);osc.disconnect();gain.disconnect();stereo.disconnect();};
   }
-  shot(distant=false){this.noise(.26,distant?.35:1.1,distant?850:3200);this.tone(distant?90:150,.13,distant?.2:.6,40);}
+  shot(distant=false,weapon='ballistic'){if(weapon==='energy'){this.tone(760,.2,distant?.12:.30,120);this.noise(.12,distant?.10:.22,4600);return;}this.noise(.26,distant?.35:1.1,distant?850:3200);this.tone(distant?90:150,.13,distant?.2:.6,40);}
+  shieldBreak(){this.tone(360,.4,.2,45);this.noise(.26,.3,4200);}
+  scan(){this.tone(340,.3,.12,1200);}
+  dispose(){for(const osc of this.engineOscillators){osc.stop();osc.disconnect();}this.engineOscillators=[];this.ambienceSource?.stop();this.ambienceSource?.disconnect();this.ambienceFilter?.disconnect();this.ambience?.disconnect();this.engine?.disconnect();this.master?.disconnect();if(this.ctx)void this.ctx.close().catch(()=>{});this.ctx=null;this.master=null;this.engine=null;this.noiseBuffers.clear();this.voices=0;}
   hit(){this.tone(1200,.055,.13,550);}
   reload(){this.noise(.15,.3,2800);this.tone(430,.08,.09,200);}
   step(){this.noise(.15,.18,480);}

@@ -1,20 +1,37 @@
-# BLACKLINE — next upgrades
+# BLACKLINE — frontier expansion
 
-Design reference: Halo-style military sci-fi, with No Man's Sky-inspired exploration. Keep the pilot view clear and support keyboard/mouse plus iPhone/iPad touch controls.
+Halo-inspired military sci-fi with No Man's Sky-inspired exploration. The numbered upgrades below now have playable implementations in this procedural prototype. Physical-device certification remains outstanding; this is not an AAA-quality claim.
 
-## Next
+1. **Tracked-objective pins:** Matching map/compass diamonds, target names, distance, elevation and turn arrows; saved distant target coordinates; own-ship beacon hidden while aboard.
+2. **Landing guidance:** Compact speed, ground-clearance and deck guidance with friendly/hostile destination labels.
+3. **Varied encounters:** Supply runs, colonial survey patrols, wrecks, distress signals, pirate patrols and alien discoveries.
+4. **Halo-inspired presentation:** Distinct enemy silhouettes, energy weapon effects, shield feedback, alien biomes and station spaces.
+5. **Stability verification:** Windows Edge travel, repeated settlement streaming, bounded GPU allocations and forced recovery tests; iPhone/iPad emulation plus WebKit. Physical Apple hardware tests remain pending because no devices are connected.
+6. **Denser settlements:** Batched street furniture, signs, courtyards, service buildings and accessible interior routes.
+7. **Alien biomes:** Forest, dunes, volcanic terrain, salt basins, caves and ruins with discoverable sites.
+8. **Station interiors:** Meridian hangar, transit spine and glazed observation room; optional contracts and refits through the journal once the base is secured.
+9. **Pirate boarding:** Use ship cannons on the Corsair's orange stern engine, land and clear its guards, free the prisoner at the cyan beacon, then claim cargo. Rewards pay once.
+10. **Enemy roles:** Scouts, shielded infantry, snipers with charge warnings, hovering drones and heavy units have different ranges, damage, health and movement.
+11. **Weapons and shields:** BR-7 ballistic rifle and rechargeable ARC-9 energy weapon; energy strips shields faster, and the player's shield recharges after avoiding damage.
+12. **Restrained companions:** Explicit focus fire, supply requests and requested medical aid with cooldowns. Following companions do not automatically clear nearby camps.
+13. **Ship refits and damage:** Engine, hull, cannon and reactor upgrades; reactor improves recharge and transit cooldown. Hull damage reaches the compact HUD without restoring the obstructive cockpit dashboard.
+14. **Ocean expeditions:** Breakwater island redoubt, coastal patrol combat, pilotable launch, carrier resupply and boarding deck routes.
+15. **Regional conflict:** Camp alarms spread awareness and call bounded reinforcements. Secured nearby bases and intercepted supply convoys reduce pirate garrisons.
+16. **Exploration tools/rewards:** Scanner reveals signals and grants first-scan salvage; ancient caches unlock refit blueprints; survey/rescue contracts provide optional goals.
+17. **Atmosphere and sound:** Distinct ballistic/energy sounds, positional gunfire, bounded engine/boost audio, shield-break and scan feedback, gradual day/night/weather and a dry, warm Vesper atmosphere.
+18. **Second planet:** Travel between Orison and Vesper through the journal while piloting. Vesper has an expedition port, extraction site, vault, salt-basin survey and distinct terrain. This uses two coordinate sectors and a transit transition, not spherical orbital simulation or an infinite universe.
 
-1. **Tracked-objective pins on the map and compass.** Give the selected mission, ship, camp or station the same distinctive pin on both. Show its name and distance, update its bearing while turning, indicate above/below, and use an edge arrow when it is behind you. Keep the selection after saving; hide the ship's own locator while aboard. Prioritize recovery quests without covering the view.
-2. **Flight destinations and landing guidance.** Identify friendly decks, hostile vessels and safe landing zones from the air, with a compact approach cue.
-3. **More distinct encounters.** Add recognizable camp silhouettes, roadside events and optional discoveries so exploration has variety and purpose.
-4. **Halo-inspired combat readability.** Improve alien landmarks, sci-fi weapon feedback and faction silhouettes while preserving BLACKLINE's identity.
-5. **Long-session stability checks.** Extend Edge flight and streaming soak tests, with checks on physical iPhones/iPads as devices become available.
+## New controls
 
-## Stability work in this update
+- **V:** Scan signals (18-second cooldown).
+- **X:** Switch ballistic/energy weapon.
+- **K:** Request medic; **J:** supplies; **Q:** focus a target.
+- **I:** Journal, contracts, refits and planet destinations.
+- **Touch:** The More drawer includes scan, weapon switch and medic. Journal contains travel and refits.
+- **Planet travel:** Board Kestrel, climb above 250 m ground clearance, slow below 80 m/s and keep at least 30 hull and 30 energy. The journal explains unavailable destinations. Land at Sunfall to explore or refit.
 
-- Bound desktop render resolution on large/high-DPI displays.
-- Release unused bloom framebuffers in Performance mode.
-- Recover a lost graphics context in place with the expedition paused, instead of forcing a page reload.
-- Keep unloaded patrol memories as small gameplay records and enforce the existing 48-enemy pool limit before assigning soldiers.
+## Verification and limits
 
-These fixes address identified resource and recovery problems. The reported Edge tab exit has not yet been reproduced exactly.
+See `qa/expansion-results.json`, `qa/expansion-mobile-results.json` and `qa/stability-results.json`, plus the navigation and world browser scripts in `tests/`. Existing saves migrate; destination, equipment and tracked pins survive a fresh page reload.
+
+Procedural visuals and simplified AI remain prototype-scale. No multiplayer, moving capital ships, destructive building simulation or physical iPhone/iPad certification is included. The original spontaneous Edge tab exit was not reproduced; resource limits and graphics recovery are tested, not a guarantee against every crash.

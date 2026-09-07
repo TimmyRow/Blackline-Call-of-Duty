@@ -1,4 +1,6 @@
 /** Deterministic survey coordinates. Terrain and discoveries share one seed. */
+import {PLANETS,getPlanetAt,getPlanetArrival,biomeAt,vesperHeight,DESTINATION_SITES} from './world-destinations.mjs';
+export {PLANETS,getPlanetAt,getPlanetArrival,biomeAt};
 export const SEA_LEVEL = 0;
 export const REGION_START = {x:0,z:110};
 const building=(a,c,w,d,h,label)=>({a,c,w,d,h,label});
@@ -23,6 +25,8 @@ const smooth=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3
 export function worldHash(x,z,s=0){let n=Math.imul(x|0,374761393)^Math.imul(z|0,668265263)^Math.imul(s+17,1274126177);n=Math.imul(n^(n>>>13),1274126177);return ((n^(n>>>16))>>>0)/4294967296;}
 function noise(x,z){const a=Math.floor(x),b=Math.floor(z),u=smooth(0,1,x-a),v=smooth(0,1,z-b);return (worldHash(a,b)*(1-u)+worldHash(a+1,b)*u)*(1-v)+(worldHash(a,b+1)*(1-u)+worldHash(a+1,b+1)*u)*v;}
 function rawHeight(x,z){
+ const planetDistance=Math.hypot(x-42000,z);
+ if(planetDistance<8000)return vesperHeight(x,z);
  const continental=(noise(x/1900+3,z/1900-2)-.43)*250;
  const hills=(noise(x/320+21,z/320+19)-.5)*65+(noise(x/95,z/95)-.5)*10;
  let h=continental+hills;
@@ -37,12 +41,15 @@ function rawHeight(x,z){
  h+=ridge*frontier;
  const river=Math.abs(x-(2450+Math.sin(z/490)*180+Math.sin(z/1700)*320));
  h+=(Math.min(h,-4)-h)*(1-smooth(24,82,river))*frontier;
+ if(planetDistance<10000)h+=(vesperHeight(x,z)-h)*(1-smooth(8000,10000,planetDistance));
  return h;
 }
 export const WORLD_LANDMARKS=[
  {id:'basalt-gate',name:'Basalt Gate',x:-290,z:-210,kind:'cave',description:'A sheltered basalt arch above the coastal road.'},
  {id:'survey-wreck',name:'Fallen Surveyor',x:340,z:-570,kind:'wreck',description:'A fractured survey vessel in the northern hills.'},
- {id:'tidal-river',name:'Glasswater Estuary',x:2450,z:0,kind:'river',description:'A broad tidal channel cuts through the frontier ridges.'}
+ {id:'tidal-river',name:'Glasswater Estuary',x:2450,z:0,kind:'river',description:'A broad tidal channel cuts through the frontier ridges.'},
+ {id:'vesper-cave',name:'The Hushed Grotto',x:41660,z:-240,kind:'cave',description:'An open obsidian tunnel shelters a forgotten survey cache.'},
+ {id:'vesper-wreck',name:'Saltwind Surveyor',x:42380,z:560,kind:'wreck',description:'An expedition ship lost on the edge of the salt basin.'}
 ];
 export const REGION_SITES=[
  {id:'harbour',name:'Cold Harbour',x:0,z:-10,elevation:18,kind:'outpost',faction:'pirate',description:'Occupied colonial freight settlement. Recover the pirate route ledger.',action:'Recover the invasion manifest',verb:'RECOVER INVASION MANIFEST',effect:'Patrol positions revealed on the field map',radius:65,holdSeconds:3},
@@ -59,7 +66,7 @@ const siteCache=new Map();
 function generatedSite(cx,cz){const key=`${cx}:${cz}`;if(siteCache.has(key))return siteCache.get(key);const result=makeGeneratedSite(cx,cz);if(siteCache.size>4096)siteCache.clear();siteCache.set(key,result);return result;}
 function makeGeneratedSite(cx,cz){
  const x=cx*CELL+105+worldHash(cx,cz,1)*490,z=cz*CELL+105+worldHash(cx,cz,2)*490;
- if(Math.hypot(x,z)<360||[...REGION_SITES,...SPECIAL_SITES].some(s=>Math.hypot(s.x-x,s.z-z)<220))return null;
+ if(Math.hypot(x,z)<360||[...REGION_SITES,...SPECIAL_SITES,...DESTINATION_SITES].some(s=>Math.hypot(s.x-x,s.z-z)<220))return null;
  const y=rawHeight(x,z);if(y<9)return null;
  const roll=worldHash(cx,cz,3),kind=roll<.18?'ruin':roll<.56?'camp':'outpost';
  const names=['Blackglass','Wraith','Cinder','Redwater','Hollow','Vesper','Ashfall','Ironwake'];
@@ -67,14 +74,14 @@ function makeGeneratedSite(cx,cz){
  return {id:`${kind}:${cx}:${cz}`,name:`${names[Math.floor(worldHash(cx,cz,4)*names.length)]} ${kind==='ruin'?'Relic':kind==='camp'?'Encampment':district==='mining'?'Extraction':district==='salvage'?'Breaker Yard':'Freeport'}`,x,z,elevation:y,kind,district,faction:kind==='ruin'?'neutral':'pirate',description:kind==='ruin'?'An abandoned alien survey structure. Search the remains for supplies.':district==='salvage'?'A scrapyard of broken survey ships, stripped engines and a working salvage workshop.':district==='mining'?'An occupied extraction town with workshops, ore conveyors and crew quarters.':'A pirate trading settlement of supply stalls, cargo warehouses and operations rooms.',radius:kind==='ruin'?45:62};
 }
 export function getWorldSites(x,z,radius=1800){
- const sites=[...REGION_SITES,...SPECIAL_SITES].filter(s=>Math.hypot(s.x-x,s.z-z)<=radius+s.radius);
+ const sites=[...REGION_SITES,...SPECIAL_SITES,...DESTINATION_SITES].filter(s=>Math.hypot(s.x-x,s.z-z)<=radius+s.radius);
  for(let cx=Math.floor((x-radius)/CELL);cx<=Math.floor((x+radius)/CELL);cx++)for(let cz=Math.floor((z-radius)/CELL);cz<=Math.floor((z+radius)/CELL);cz++){
  const site=generatedSite(cx,cz);if(site&&Math.hypot(site.x-x,site.z-z)<=radius+site.radius)sites.push(site);
  }return sites;
 }
 export function heightAt(x,z){
  let h=rawHeight(x,z);
- const candidates=[...REGION_SITES,{...REGION_START,elevation:16,radius:32}];
+ const candidates=[...REGION_SITES,...DESTINATION_SITES,{...REGION_START,elevation:16,radius:32}];
  // Jittered cell sites need only the surrounding nine cells when flattening terrain.
  const cx=Math.floor(x/CELL),cz=Math.floor(z/CELL);
  for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const site=generatedSite(cx+i,cz+j);if(site)candidates.push(site);}
@@ -85,11 +92,16 @@ export function heightAt(x,z){
   for(const {a,c,w,d:l}of getSettlementBuildings(s)){const edge=Math.max(Math.abs(x-s.x-a)-w/2,Math.abs(z-s.z-c)-l/2);if(edge<nearestFootprint){nearestFootprint=edge;foundationHeight=s.elevation;}}
  }}
  if(nearestFootprint<17)h=foundationHeight+(h-foundationHeight)*smooth(8,17,nearestFootprint);
+ // A cave has an actual graded, unobstructed tunnel floor. The roof is geometry.
+ for(const landmark of WORLD_LANDMARKS)if(landmark.kind==='cave'){
+  const distance=Math.hypot(x-landmark.x,z-landmark.z);
+  if(distance<40){const floor=rawHeight(landmark.x,landmark.z);h=floor+(h-floor)*smooth(26,40,distance);}
+ }
  return h;
 }
 export function getLandingPads(x,z,radius=1800){
  return [{id:'landing',name:'Pathfinder Landing',x:REGION_START.x,z:REGION_START.z,y:16.16,radius:16},...getWorldSites(x,z,radius).map(s=>({id:s.id,name:s.name,x:s.x,z:s.z+(s.kind==='carrier'?20:s.kind==='pirate-ship'?18:s.kind==='station'?28:35),y:s.elevation+.16,radius:s.kind==='station'?26:s.kind==='carrier'?20:s.kind==='pirate-ship'?16:13}))].filter(s=>Math.hypot(s.x-x,s.z-z)<=radius);
 }
 export const REGION_ROADS=[];
-export function regionName(x,z){if(Math.hypot(x-REGION_START.x,z-REGION_START.z)<48)return 'Pathfinder Landing';const sites=getWorldSites(x,z,220).sort((a,b)=>Math.hypot(a.x-x,a.z-z)-Math.hypot(b.x-x,b.z-z));if(sites[0]&&Math.hypot(sites[0].x-x,sites[0].z-z)<sites[0].radius+15)return sites[0].name;return heightAt(x,z)<SEA_LEVEL?'Orison Ocean':Math.hypot(x,z)<1500?'Ash Coast Wilderness':'Uncharted Frontier';}
+export function regionName(x,z){if(Math.hypot(x-REGION_START.x,z-REGION_START.z)<48)return 'Pathfinder Landing';const sites=getWorldSites(x,z,220).sort((a,b)=>Math.hypot(a.x-x,a.z-z)-Math.hypot(b.x-x,b.z-z));if(sites[0]&&Math.hypot(sites[0].x-x,sites[0].z-z)<sites[0].radius+15)return sites[0].name;return heightAt(x,z)<SEA_LEVEL?'Orison Ocean':getPlanetAt(x,z).id==='vesper'?`Vesper / ${biomeAt(x,z).name}`:Math.hypot(x,z)<1500?'Ash Coast Wilderness':biomeAt(x,z).name;}
 export const ENEMY_SPAWNS=REGION_SITES.flatMap(s=>[{site:s.id,x:s.x-19,z:s.z-24},{site:s.id,x:s.x+22,z:s.z-19},{site:s.id,x:s.x-24,z:s.z+21},{site:s.id,x:s.x+26,z:s.z+24}]);

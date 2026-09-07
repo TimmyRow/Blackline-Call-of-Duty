@@ -6,3 +6,15 @@ test('save survives storage roundtrip with progression and no active interaction
 test('malformed saves and unavailable browser storage fail safely',()=>{assert.equal(validateSave({version:1,campaign:{},position:[NaN,0,0]}),null);assert.equal(readSave({getItem(){throw Error('blocked');}}),null);assert.equal(writeSave({setItem(){throw Error('quota');}},{campaign:createAdventure(),position:[0,1,0]}),false);});
 
 test('rare blueprints reduce refit cost and persist through saves',()=>{const c=ensureProgression(createAdventure());c.salvage=200;c.blueprints=['cannon'];assert.equal(buyUpgrade(c,'cannon',true).cost,135);assert.equal(c.salvage,65);assert.deepEqual(validateSave({version:1,campaign:c,position:[0,2,0]}).campaign.blueprints,['cannon']);});
+test('new combat and expedition state persists without corrupting legacy saves',()=>{
+ const c=ensureProgression(createAdventure());Object.assign(c,{scanned:['relay','relay'],rescued:['corsair'],boarding:{disabled:true},planet:'vesper'});c.upgrades.shieldCell=3;
+ const saved=validateSave({version:1,campaign:c,position:[0,2,0],state:{weapon:'energy',energy:36,shield:120},enemyHealth:[['heavy',185]]});
+ assert.deepEqual(saved.campaign.scanned,['relay']);assert.deepEqual(saved.campaign.rescued,['corsair']);assert.equal(saved.campaign.boarding.disabled,true);assert.equal(saved.campaign.planet,'vesper');assert.equal(saved.state.energy,36);assert.equal(saved.state.weapon,'energy');assert.equal(saved.state.shield,120);assert.equal(saved.enemyHealth[0][1],185);
+ const legacy=validateSave({version:1,campaign:createAdventure(),position:[0,2,0]});assert.equal(legacy.state.shield,70);assert.equal(legacy.state.energy,100);assert.equal(legacy.campaign.planet,'orison');
+ const won=validateSave({version:1,campaign:{...createAdventure(),completed:['corsair']},position:[0,2,0]});assert.equal(won.campaign.boarding.disabled,true);assert.deepEqual(won.campaign.rescued,['corsair']);
+});
+test('scan and rescue contracts pay only accepted completed objectives once',()=>{
+ const c=ensureProgression(createAdventure());acceptContract(c,'rescue');assert.equal(resolveContracts(c).length,0);c.rescued.push('distress-1');assert.equal(resolveContracts(c).length,0);c.rescued.push('corsair');assert.equal(resolveContracts(c).length,1);assert.equal(resolveContracts(c).length,0);
+});
+
+test('distant tracked signal coordinates survive save validation and malformed pins are rejected',()=>{const c=ensureProgression(createAdventure());c.tracked='distant-cache';c.trackedTarget={id:'distant-cache',name:'Distant cache',x:50000,z:700,elevation:82,kind:'ruin',faction:'neutral',radius:20};const data={version:1,campaign:c,position:[0,18,110]};assert.equal(validateSave(data).campaign.trackedTarget.x,50000);c.trackedTarget.x=Infinity;assert.equal(validateSave(data).campaign.trackedTarget,undefined);});

@@ -5,6 +5,7 @@ import {isOnIndustrialRoad,roadGroundHeight} from './industrial-roads';
 import {getEncounterSites} from './encounter-layout.mjs';
 import {createIndustrialMaterials} from './industrial-materials';
 import {heightAt,getWorldSites,getLandingPads,worldHash,REGION_START,WORLD_LANDMARKS,getSettlementBuildings,settlementStyle,ROADSIDE_STORIES} from './region-layout.mjs';
+import {BIOMES,biomeAt,getPlanetAt,getDestinationInterior,interiorWallBoxes} from './world-destinations.mjs';
 
 type Site=ReturnType<typeof getWorldSites>[number];
 type Loaded={group:THREE.Group;colliders:RAPIER.Collider[];meshes:THREE.Object3D[];geometries:THREE.BufferGeometry[];materials:THREE.Material[];textures:THREE.Texture[];detail:THREE.Group;center:THREE.Vector3};
@@ -16,7 +17,7 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
  const completed=new Set<string>(),signals=new Map<string,THREE.Mesh>();
  const stackLocations=new Map<string,{x:number;y:number;z:number}[]>();
  const practicalLamps=new Map<string,{x:number;y:number;z:number;color:string}[]>();
- const sharedBox=new THREE.BoxGeometry(1,1,1),rockGeo=new THREE.IcosahedronGeometry(1,1);
+ const sharedBox=new THREE.BoxGeometry(1,1,1),rockGeo=new THREE.IcosahedronGeometry(1,1),crystalGeo=new THREE.ConeGeometry(.48,1,5).translate(0,.12,0);
  // Irregular, overlapping crowns keep one instanced foliage draw per chunk.
  const crowns:THREE.BufferGeometry[]=[];for(let i=0;i<7;i++){const angle=i*2.399,scale=.48-i*.041;crowns.push(new THREE.IcosahedronGeometry(1,1).scale(scale,.22+scale*.2,scale*.83).rotateY(angle).translate(Math.cos(angle)*(.28-i*.025),-.08+i*.085,Math.sin(angle)*(.26-i*.026)));}
  crowns.push(new THREE.CylinderGeometry(.055,.1,.95,7).toNonIndexed().translate(0,-.22,0));const treeGeo=mergeGeometries(crowns);crowns.forEach(g=>g.dispose());
@@ -29,13 +30,21 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
  const foamTime={value:0};
  const foamMaterial=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,uniforms:{clock:foamTime},vertexShader:'varying vec3 shore;void main(){shore=position;vec4 p=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*p;}',fragmentShader:'uniform float clock;varying vec3 shore;void main(){float wash=.5+.5*sin(shore.x*.21+shore.z*.17-clock*.8);float grain=.65+.35*sin(shore.x*4.+sin(shore.z*3.));float fade=1.-smoothstep(180.,650.,distance(cameraPosition,shore));gl_FragColor=vec4(.51,.67,.69,(.09+wash*.22)*grain*fade);}'});
  const mattress=new THREE.MeshStandardMaterial({color:'#778480',roughness:.94}),ore=new THREE.MeshStandardMaterial({color:'#966444',map:grit,roughness:.9});
+ const observationGlass=new THREE.MeshStandardMaterial({color:'#89b6c2',transparent:true,opacity:.14,roughness:.2,metalness:.1,depthWrite:false,side:THREE.DoubleSide});
  const ground=new THREE.Color(),sand=new THREE.Color('#aeb498'),green=new THREE.Color('#53695b'),stone=new THREE.Color('#7c8987'),snow=new THREE.Color('#b2c5bf');
+ const desertGround=new THREE.Color(BIOMES.desert.ground),saltGround=new THREE.Color(BIOMES.salt.ground),volcanicGround=new THREE.Color(BIOMES.volcanic.ground),desertRock=new THREE.Color(BIOMES.desert.rock),saltRock=new THREE.Color(BIOMES.salt.rock),volcanicRock=new THREE.Color(BIOMES.volcanic.rock);
+ function terrainColor(x:number,z:number,slope:number,vesper:boolean){
+  if(vesper){const lx=x-42000,volcanic=1-THREE.MathUtils.smoothstep(lx+700+Math.sin(z/230)*110+Math.sin(z/830)*170,-240,240),salt=THREE.MathUtils.smoothstep(z-550-Math.sin(lx/410)*150,-160,160);green.copy(desertGround).lerp(saltGround,salt).lerp(volcanicGround,volcanic);stone.copy(desertRock).lerp(saltRock,salt).lerp(volcanicRock,volcanic);}
+  else {const biome=biomeAt(x,z);green.set(biome.ground);stone.set(biome.rock);}
+  return ground.copy(green).lerp(stone,Math.min(1,slope*1.4));
+ }
  function load():Loaded{const group=new THREE.Group(),detail=new THREE.Group();group.add(detail);scene.add(group);return{group,detail,center:new THREE.Vector3(),colliders:[],meshes:[],geometries:[],materials:[],textures:[]};}
  function remove(data:Loaded){scene.remove(data.group);for(const c of data.colliders)world.removeCollider(c,true);for(const mesh of data.meshes){const i=occluders.indexOf(mesh);if(i>=0)occluders.splice(i,1);}data.group.traverse(o=>{if(o instanceof THREE.InstancedMesh)o.dispose();});for(const g of data.geometries)g.dispose();for(const m of data.materials)m.dispose();for(const t of data.textures)t.dispose();}
  function collider(data:Loaded,x:number,y:number,z:number,w:number,h:number,d:number){data.colliders.push(world.createCollider(RAPIER.ColliderDesc.cuboid(w/2,h/2,d/2).setTranslation(x,y,z).setFriction(.85)));}
  function terrain(cx:number,cz:number){
   const data=load();data.center.set((cx+.5)*CHUNK,0,(cz+.5)*CHUNK);const size=CHUNK,segments=32,g=new THREE.PlaneGeometry(size,size,segments,segments);g.rotateX(-Math.PI/2);const p=g.attributes.position,colors=new Float32Array(p.count*3);
-  for(let i=0;i<p.count;i++){const x=p.getX(i)+(cx+.5)*size,z=p.getZ(i)+(cz+.5)*size,y=heightAt(x,z);p.setXYZ(i,x,y,z);g.attributes.uv.setXY(i,x/7,z/7);const slope=Math.hypot(heightAt(x+2,z)-y,heightAt(x,z+2)-y)/2;ground.copy(green).lerp(stone,Math.min(1,slope*1.4));ground.lerp(sand,1-THREE.MathUtils.smoothstep(y,1,13));ground.lerp(snow,THREE.MathUtils.smoothstep(y,90,160)*.7);ground.multiplyScalar(.92+.09*Math.sin(x*.031)*Math.cos(z*.039));colors.set([ground.r,ground.g,ground.b],i*3);}
+  const biome=biomeAt(data.center.x,data.center.z),vesper=getPlanetAt(data.center.x,data.center.z).id==='vesper';
+  for(let i=0;i<p.count;i++){const x=p.getX(i)+(cx+.5)*size,z=p.getZ(i)+(cz+.5)*size,y=heightAt(x,z);p.setXYZ(i,x,y,z);g.attributes.uv.setXY(i,x/7,z/7);const slope=Math.hypot(heightAt(x+2,z)-y,heightAt(x,z+2)-y)/2;terrainColor(x,z,slope,vesper);if(!vesper){ground.lerp(sand,1-THREE.MathUtils.smoothstep(y,1,13));ground.lerp(snow,THREE.MathUtils.smoothstep(y,90,160)*.7);}ground.multiplyScalar(.92+.09*Math.sin(x*.031)*Math.cos(z*.039));colors.set([ground.r,ground.g,ground.b],i*3);}
   g.setAttribute('color',new THREE.BufferAttribute(colors,3));g.computeVertexNormals();const mesh=new THREE.Mesh(g,terrainMat);mesh.receiveShadow=true;data.group.add(mesh);data.meshes.push(mesh);data.geometries.push(g);occluders.push(mesh);
   data.colliders.push(world.createCollider(RAPIER.ColliderDesc.trimesh(new Float32Array(p.array),new Uint32Array(g.index!.array)).setFriction(.95)));
   // Trace the actual collision mesh's zero contour. Foam follows beaches rather
@@ -50,9 +59,9 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
   if(foam.length){const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(foam,3));const mesh=new THREE.Mesh(geometry,foamMaterial);data.group.add(mesh);data.geometries.push(geometry);}
   const nearby=getWorldSites((cx+.5)*CHUNK,(cz+.5)*CHUNK,240),encounterClearings=getEncounterSites((cx+.5)*CHUNK,(cz+.5)*CHUNK,250),rocks:THREE.Matrix4[]=[],plants:THREE.Matrix4[]=[],dummy=new THREE.Object3D();
   for(let i=0;i<100;i++){const x=(cx+worldHash(cx,cz,i*2+9))*CHUNK,z=(cz+worldHash(cx,cz,i*2+10))*CHUNK,y=heightAt(x,z);if(y<2||Math.hypot(x,z-220)<30||isOnIndustrialRoad(x,z,7)||encounterClearings.some(e=>Math.hypot(x-e.x,z-e.z)<(['convoy','patrol','friendly'].includes(e.kind)?50:28))||ROADSIDE_STORIES.some(l=>Math.hypot(x-l.x,z-l.z)<20)||WORLD_LANDMARKS.some(l=>Math.hypot(x-l.x,z-l.z)<35)||nearby.some(s=>Math.hypot(x-s.x,z-s.z)<s.radius+15)||Math.hypot(x-REGION_START.x,z-REGION_START.z)<45)continue;
-   const rock=i%3===0,h=rock?1.2+worldHash(cx,cz,i+400)*5:3+worldHash(cx,cz,i+700)*9;dummy.position.set(x,y+h*(rock?.32:.62),z);dummy.rotation.set(rock?.2:0,worldHash(cx,cz,i+900)*6.28,rock?.12:0);dummy.scale.set(rock?h*.8:h*.4,h,rock?h*.7:h*.4);dummy.updateMatrix();(rock?rocks:plants).push(dummy.matrix.clone());
+   const rock=i%3===0;if(!rock&&worldHash(cx,cz,i+950)>biome.density)continue;const h=rock?1.2+worldHash(cx,cz,i+400)*5:3+worldHash(cx,cz,i+700)*9;dummy.position.set(x,y+h*(rock?.32:.62),z);dummy.rotation.set(rock?.2:0,worldHash(cx,cz,i+900)*6.28,rock?.12:0);dummy.scale.set(rock?h*.8:h*.4,h,rock?h*.7:h*.4);dummy.updateMatrix();(rock?rocks:plants).push(dummy.matrix.clone());
   }
-  for(const [geometry,material,matrices] of [[rockGeo,rockMat,rocks],[treeGeo,plantMat,plants]] as const){if(!matrices.length)continue;const m=new THREE.InstancedMesh(geometry,material,matrices.length);matrices.forEach((t,i)=>m.setMatrixAt(i,t));m.receiveShadow=true;m.computeBoundingSphere();data.detail.add(m);}
+  for(const [geometry,material,matrices] of [[rockGeo,rockMat,rocks],[vesper?crystalGeo:treeGeo,plantMat,plants]] as const){if(!matrices.length)continue;const m=new THREE.InstancedMesh(geometry,material,matrices.length);const tint=new THREE.Color(material===rockMat?biome.rock:biome.plant);tint.r/=material.color.r;tint.g/=material.color.g;tint.b/=material.color.b;matrices.forEach((t,i)=>{m.setMatrixAt(i,t);m.setColorAt(i,tint);});m.receiveShadow=true;m.computeBoundingSphere();data.detail.add(m);}
   // Small, different roadside scenes make the journey readable between districts.
   // They use existing material batches and the exact triangle height sampler.
   const roadsideBatches=new Map<THREE.Material,THREE.Matrix4[]>();
@@ -73,10 +82,15 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
   // Authored discoveries are part of terrain streaming, and use real collision.
   for(const landmark of WORLD_LANDMARKS){if(Math.floor(landmark.x/CHUNK)!==cx||Math.floor(landmark.z/CHUNK)!==cz||landmark.kind==='river')continue;
    const lx=landmark.x,lz=landmark.z,ly=heightAt(lx,lz),matrices:THREE.Matrix4[]=[];
-   const add=(dx:number,dy:number,dz:number,w:number,h:number,d:number)=>{dummy.position.set(lx+dx,ly+dy,lz+dz);dummy.rotation.set(0,0,0);dummy.scale.set(w,h,d);if(landmark.kind==='cave')dummy.scale.multiplyScalar(.5);dummy.updateMatrix();matrices.push(dummy.matrix.clone());collider(data,lx+dx,ly+dy,lz+dz,w*.8,h*.85,d*.8);};
-   if(landmark.kind==='cave'){for(const side of [-1,1]){add(side*8,5,0,9,14,19);add(side*10,4,-10,11,12,15);}add(0,11,-2,23,8,19);add(0,4,-17,22,10,8);}
+   const add=(dx:number,dy:number,dz:number,w:number,h:number,d:number)=>{dummy.position.set(lx+dx,ly+dy,lz+dz);dummy.rotation.set(0,0,0);dummy.scale.set(w,h,d);dummy.updateMatrix();matrices.push(dummy.matrix.clone());collider(data,lx+dx,ly+dy,lz+dz,w,h,d);};
+   if(landmark.kind==='cave'){for(const side of [-1,1]){add(side*8,5,0,7,10,30);add(side*9,3,-13,9,6,8);}add(0,11,-2,24,4,30);}
    else {add(-7,2,0,6,4,20);add(6,1,-4,9,2,12);add(0,1,6,19,1.2,5);}
-   const mesh=new THREE.InstancedMesh(landmark.kind==='cave'?rockGeo:sharedBox,landmark.kind==='cave'?rockMat:rust,matrices.length);matrices.forEach((m,i)=>mesh.setMatrixAt(i,m));mesh.receiveShadow=true;mesh.castShadow=true;mesh.computeBoundingSphere();data.group.add(mesh);data.meshes.push(mesh);occluders.push(mesh);
+   const mesh=new THREE.InstancedMesh(sharedBox,landmark.kind==='cave'?rockMat:rust,matrices.length);matrices.forEach((m,i)=>mesh.setMatrixAt(i,m));mesh.receiveShadow=true;mesh.castShadow=true;mesh.computeBoundingSphere();data.group.add(mesh);data.meshes.push(mesh);occluders.push(mesh);
+   if(landmark.kind==='cave'){
+    const crags=new THREE.InstancedMesh(rockGeo,rockMat,8);let index=0;for(const side of [-1,1])for(const dz of [-12,-4,4,12]){dummy.position.set(lx+side*12,ly+5,lz+dz);dummy.rotation.set(0,dz*.12,0);dummy.scale.set(5,12+Math.abs(dz)*.2,6);dummy.updateMatrix();crags.setMatrixAt(index++,dummy.matrix);}crags.computeBoundingSphere();data.detail.add(crags);
+    // The discoverable cache sits beside the walk-through route, never across it.
+    const cache=new THREE.Mesh(sharedBox,cyan);cache.position.set(lx+3.4,ly+.65,lz-6);cache.scale.set(1.1,1.3,1.7);data.group.add(cache);collider(data,lx+3.4,ly+.65,lz-6,1.1,1.3,1.7);
+   }
   }
   return data;
  }
@@ -140,7 +154,41 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
    for(let q=-d*.4;q<=d*.4;q+=2)deco(a-w/2-1.45,h*.62+.6,c+q,.055,1.2,.055,steel);
    for(const q of [-.4,.4])deco(a-w/2-.55,h*.35,c+d*.36+q,.07,h*.7,.07,yellow);for(let q=.2;q<h*.7;q+=.37)deco(a-w/2-.55,q,c+d*.36,.07,.055,.86,steel);
    const stacks=stackLocations.get(s.id)||[];stacks.push({x:x+a-w*.38,y:y+h+2.2,z:z+c+d*.21});stackLocations.set(s.id,stacks);
-   sign(label,'ASH COAST / COLONIAL LOGISTICS',a,h-.6,c+d/2+.45,Math.min(w*.75,10),1.35);furnish(a,c,w,d,h,label);
+   sign(label,`${getPlanetAt(x,z).name.toUpperCase()} / COLONIAL LOGISTICS`,a,h-.6,c+d/2+.45,Math.min(w*.75,10),1.35);furnish(a,c,w,d,h,label);
+  }
+  function destinationInterior(){
+   const routeLight=s.kind==='pirate-ship'?amber:cyan;
+   for(const room of getDestinationInterior(s.kind)){
+    const {x:a,z:c,w,d,h,role}=room;
+    block(a,-.12,c,w,.3,d,steel);block(a,h,c,w+.5,.35,d+.5,steel);
+    for(const box of interiorWallBoxes(room))block(box.x,box.y,box.z,box.w,box.h,box.d,role==='observation'?observationGlass:wall);
+    // Every room has two real doors joined by an eight-metre clear center aisle.
+    for(const side of [-1,1]){deco(a+side*(w/2-.6),.05,c,.12,.03,d-.5,routeLight);deco(a+side*(w/2-.4),h-1,c,.12,.12,d-.5,routeLight);}
+    for(let q=-d/2+3;q<d/2;q+=6){
+     for(const side of [-1,1])deco(a+side*(w/2-.15),h/2,c+q,.3,h,.3,steel);
+     deco(a,h-.3,c+q,w-.6,.1,.18,pale);
+    }
+    if(role==='cargo'){
+     for(const side of [-1,1])for(const q of [-7,3]){block(a+side*8,1,c+q,3,2,4,side<0?orange:teal);deco(a+side*8,2.08,c+q,3.1,.16,4.1,steel);}
+    }else if(role==='bridge'||role==='observation'){
+     for(const side of [-1,1]){const consoleX=a+side*(w/2-3);block(consoleX,.7,c,3,1.4,d-7,dark);deco(consoleX,1.5,c,3.1,.12,d-7,pale);for(let q=-d/2+5;q<d/2-3;q+=4){deco(consoleX,2,c+q,2.2,1,.25,dark);deco(consoleX,2,c+q+.14,1.8,.64,.03,routeLight);for(let line=-1;line<=1;line++)deco(consoleX,2+line*.17,c+q+.16,1.65,.035,.02,black);}}
+    }
+    sign(room.name,room.sub,a,h-1.3,c+d/2+.31,Math.min(8,w-2),1.2);
+    const list=practicalLamps.get(s.id)||[];list.push({x:x+a,y:y+4,z:z+c,color:s.kind==='pirate-ship'?'#ffb35c':'#73cfff'});practicalLamps.set(s.id,list);
+   }
+  }
+  function settlementStreets(){
+   // Existing material batches carry paint, shelter, street markers and cover.
+   for(const side of [-1,1])for(const c of [-38,-15,8])deco(side*5,.046,c,.16,.025,12,yellow);
+   for(let a=-7;a<=7;a+=2)deco(a,.052,14,1.1,.025,5,pale);
+   for(const side of [-1,1]){
+    for(const c of [-43,38]){block(side*47,1.1,c,5,2.2,1.4,concrete);deco(side*47,2.3,c,5.2,.15,1.5,steel);}
+    const a=side*46;for(const c of [-17,1,20]){block(a,.48,c,3,.95,.7,dark);deco(a,.98,c,3.2,.12,.9,pale);}
+    for(const c of [-36,32]){block(a,.3,c,3,.6,3,concrete);deco(a,1.1,c,1.5,1.5,1.5,teal);}
+   }
+   // A small public kiosk has an open counter and a legible district directory.
+   block(47,1,-6,2,2,3,teal);deco(47,2.6,-6,2.8,1.1,.2,cyan);
+   sign('SERVICES / 01','SUPPLIES • REPAIRS • FIELD OPERATIONS',0,4.6,-41,9,1.2);
   }
   function container(a:number,c:number,m:THREE.Material,level=0,num='07'){
    const b=level*3.08+1.5;if(level===0)deco(a,.03,c,6.5,.05,10.5,asphalt);block(a,b,c,4.6,3,8.8,m);for(let i=0;i<21;i++)for(const side of [-1,1])deco(a+side*2.33,b,c-4.2+i*.42,.08,2.76,.09,m);
@@ -166,7 +214,7 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
    const list=practicalLamps.get(s.id)||[];list.push({x:x+head,y:y+7.4,z:z+c,color:side<0?'#73cfff':'#ffb35c'});practicalLamps.set(s.id,list);
   }
   if(s.id==='landing-services'){surfacedYard(true);for(const a of [-19,19])for(const c of [-24,20])streetlight(a,c);}
-  else if(s.kind==='camp'||s.kind==='outpost'){surfacedYard();for(const a of [-9,9])for(const c of [-30,0])streetlight(a,c);}
+  else if(s.kind==='camp'||s.kind==='outpost'){surfacedYard();settlementStreets();for(const a of [-9,9])for(const c of [-30,0])streetlight(a,c);}
   if(s.id==='landing-services'){
    building(-33,-25,18,21,12,'PATHFINDER / 01');building(32,-27,17,21,10,'FLIGHT STORES');
    building(-34,15,18,19,9,'SQUAD QUARTERS');building(34,18,17,21,11,'ORBITAL TRANSIT');
@@ -178,16 +226,23 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
    const hullShape=new THREE.Shape();hullShape.moveTo(-w*.45,length*.46);hullShape.lineTo(w*.45,length*.46);hullShape.lineTo(w*.47,-length*.25);hullShape.lineTo(0,-length*.64);hullShape.lineTo(-w*.47,-length*.25);hullShape.closePath();const hullGeo=new THREE.ExtrudeGeometry(hullShape,{depth:9,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:1.5,bevelThickness:1.5});hullGeo.rotateX(Math.PI/2);const hull=new THREE.Mesh(hullGeo,dark);hull.position.set(x,y-2,z);hull.castShadow=true;data.group.add(hull);data.geometries.push(hullGeo);data.meshes.push(hull);occluders.push(hull);block(0,-4.5,0,w-8,8,length-10,dark);block(0,-.65,0,w,1.3,length,steel);block(0,-8,0,w*.7,6,length*.87,dark);
    // The open flight deck is intentionally continuous, with actual deck-height colliders.
    building(-22,-35,20,30,18,'BRIDGE / CONTROL');block(-22,14.5,-19,21,3,.35,glass,false);block(-22,26,-39,1.3,15,1.3,steel);block(-22,29,-39,18,.65,1.6,wall);building(23,-43,18,21,8,'CREW BARRACKS');
+   if(!friendly)destinationInterior();
+   else {sign('EXPEDITION SUPPORT','RESUPPLY / MEDICAL / OCEAN PATROLS',23,4,-31.8,10,1.3);for(const side of [-1,1]){block(side*24,1.5,61,4,3,4,teal);deco(side*24,3.1,61,2,.15,2,pale);}}
    for(let i=-3;i<=3;i++)for(const side of [-1,1]){block(side*(w/2-1),.55,i*20,.5,1.1,4,dark);block(side*(w/2-.7),1.2,i*20,.3,.2,3,friendly?cyan:amber,false);}
-   pad(0,friendly?20:18,friendly?20:16);for(const a of [-24,24]){container(a,48,a<0?teal:orange,0,a<0?'31':'32');yard(a-2,35);}sign(friendly?'CNS WAYFARER':'CORSAIR / 09','FLIGHT DECK / SQUAD RESUPPLY',0,5,-39,13,2.3);for(const side of [-1,1]){deco(side*28,.035,8,.3,.03,66,yellow);for(let q=-60;q<64;q+=8)deco(side*34,1.15,q,.075,1.7,.075,pale);deco(side*34,1.9,0,.075,.075,length*.9,yellow);deco(side*34,.95,0,.065,.065,length*.9,steel);}
+   pad(0,friendly?20:18,friendly?20:16);for(const a of [-24,24]){container(a,48,a<0?teal:orange,0,a<0?'31':'32');yard(a-2,35);}sign(friendly?'CNS WAYFARER':'CORSAIR / 09',friendly?'FLIGHT DECK / SQUAD RESUPPLY':'DETENTION / PIRATE CREW DECK',friendly?0:23,5,friendly?-39:-31.8,13,2.3);for(const side of [-1,1]){deco(side*28,.035,8,.3,.03,66,yellow);for(let q=-60;q<64;q+=8)deco(side*34,1.15,q,.075,1.7,.075,pale);deco(side*34,1.9,0,.075,.075,length*.9,yellow);deco(side*34,.95,0,.065,.065,length*.9,steel);}
    for(const side of [-1,1])block(side*32,-3.5,0,.3,.6,length*.78,friendly?cyan:amber,false);
   }else if(s.kind==='station'){
-   block(0,-2,0,204,4,156,dark);block(0,-6,0,176,6,134,steel);pad(0,28,26);building(-66,-18,45,74,22,'SHIP REPAIR');building(66,-18,45,74,22,'CREW QUARTERS');building(0,-52,80,28,15,'ANCHORAGE CONTROL');
+   block(0,-2,0,204,4,156,dark);block(0,-6,0,176,6,134,steel);pad(0,28,26);building(66,-18,45,74,22,'CREW QUARTERS');destinationInterior();
+   // Open-front hangar: a full 36-metre entrance reaches its level pressure deck.
+   block(-66,-.12,-18,45,.24,74,steel);for(const side of [-1,1])block(-66+side*22.5,11,-18,.6,22,74,wall);block(-66,11,-55,45,22,.6,wall);block(-66,22,-18,46,.5,75,steel);block(-66,20,19,45,4,.6,steel);
+   for(let c=-48;c<15;c+=12){deco(-66,21,c,43,.1,.25,cyan);deco(-66,.04,c,.2,.025,6,yellow);}
+   furnish(-66,-18,45,74,22,'SHIP REPAIR');sign('HANGAR / 01','PRESSURE DECK / SHIP REFITS',-66,18,19.4,20,2);
    for(const side of [-1,1]){block(side*98,2,0,2,4,150,steel);block(side*98,4.2,0,.5,.4,146,cyan,false);block(side*148,-7,-8,70,1.3,100,dark);for(let i=-3;i<=3;i++)block(side*148,-6.2,i*13,66,.15,.5,cyan,false);block(side*89,38,-51,6,75,6,steel);block(side*89,75,-51,7,.7,7,amber,false);}
-   container(-29,-27,teal,0,'A7');container(28,-27,orange,0,'B4');container(28,-27,blue,1);for(const a of [-32,32]){barrier(a,13);yard(a-2,0);}gantry(-33,83,16);block(0,2,-76,200,4,2,steel);block(0,2,76,200,4,2,steel);for(let i=-2;i<=2;i++)block(i*27,15,-64,2,30,2,steel);
+   container(-29,-27,teal,0,'A7');container(28,-27,orange,0,'B4');container(28,-27,blue,1);for(const a of [-32,32]){barrier(a,13);yard(a-2,0);}gantry(-33,83,16);block(0,.55,-76,200,1.1,2,steel);block(0,.55,76,200,1.1,2,steel);for(const i of [-2,-1,1,2])block(i*27,15,-64,2,30,2,steel);
   }else if(s.kind==='ruin'){
-   for(let i=0;i<7;i++){const angle=i/7*Math.PI*2;block(Math.cos(angle)*24,6+(i%3)*2,Math.sin(angle)*24,5,12+(i%3)*4,5,steel);}
+   for(let i=0;i<7;i++){const angle=i/7*Math.PI*2,a=Math.cos(angle)*24,c=Math.sin(angle)*24;block(a,6+(i%3)*2,c,5,12+(i%3)*4,5,steel);deco(a,5,c+2.53,.15,8,.08,cyan);for(let q=0;q<4;q++)deco(a,3+q*1.9,c+2.54,2,.1,.08,cyan);}
    block(-18,16,-18,31,2,4,wall);block(22,4,5,11,8,7,dark);pad(0,35,13);
+   for(const side of [-1,1]){block(side*8,4,-12,3,8,16,dark);deco(side*6.45,3.5,-12,.08,5,12,cyan);}block(0,8.5,-12,19,1,16,steel);sign('ANCIENT SIGNAL','ARCHIVE / SURVEY CACHE',0,6.8,-3.8,7,1);
   }else{
    const style=settlementStyle(s),harbour=style==='harbour';
    for(const room of getSettlementBuildings(s))building(room.a,room.c,room.w,room.d,room.h,room.label);
@@ -228,15 +283,28 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
   // An obvious recoverable locker marks the on-foot interaction, separate from the landing pad.
   if(s.id!=='landing-services'){block(0,.7,-3,2.4,1.4,1.3,dark);block(0,1.5,-3,2.5,.18,1.4,steel);
   const lamp=new THREE.Mesh(sharedBox,completed.has(s.id)?cyan:amber);lamp.scale.set(1.8,.11,.08);lamp.position.set(x,y+1.3,z-2.3);data.group.add(lamp);signals.set(s.id,lamp);}
-  for(const [source,target,physical]of [[batches,data.group,true],[details,data.detail,false]] as const)for(const [material,matrices]of source){const mesh=new THREE.InstancedMesh(sharedBox,material,matrices.length);matrices.forEach((m,i)=>mesh.setMatrixAt(i,m));mesh.receiveShadow=true;mesh.castShadow=material!==cyan&&material!==amber;mesh.computeBoundingSphere();target.add(mesh);if(physical){data.meshes.push(mesh);occluders.push(mesh);}}
+  for(const [source,target,physical]of [[batches,data.group,true],[details,data.detail,false]] as const)for(const [material,matrices]of source){const mesh=new THREE.InstancedMesh(sharedBox,material,matrices.length);matrices.forEach((m,i)=>mesh.setMatrixAt(i,m));mesh.receiveShadow=true;mesh.castShadow=material!==cyan&&material!==amber&&material!==observationGlass;mesh.computeBoundingSphere();target.add(mesh);if(physical){data.meshes.push(mesh);occluders.push(mesh);}}
   data.group.name=s.name;return data;
  }
  // A coarse apron extends the visible continent beyond the detailed collision window.
  const horizonGeometry=new THREE.PlaneGeometry(20000,20000,96,96);horizonGeometry.rotateX(-Math.PI/2);
- const horizonCenter={value:new THREE.Vector2()},horizonMaterial=new THREE.MeshStandardMaterial({color:'#566d67',roughness:1});
+ const horizonColors=new Float32Array(horizonGeometry.attributes.position.count*3).fill(1);horizonGeometry.setAttribute('color',new THREE.BufferAttribute(horizonColors,3));
+ const horizonCenter={value:new THREE.Vector2()},horizonMaterial=new THREE.MeshStandardMaterial({color:'#566d67',vertexColors:true,roughness:1});
  horizonMaterial.onBeforeCompile=shader=>{shader.uniforms.uDetailedCenter=horizonCenter;shader.vertexShader='varying vec3 horizonWorld;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nhorizonWorld=position;');shader.fragmentShader='uniform vec2 uDetailedCenter;varying vec3 horizonWorld;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nvec2 offset=abs(horizonWorld.xz-uDetailedCenter);if(offset.x<895.5&&offset.y<895.5)discard;float riverX=2450.+sin(horizonWorld.z/490.)*180.+sin(horizonWorld.z/1700.)*320.;if(abs(horizonWorld.x-riverX)<72.&&length(horizonWorld.xz)>1800.)discard;');};
  const horizon=new THREE.Mesh(horizonGeometry,horizonMaterial);horizon.receiveShadow=false;scene.add(horizon);let horizonCell='';
- function updateHorizon(x:number,z:number){horizonCenter.value.set((Math.floor(x/CHUNK)+.5)*CHUNK,(Math.floor(z/CHUNK)+.5)*CHUNK);const cx=Math.floor(x/1024)*1024,cz=Math.floor(z/1024)*1024,key=`${cx}:${cz}`;if(key===horizonCell)return;horizonCell=key;const p=horizonGeometry.attributes.position;for(let i=0;i<p.count;i++){const lx=(i%97)/96*20000-10000,lz=Math.floor(i/97)/96*20000-10000;p.setXYZ(i,cx+lx,heightAt(cx+lx,cz+lz)-30,cz+lz);}p.needsUpdate=true;horizonGeometry.computeVertexNormals();horizonGeometry.computeBoundingSphere();}
+ function updateHorizon(x:number,z:number){
+  horizonCenter.value.set((Math.floor(x/CHUNK)+.5)*CHUNK,(Math.floor(z/CHUNK)+.5)*CHUNK);const cx=Math.floor(x/1024)*1024,cz=Math.floor(z/1024)*1024,vesper=getPlanetAt(x,z).id==='vesper',key=`${cx}:${cz}:${vesper}`;if(key===horizonCell)return;horizonCell=key;
+  horizonMaterial.color.set(vesper?'#ffffff':biomeAt(x,z).ground);const texture=vesper?grit:null;if(horizonMaterial.map!==texture){horizonMaterial.map=texture;horizonMaterial.needsUpdate=true;}
+  // Keep the same 97×97 budget, concentrating Vesper samples near the streamed
+  // terrain edge so broad dunes remain legible from the arrival flight altitude.
+  const offset=(index:number)=>{const q=index-48,a=Math.abs(q);return vesper?Math.sign(q)*(a<=16?a*64:1024+Math.pow((a-16)/32,1.5)*8976):index/96*20000-10000;};
+  const p=horizonGeometry.attributes.position;for(let i=0;i<p.count;i++){const px=cx+offset(i%97),pz=cz+offset(Math.floor(i/97)),height=heightAt(px,pz);p.setXYZ(i,px,vesper?Math.max(1,height-1):height-30,pz);horizonGeometry.attributes.uv.setXY(i,px/7,pz/7);}
+  p.needsUpdate=true;horizonGeometry.attributes.uv.needsUpdate=true;horizonGeometry.computeVertexNormals();horizonGeometry.computeBoundingSphere();
+  const normal=horizonGeometry.attributes.normal;for(let i=0;i<p.count;i++){
+   if(vesper){const slope=Math.hypot(normal.getX(i),normal.getZ(i))/Math.max(.1,normal.getY(i));terrainColor(p.getX(i),p.getZ(i),slope,true);horizonColors[i*3]=ground.r;horizonColors[i*3+1]=ground.g;horizonColors[i*3+2]=ground.b;}
+   else horizonColors.fill(1,i*3,i*3+3);
+  }horizonGeometry.attributes.color.needsUpdate=true;
+ }
  let current='';
  function sync(position:{x:number;y?:number;z:number}){
   const cx=Math.floor(position.x/CHUNK),cz=Math.floor(position.z/CHUNK),key=`${cx}:${cz}`;if(key===current)return;current=key;
