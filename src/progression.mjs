@@ -12,6 +12,7 @@ export const UPGRADES=[
  {id:'shieldCell',name:'Personal shield cell',description:'Increase rechargeable personal shield capacity by 20 per level.',cost:130,max:3}
 ];
 export const CONTRACTS=[
+ {id:'glass-basin',title:'The silent observatory',description:'Recover the Glass Basin Survey archive for Sela in Sunfall.',kind:'site',target:'vesper-salt',reward:170,bearing:'vesper-salt'},
  {id:'vesper-mine',title:'Break the extraction ring',description:'Liberate the Obsidian Extraction camp on Vesper.',kind:'site',target:'vesper-mine',reward:180,bearing:'vesper-mine'},
  {id:'echo-vault',title:'Voices in the dunes',description:'Travel to Vesper and recover the Echo Vault archive.',kind:'site',target:'vesper-vault',reward:160,bearing:'vesper-vault'},
  {id:'breakwater',title:'The island battery',description:'Take Breakwater Redoubt and open the carrier approach.',kind:'site',target:'island-redoubt',reward:170,bearing:'island-redoubt'},
@@ -25,7 +26,7 @@ export const CONTRACTS=[
  {id:'rescue',title:'Bring them home',description:'Rescue a captive from the disabled Corsair.',kind:'rescued',target:1,rescuedId:'corsair',reward:220,bearing:'corsair'},
  {id:'surveyor',title:'A wider horizon',description:'Scan five points of interest with the survey pulse.',kind:'scanned',target:5,reward:160}
 ];
-export function ensureProgression(c){c.upgrades??={};c.contracts??={};c.journal??=[];c.encountersCompleted??=[];c.oceanKills??=0;c.blueprints??=[];c.scanned??=[];c.rescued??=[];c.boarding??={disabled:false};c.planet??='orison';c.activeMission??=null;c.safeHarbour??={announced:false,defending:false,repelled:false,rewarded:false};c.onboarding??={stage:'launch',introSeen:true,progress:0};return c;}
+export function ensureProgression(c){c.upgrades??={};c.contracts??={};c.journal??=[];c.encountersCompleted??=[];c.oceanKills??=0;c.blueprints??=[];c.scanned??=[];c.rescued??=[];c.boarding??={disabled:false};c.planet??='orison';c.activeMission??='main';c.metPeople??=[];c.story??={briefed:false,finished:false,notified:''};c.safeHarbour??={announced:false,defending:false,repelled:false,rewarded:false};c.onboarding??={stage:'launch',introSeen:true,progress:0};return c;}
 export function journal(c,title,text,time=0){ensureProgression(c);c.journal.unshift({title:String(title).slice(0,100),text:String(text).slice(0,400),time:Math.max(0,time)});c.journal=c.journal.slice(0,40);}
 export function contractProgress(c,contract){const n=contract.kind==='site'?(c.completed.includes(contract.target)?1:0):contract.kind==='discoveries'?c.discovered.length:contract.kind==='air'?c.airKills:contract.kind==='rescued'?(contract.rescuedId?Number(c.rescued?.includes(contract.rescuedId)):(c.rescued?.length||0)):contract.kind==='scanned'?(c.scanned?.length||0):c.encountersCompleted?.length||0;return {current:n,target:contract.kind==='site'?1:contract.target};}
 export function acceptContract(c,id){ensureProgression(c);const contract=CONTRACTS.find(x=>x.id===id);if(!contract||c.contracts[id])return false;c.contracts[id]='active';return true;}
@@ -39,7 +40,8 @@ export function validateSave(raw){
  if(!raw||raw.version!==1||!raw.campaign||!vector(raw.position))return null;
  const v=raw.campaign,c=ensureProgression({completed:strings(v.completed),discovered:strings(v.discovered),tracked:typeof v.tracked==='string'?v.tracked:null,progress:{},salvage:num(v.salvage,0,1e7),raids:num(v.raids,0,6000),distanceWalked:num(v.distanceWalked,0,1e10),distanceFlown:num(v.distanceFlown,0,1e10),airKills:num(v.airKills,0,1e6),oceanKills:num(v.oceanKills,0,1e6),resuppliedAt:{},visited:{},encountersCompleted:strings(v.encountersCompleted)});
  const target=v.trackedTarget;if(target&&target.id===c.tracked&&typeof target.name==='string'&&[target.x,target.z,target.elevation].every(n=>typeof n==='number'&&Number.isFinite(n)&&Math.abs(n)<1e7))c.trackedTarget={id:target.id,name:target.name.slice(0,100),x:target.x,z:target.z,elevation:target.elevation,kind:typeof target.kind==='string'?target.kind.slice(0,30):'signal',faction:['friendly','pirate','neutral'].includes(target.faction)?target.faction:'neutral',radius:num(target.radius,1,2000,20)};
- c.activeMission=CONTRACTS.some(k=>k.id===v.activeMission)?v.activeMission:null;
+ c.activeMission=['main','free'].includes(v.activeMission)||CONTRACTS.some(k=>k.id===v.activeMission)?v.activeMission:'main';
+ c.metPeople=strings(v.metPeople).slice(0,40);c.story={briefed:v.story?.briefed===true,finished:v.story?.finished===true,notified:typeof v.story?.notified==='string'?v.story.notified.slice(0,30):''};
  c.safeHarbour={announced:v.safeHarbour?.announced===true,defending:v.safeHarbour?.defending===true,repelled:v.safeHarbour?.repelled===true,rewarded:v.safeHarbour?.rewarded===true};
  c.onboarding={stage:['cell','ship','launch','complete'].includes(v.onboarding?.stage)?v.onboarding.stage:'launch',introSeen:true,progress:0};
  c.blueprints=strings(v.blueprints).filter(id=>UPGRADES.some(u=>u.id===id));

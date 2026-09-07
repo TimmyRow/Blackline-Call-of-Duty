@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "controller resident interaction and side quest acceptance",
+    "Controller conversation skips completed disabled offers",
+    "touch resident interaction and side quest acceptance",
+    "Touch journal shows main story plus accepted side quests without overflow"
+  ],
+  "errors": []
+}

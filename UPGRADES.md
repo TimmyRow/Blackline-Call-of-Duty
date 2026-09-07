@@ -44,3 +44,12 @@ Procedural visuals and simplified AI remain prototype-scale. No multiplayer, mov
 - Standard Xbox controller mapping: sticks move/look, RT fire, LT aim, A jump/rise, B crouch/descend, X reload, Y switch, LB grenade, RB hold interaction, L3 hold sprint/boost, R3 board/exit, View missions, Menu pause, D-pad up scan/down atlas/left squad/right ship. Menus use D-pad or left stick, A select, B back, LB/RB missions/equipment.
 - Analog movement works on foot, aboard Kestrel and at the launch helm. Controller look speed and invert-Y settings are in Controls & Settings. Disconnect/API failure pauses and releases input. Held triggers cannot fire through pause/resume.
 - Validation uses simulated standard gamepads in Windows Edge and mobile Chromium/WebKit emulation. Physical Xbox controller and iPhone/iPad hardware remain unverified.
+
+
+## Main story and resident side quests
+
+- **A Signal Home** is the main quest: survive Crashfall, meet Mara in Pathfinder Landing, recover the Harbour ledger and Northwatch keys, free the Corsair crew, investigate Meridian, retrieve Vesper’s Echo Vault archive, and return to Mara to transmit the fleet beacon. Chapters advance automatically; out-of-order exploration is credited once.
+- Six named residents live in Pathfinder Landing, liberated Cold Harbour and Sunfall Expedition Port. Their gold markers appear nearby. Hold E / controller RB / touch USE to talk.
+- Lia, Tomas, Iris, Kito and Sela offer eight optional side quests in person. Only accepted or completed side quests appear in Missions; the previous all-contract menu is superseded. Already accepted quests from older saves stay accepted.
+- Track the main quest again at any time from Missions. Find Ship and manual map pins still work independently. Conversations, chapter progress and the final one-time reward persist.
+- Verified with 76 rule tests, a desktop story lifecycle playtest, simulated Xbox conversation input and mobile WebKit interaction/layout checks. Physical controller and Apple device testing remains unverified.

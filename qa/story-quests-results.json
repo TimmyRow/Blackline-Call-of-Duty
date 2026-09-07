@@ -1,0 +1,1223 @@
+{
+  "checks": [
+    "New journal shows one main story and no unseen side quests",
+    "A real nearby conversation with Mara begins the story",
+    "Lia offers side quests in person; acceptance adds only the chosen quest",
+    "Find Ship overrides main-story pin and survives save/reload",
+    "Completed sites advance the story; returning to Mara ends it with one reward"
+  ],
+  "errors": [],
+  "snapshot": {
+    "mode": "playing",
+    "opening": {
+      "active": false,
+      "time": 0,
+      "exit": [
+        0,
+        20.7,
+        231
+      ]
+    },
+    "touchMode": false,
+    "input": {
+      "controller": false,
+      "move": {
+        "x": 0,
+        "z": 0
+      },
+      "firing": false,
+      "aiming": false,
+      "held": [],
+      "yaw": 0,
+      "pitch": 0,
+      "fov": 75
+    },
+    "pixelRatio": 0.9,
+    "weapon": "ballistic",
+    "energy": 100,
+    "shield": 70,
+    "planet": "orison",
+    "boarding": {
+      "hull": 0,
+      "progress": 0,
+      "stage": "complete",
+      "label": "CORSAIR SECURED",
+      "description": "The prisoner is safe and this vessel can resupply your squad."
+    },
+    "story": {
+      "id": "main",
+      "name": "A Signal Home",
+      "title": "Send the signal home",
+      "description": "The fleet has your signal. The settlements are connected again. Continue exploring and helping the people you meet.",
+      "stage": "complete",
+      "chapter": 8,
+      "total": 8,
+      "target": null,
+      "complete": true
+    },
+    "talking": null,
+    "people": [
+      {
+        "id": "person:mara",
+        "name": "Mara Voss / Pathfinder Landing",
+        "x": 10,
+        "z": 97,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "mara"
+      },
+      {
+        "id": "person:lia",
+        "name": "Lia Sen / Pathfinder Landing",
+        "x": -14,
+        "z": 126,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "lia"
+      },
+      {
+        "id": "person:tomas",
+        "name": "Tomas Reed / Pathfinder Landing",
+        "x": 17,
+        "z": 78,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "tomas"
+      },
+      {
+        "id": "person:iris",
+        "name": "Iris Okoye / Cold Harbour",
+        "x": 11,
+        "z": 8,
+        "elevation": 18,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "iris"
+      },
+      {
+        "id": "person:kito",
+        "name": "Kito Arlen / Sunfall Expedition Port",
+        "x": 42012,
+        "z": 10,
+        "elevation": 58,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "kito"
+      },
+      {
+        "id": "person:sela",
+        "name": "Sela Nadir / Sunfall Expedition Port",
+        "x": 41988,
+        "z": 15,
+        "elevation": 58,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "sela"
+      }
+    ],
+    "scanCooldown": 0,
+    "graphics": {
+      "lost": false,
+      "recoveries": 0,
+      "geometries": 273,
+      "textures": 60,
+      "enemyPool": 33
+    },
+    "health": 100,
+    "ammo": 30,
+    "reserve": 180,
+    "grenades": 3,
+    "kills": 0,
+    "stage": 5,
+    "upload": 0,
+    "time": 5.33333333333332,
+    "position": [
+      10,
+      17.704973275320903,
+      99.5
+    ],
+    "region": "Pathfinder Landing",
+    "campaign": {
+      "completed": [
+        "harbour",
+        "relay",
+        "corsair",
+        "station",
+        "vesper-vault"
+      ],
+      "discovered": [
+        "encounter:wreck:landing"
+      ],
+      "tracked": null,
+      "progress": {
+        "harbour": 0,
+        "relay": 0,
+        "depot": 0,
+        "carrier": 0,
+        "corsair": 0,
+        "station": 0,
+        "island-redoubt": 0,
+        "ruin:-1:-1": 0,
+        "camp:-1:0": 0,
+        "camp:0:-1": 0,
+        "outpost:0:0": 0,
+        "camp:1:-1": 0,
+        "outpost:-1:-2": 0
+      },
+      "salvage": 1170,
+      "raids": 0,
+      "distanceWalked": 9.5367431640625e-7,
+      "distanceFlown": 0,
+      "airKills": 0,
+      "oceanKills": 0,
+      "resuppliedAt": {},
+      "visited": {},
+      "encountersCompleted": [],
+      "upgrades": {
+        "armor": 0,
+        "handling": 0,
+        "engine": 1,
+        "shield": 0,
+        "cannon": 0,
+        "scanner": 0,
+        "reactor": 0,
+        "medical": 0,
+        "shieldCell": 0
+      },
+      "contracts": {
+        "coast": "complete",
+        "survey": "active",
+        "array": "complete",
+        "raider": "complete",
+        "orbit": "complete",
+        "echo-vault": "complete"
+      },
+      "journal": [
+        {
+          "title": "A Signal Home / Send the signal home",
+          "text": "The fleet has your signal. The settlements are connected again. Continue exploring and helping the people you meet.",
+          "time": 4.4499999999999895
+        },
+        {
+          "title": "A Signal Home / Fleet contact",
+          "text": "The settlements’ beacon is online. Fleet relief is coming. +300 salvage.",
+          "time": 4.433333333333323
+        },
+        {
+          "title": "Silent anchorage",
+          "text": "Contract complete · 240 salvage",
+          "time": 3.016666666666661
+        },
+        {
+          "title": "Operation Safe Harbour",
+          "text": "Contract complete · 200 salvage",
+          "time": 3.016666666666661
+        },
+        {
+          "title": "The listening post",
+          "text": "Contract complete · 150 salvage",
+          "time": 3.016666666666661
+        },
+        {
+          "title": "Break the blockade",
+          "text": "Contract complete · 120 salvage",
+          "time": 3.016666666666661
+        },
+        {
+          "title": "Voices in the dunes",
+          "text": "Contract complete · 160 salvage",
+          "time": 3.016666666666661
+        },
+        {
+          "title": "A Signal Home / Send the signal home",
+          "text": "Return to Mara in Pathfinder Landing on Orison. Give her the archive and bring the fleet beacon online.",
+          "time": 3.016666666666661
+        },
+        {
+          "title": "Safe Harbour secured",
+          "text": "Vector thrusters upgraded. The reclaimed vessel is now a friendly squad base.",
+          "time": 3.016666666666661
+        },
+        {
+          "title": "Beyond the road",
+          "text": "Accepted from Lia Sen.",
+          "time": 2.416666666666663
+        },
+        {
+          "title": "A Signal Home / Break the blockade",
+          "text": "Recover the route ledger from Cold Harbour. It identifies the relay the pirates use to jam the settlements.",
+          "time": 1.8999999999999981
+        },
+        {
+          "title": "Fallen Courier",
+          "text": "A courier fell here carrying unclaimed cargo.",
+          "time": 0
+        }
+      ],
+      "blueprints": [],
+      "scanned": [],
+      "rescued": [
+        "corsair"
+      ],
+      "boarding": {
+        "disabled": true
+      },
+      "planet": "orison",
+      "activeMission": "main",
+      "metPeople": [
+        "mara",
+        "lia"
+      ],
+      "story": {
+        "briefed": true,
+        "finished": true,
+        "notified": "complete"
+      },
+      "safeHarbour": {
+        "announced": false,
+        "defending": false,
+        "repelled": true,
+        "rewarded": true
+      },
+      "onboarding": {
+        "stage": "complete",
+        "introSeen": true,
+        "progress": 0
+      },
+      "trackedTarget": null
+    },
+    "flight": {
+      "piloting": false,
+      "landed": true,
+      "health": 100,
+      "maxHealth": 100,
+      "upgrades": {
+        "engine": 1,
+        "shield": 0,
+        "cannon": 0,
+        "reactor": 0
+      },
+      "gear": "down",
+      "energy": 100,
+      "position": [
+        12,
+        18.31,
+        114
+      ],
+      "velocity": [
+        0,
+        0,
+        0
+      ],
+      "speed": 0,
+      "altitude": 0,
+      "worldAltitude": 18,
+      "yaw": 0,
+      "pitch": 0,
+      "pad": "Pathfinder Landing",
+      "collisionCount": 0,
+      "controls": "MOUSE look · WASD fly · SPACE rise · CTRL descend · SHIFT boost · F exit when landed · LMB cannons"
+    },
+    "marine": {
+      "piloting": false,
+      "health": 100,
+      "position": [
+        289,
+        0.7,
+        950
+      ],
+      "speed": 0,
+      "yaw": 0,
+      "travelled": 0,
+      "collisionCount": 0,
+      "deckY": 2.75,
+      "mooring": [
+        289,
+        0.7,
+        950
+      ],
+      "patrol": {
+        "position": [
+          -481.8082756408571,
+          0.7,
+          1132.7602993729477
+        ],
+        "health": 150,
+        "alive": true
+      },
+      "controls": "W/S throttle · A/D rudder · SHIFT full power · F leave helm when stopped"
+    },
+    "climate": {
+      "hour": 9.253333333333332,
+      "daylight": 1,
+      "twilight": 0,
+      "rain": 0,
+      "storm": 0,
+      "wind": 2,
+      "weather": "clear",
+      "cycleSeconds": 2400
+    },
+    "encounters": {
+      "scouts": [
+        {
+          "id": "encounter:friendly:landing:0",
+          "health": 100,
+          "shots": 0,
+          "damage": 0,
+          "position": [
+            369.8575037950056,
+            43.499763517970536,
+            -129.73446184606786
+          ],
+          "engaged": false,
+          "down": false
+        },
+        {
+          "id": "encounter:friendly:landing:1",
+          "health": 100,
+          "shots": 0,
+          "damage": 0,
+          "position": [
+            371.8575037950056,
+            43.134277702388715,
+            -126.73446184606786
+          ],
+          "engaged": false,
+          "down": false
+        }
+      ],
+      "completed": [],
+      "rememberedPatrols": 0,
+      "loaded": 6,
+      "sites": [
+        {
+          "id": "encounter:wreck:landing",
+          "name": "Fallen Courier",
+          "x": 83,
+          "z": 176,
+          "kind": "wreck",
+          "elevation": 19,
+          "radius": 30,
+          "faction": "neutral",
+          "guardCount": 0,
+          "description": "A courier fell here carrying unclaimed cargo.",
+          "reward": 70,
+          "completed": false
+        },
+        {
+          "id": "encounter:distress:coast",
+          "name": "Lost Survey Team",
+          "x": -175,
+          "z": 140,
+          "kind": "distress",
+          "elevation": 19,
+          "radius": 30,
+          "faction": "pirate",
+          "guardCount": 2,
+          "description": "A broken distress signal. Clear the perimeter and recover the survey records.",
+          "reward": 100,
+          "completed": false
+        },
+        {
+          "id": "encounter:convoy:arsenal",
+          "name": "Pirate Supply Convoy",
+          "x": 327.4070390021668,
+          "z": -122.76747581936371,
+          "kind": "convoy",
+          "elevation": 36.38815962116131,
+          "radius": 30,
+          "faction": "pirate",
+          "guardCount": 4,
+          "description": "An armed supply convoy. Ambush it or slip past.",
+          "reward": 130,
+          "completed": false
+        },
+        {
+          "id": "encounter:patrol:north",
+          "name": "Wraith Recon Patrol",
+          "x": -308.1046115440757,
+          "z": -166.42439313547723,
+          "kind": "patrol",
+          "elevation": 41.26365117920372,
+          "radius": 30,
+          "faction": "pirate",
+          "guardCount": 3,
+          "description": "A roaming pirate patrol. Choose whether to engage.",
+          "reward": 70,
+          "completed": false
+        },
+        {
+          "id": "encounter:bunker:ridge",
+          "name": "Silent Listening Post",
+          "x": -420,
+          "z": 85,
+          "kind": "bunker",
+          "elevation": 34.590980694938416,
+          "radius": 30,
+          "faction": "neutral",
+          "guardCount": 0,
+          "description": "An old listening post still has a sealed supply locker.",
+          "reward": 70,
+          "completed": false
+        },
+        {
+          "id": "encounter:friendly:landing",
+          "name": "Colonial Recon",
+          "x": 366.8575037950056,
+          "z": -137.73446184606786,
+          "kind": "friendly",
+          "elevation": 44.42975135761063,
+          "radius": 30,
+          "faction": "friendly",
+          "guardCount": 0,
+          "description": "Colonial scouts are surveying the road ahead.",
+          "reward": 70,
+          "completed": false
+        }
+      ],
+      "progress": 0
+    },
+    "saveMessage": "Expedition saved on this browser",
+    "resolutionScale": 0.9,
+    "airPirates": [],
+    "world": {
+      "terrainChunks": 49,
+      "loadedSites": 19,
+      "colliders": 1451,
+      "chunkSize": 256,
+      "streamRadius": 768,
+      "procedural": true,
+      "roadRoutes": 5,
+      "roadKilometres": 2.7,
+      "roadFurniture": 52
+    },
+    "sites": [
+      {
+        "id": "harbour",
+        "name": "Cold Harbour",
+        "x": 0,
+        "z": -10,
+        "elevation": 18,
+        "kind": "outpost",
+        "faction": "pirate",
+        "description": "Occupied colonial freight settlement. Recover the pirate route ledger.",
+        "action": "Recover the invasion manifest",
+        "verb": "RECOVER INVASION MANIFEST",
+        "effect": "Patrol positions revealed on the field map",
+        "radius": 65,
+        "holdSeconds": 3
+      },
+      {
+        "id": "relay",
+        "name": "Northwatch Array",
+        "x": -690,
+        "z": -540,
+        "elevation": 52,
+        "kind": "outpost",
+        "faction": "pirate",
+        "description": "A surveillance compound on the northern heights.",
+        "action": "Disable the surveillance relay",
+        "verb": "DISABLE SURVEILLANCE",
+        "effect": "Enemy detection range reduced across the region",
+        "radius": 60,
+        "holdSeconds": 4
+      },
+      {
+        "id": "depot",
+        "name": "Tidebreak Arsenal",
+        "x": 780,
+        "z": -370,
+        "elevation": 35,
+        "kind": "camp",
+        "faction": "pirate",
+        "description": "Mercenary barracks, ammunition stores and stolen colony supplies.",
+        "action": "Cut the fire-control uplink",
+        "verb": "CUT FIRE CONTROL",
+        "effect": "Enemy fire coordination slowed across the region",
+        "radius": 65,
+        "holdSeconds": 4
+      },
+      {
+        "id": "carrier",
+        "name": "CNS Wayfarer",
+        "x": 240,
+        "z": 900,
+        "elevation": 12,
+        "kind": "carrier",
+        "faction": "friendly",
+        "description": "A mobile squad base. Land on the open flight deck to regroup and rearm.",
+        "radius": 95
+      },
+      {
+        "id": "corsair",
+        "name": "Corsair Boarding Target",
+        "x": -650,
+        "z": 1140,
+        "elevation": 9,
+        "kind": "pirate-ship",
+        "faction": "pirate",
+        "description": "Pirate ocean raider. Board the aft deck and clear the bridge.",
+        "radius": 75
+      },
+      {
+        "id": "station",
+        "name": "Meridian Anchorage",
+        "x": 1150,
+        "z": 470,
+        "elevation": 1800,
+        "kind": "station",
+        "faction": "pirate",
+        "description": "A hostile orbital anchorage above the coast. Land and explore its pressure deck.",
+        "radius": 160
+      },
+      {
+        "id": "island-redoubt",
+        "name": "Breakwater Redoubt",
+        "x": 650,
+        "z": 960,
+        "elevation": 8,
+        "kind": "camp",
+        "district": "salvage",
+        "faction": "pirate",
+        "radius": 70,
+        "description": "An occupied island salvage battery guards the carrier approach."
+      },
+      {
+        "id": "outpost:-1:-2",
+        "name": "Redwater Freeport",
+        "x": -361.76208093529567,
+        "z": -1097.4109257035889,
+        "elevation": 35.28027864474926,
+        "kind": "outpost",
+        "district": "market",
+        "faction": "pirate",
+        "description": "A pirate trading settlement of supply stalls, cargo warehouses and operations rooms.",
+        "radius": 62
+      },
+      {
+        "id": "ruin:-1:-1",
+        "name": "Ashfall Relic",
+        "x": -410.10074673220515,
+        "z": -152.50654134666547,
+        "elevation": 52.52664579340417,
+        "kind": "ruin",
+        "district": "market",
+        "faction": "neutral",
+        "description": "An abandoned alien survey structure. Search the remains for supplies.",
+        "radius": 45
+      },
+      {
+        "id": "camp:-1:0",
+        "name": "Blackglass Encampment",
+        "x": -309.63347506243736,
+        "z": 548.8834488717839,
+        "elevation": 16.1430851959666,
+        "kind": "camp",
+        "district": "mining",
+        "faction": "pirate",
+        "description": "An occupied extraction town with workshops, ore conveyors and crew quarters.",
+        "radius": 62
+      },
+      {
+        "id": "camp:0:-1",
+        "name": "Ashfall Encampment",
+        "x": 359.79375317459926,
+        "z": -213.59640904003754,
+        "elevation": 44.701697139323315,
+        "kind": "camp",
+        "district": "mining",
+        "faction": "pirate",
+        "description": "An occupied extraction town with workshops, ore conveyors and crew quarters.",
+        "radius": 62
+      },
+      {
+        "id": "outpost:0:0",
+        "name": "Cinder Freeport",
+        "x": 343.99713256862015,
+        "z": 205.62230017967522,
+        "elevation": 32.06597049376859,
+        "kind": "outpost",
+        "district": "market",
+        "faction": "pirate",
+        "description": "A pirate trading settlement of supply stalls, cargo warehouses and operations rooms.",
+        "radius": 62
+      },
+      {
+        "id": "camp:1:-1",
+        "name": "Vesper Encampment",
+        "x": 1112.570269703865,
+        "z": -236.31070346804336,
+        "elevation": 16.17125862797686,
+        "kind": "camp",
+        "district": "salvage",
+        "faction": "pirate",
+        "description": "A scrapyard of broken survey ships, stripped engines and a working salvage workshop.",
+        "radius": 62
+      },
+      {
+        "id": "encounter:wreck:landing",
+        "name": "Fallen Courier",
+        "x": 83,
+        "z": 176,
+        "kind": "wreck",
+        "elevation": 19,
+        "radius": 30,
+        "faction": "neutral",
+        "guardCount": 0,
+        "description": "A courier fell here carrying unclaimed cargo.",
+        "reward": 70
+      },
+      {
+        "id": "encounter:distress:coast",
+        "name": "Lost Survey Team",
+        "x": -175,
+        "z": 140,
+        "kind": "distress",
+        "elevation": 19,
+        "radius": 30,
+        "faction": "pirate",
+        "guardCount": 2,
+        "description": "A broken distress signal. Clear the perimeter and recover the survey records.",
+        "reward": 100
+      },
+      {
+        "id": "encounter:convoy:arsenal",
+        "name": "Pirate Supply Convoy",
+        "x": 327.4070390021668,
+        "z": -122.76747581936371,
+        "kind": "convoy",
+        "elevation": 36.38815962116131,
+        "radius": 30,
+        "faction": "pirate",
+        "guardCount": 4,
+        "description": "An armed supply convoy. Ambush it or slip past.",
+        "reward": 130
+      },
+      {
+        "id": "encounter:patrol:north",
+        "name": "Wraith Recon Patrol",
+        "x": -308.1046115440757,
+        "z": -166.42439313547723,
+        "kind": "patrol",
+        "elevation": 41.26365117920372,
+        "radius": 30,
+        "faction": "pirate",
+        "guardCount": 3,
+        "description": "A roaming pirate patrol. Choose whether to engage.",
+        "reward": 70
+      },
+      {
+        "id": "encounter:bunker:ridge",
+        "name": "Silent Listening Post",
+        "x": -420,
+        "z": 85,
+        "kind": "bunker",
+        "elevation": 34.590980694938416,
+        "radius": 30,
+        "faction": "neutral",
+        "guardCount": 0,
+        "description": "An old listening post still has a sealed supply locker.",
+        "reward": 70
+      },
+      {
+        "id": "encounter:friendly:landing",
+        "name": "Colonial Recon",
+        "x": 366.8575037950056,
+        "z": -137.73446184606786,
+        "kind": "friendly",
+        "elevation": 44.42975135761063,
+        "radius": 30,
+        "faction": "friendly",
+        "guardCount": 0,
+        "description": "Colonial scouts are surveying the road ahead.",
+        "reward": 70
+      }
+    ],
+    "guards": 15,
+    "squad": {
+      "order": "follow",
+      "embarked": false,
+      "medicReady": true,
+      "medicCooldown": 0,
+      "supplyReady": true,
+      "supplyCooldown": 0,
+      "members": [
+        {
+          "name": "VALE",
+          "role": "MEDIC",
+          "health": 100,
+          "position": [
+            -10.9764404296875,
+            16.076168823242188,
+            123.17613220214844
+          ],
+          "down": false,
+          "status": "CATCHING UP",
+          "combatTarget": null,
+          "shotsFired": 0,
+          "damageDealt": 0,
+          "kills": 0
+        },
+        {
+          "name": "ROOK",
+          "role": "SUPPLY",
+          "health": 100,
+          "position": [
+            -3.1124563217163086,
+            16.115088272094727,
+            121.14051818847656
+          ],
+          "down": false,
+          "status": "CATCHING UP",
+          "combatTarget": null,
+          "shotsFired": 0,
+          "damageDealt": 0,
+          "kills": 0
+        }
+      ]
+    },
+    "enemyPositions": [
+      {
+        "id": "harbour:0",
+        "site": "harbour",
+        "active": false,
+        "position": [
+          12,
+          18.2,
+          -10
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone"
+      },
+      {
+        "id": "harbour:1",
+        "site": "harbour",
+        "active": false,
+        "position": [
+          9.500000000000002,
+          18.2,
+          6.454482671904334
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper"
+      },
+      {
+        "id": "harbour:2",
+        "site": "harbour",
+        "active": false,
+        "position": [
+          -5.999999999999997,
+          18.2,
+          0.39230484541326405
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout"
+      },
+      {
+        "id": "harbour:3",
+        "site": "harbour",
+        "active": false,
+        "position": [
+          -19,
+          18.2,
+          -9.999999999999998
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy"
+      },
+      {
+        "id": "harbour:4",
+        "site": "harbour",
+        "active": false,
+        "position": [
+          -6.000000000000005,
+          18.2,
+          -20.39230484541326
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper"
+      },
+      {
+        "id": "harbour:5",
+        "site": "harbour",
+        "active": false,
+        "position": [
+          9.500000000000002,
+          18.2,
+          -26.454482671904334
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded"
+      },
+      {
+        "id": "camp:-1:0:0",
+        "site": "camp:-1:0",
+        "active": true,
+        "position": [
+          -297.63348388671875,
+          16.343085098266602,
+          548.8834228515625
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout"
+      },
+      {
+        "id": "camp:-1:0:1",
+        "site": "camp:-1:0",
+        "active": true,
+        "position": [
+          -319.13348388671875,
+          16.343085098266602,
+          565.3379516601562
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy"
+      },
+      {
+        "id": "camp:-1:0:2",
+        "site": "camp:-1:0",
+        "active": true,
+        "position": [
+          -315.63348388671875,
+          16.343085098266602,
+          538.4911499023438
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone"
+      },
+      {
+        "id": "camp:-1:0:3",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -328.63347506243736,
+          16.343085195966598,
+          548.8834488717839
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper"
+      },
+      {
+        "id": "camp:-1:0:4",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -315.63347506243736,
+          16.343085195966598,
+          538.4911440263706
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy"
+      },
+      {
+        "id": "camp:-1:0:5",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -300.13347506243736,
+          16.343085195966598,
+          532.4289661998796
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone"
+      },
+      {
+        "id": "camp:0:-1:0",
+        "site": "camp:0:-1",
+        "active": true,
+        "position": [
+          371.79376220703125,
+          44.901696014404294,
+          -213.59640502929688
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone"
+      },
+      {
+        "id": "camp:0:-1:1",
+        "site": "camp:0:-1",
+        "active": true,
+        "position": [
+          350.29376220703125,
+          44.901696014404294,
+          -197.1419219970703
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper"
+      },
+      {
+        "id": "camp:0:-1:2",
+        "site": "camp:0:-1",
+        "active": true,
+        "position": [
+          353.79376220703125,
+          44.901696014404294,
+          -223.98870849609375
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded"
+      },
+      {
+        "id": "camp:0:-1:3",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          340.79375317459926,
+          44.90169713932332,
+          -213.59640904003754
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout"
+      },
+      {
+        "id": "camp:0:-1:4",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          353.79375317459926,
+          44.90169713932332,
+          -223.9887138854508
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper"
+      },
+      {
+        "id": "camp:0:-1:5",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          369.29375317459926,
+          44.90169713932332,
+          -230.0508917119419
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded"
+      },
+      {
+        "id": "outpost:0:0:0",
+        "site": "outpost:0:0",
+        "active": true,
+        "position": [
+          355.99713134765625,
+          32.26596908569336,
+          205.62229919433594
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy"
+      },
+      {
+        "id": "outpost:0:0:1",
+        "site": "outpost:0:0",
+        "active": true,
+        "position": [
+          334.49713134765625,
+          32.26596908569336,
+          222.0767822265625
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout"
+      },
+      {
+        "id": "outpost:0:0:2",
+        "site": "outpost:0:0",
+        "active": true,
+        "position": [
+          337.99713134765625,
+          32.26596908569336,
+          195.22999572753906
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper"
+      },
+      {
+        "id": "outpost:0:0:3",
+        "site": "outpost:0:0",
+        "active": false,
+        "position": [
+          324.99713256862015,
+          32.26597049376859,
+          205.62230017967522
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone"
+      },
+      {
+        "id": "outpost:0:0:4",
+        "site": "outpost:0:0",
+        "active": false,
+        "position": [
+          337.99713256862015,
+          32.26597049376859,
+          195.22999533426196
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout"
+      },
+      {
+        "id": "outpost:0:0:5",
+        "site": "outpost:0:0",
+        "active": false,
+        "position": [
+          353.49713256862015,
+          32.26597049376859,
+          189.16781750777088
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded"
+      },
+      {
+        "id": "encounter:distress:coast:0",
+        "site": "encounter:distress:coast",
+        "active": true,
+        "position": [
+          -168.57337951660156,
+          18.955036926269532,
+          137.55690002441406
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy"
+      },
+      {
+        "id": "encounter:distress:coast:1",
+        "site": "encounter:distress:coast",
+        "active": true,
+        "position": [
+          -185.09918212890625,
+          19.00755958557129,
+          141.87771606445312
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout"
+      },
+      {
+        "id": "encounter:convoy:arsenal:0",
+        "site": "encounter:convoy:arsenal",
+        "active": true,
+        "position": [
+          332.7918395996094,
+          36.3522346496582,
+          -122.4319076538086
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded"
+      },
+      {
+        "id": "encounter:convoy:arsenal:1",
+        "site": "encounter:convoy:arsenal",
+        "active": true,
+        "position": [
+          317.7918395996094,
+          36.3522346496582,
+          -122.4319076538086
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout"
+      },
+      {
+        "id": "encounter:convoy:arsenal:2",
+        "site": "encounter:convoy:arsenal",
+        "active": false,
+        "position": [
+          320.7918289390851,
+          36.35223468908776,
+          -122.43190669404643
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy"
+      },
+      {
+        "id": "encounter:convoy:arsenal:3",
+        "site": "encounter:convoy:arsenal",
+        "active": false,
+        "position": [
+          326.7918289390851,
+          36.35223468908776,
+          -131.43190669404643
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone"
+      },
+      {
+        "id": "encounter:patrol:north:0",
+        "site": "encounter:patrol:north",
+        "active": true,
+        "position": [
+          -302.49609375,
+          41.54720764160156,
+          -166.6760711669922
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout"
+      },
+      {
+        "id": "encounter:patrol:north:1",
+        "site": "encounter:patrol:north",
+        "active": true,
+        "position": [
+          -317.49609375,
+          41.54720764160156,
+          -166.6760711669922
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded"
+      },
+      {
+        "id": "encounter:patrol:north:2",
+        "site": "encounter:patrol:north",
+        "active": false,
+        "position": [
+          -311.49610885694585,
+          41.54720611672754,
+          -171.87222240217181
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper"
+      }
+    ],
+    "drawCalls": 236,
+    "triangles": 654836,
+    "renderCpuMs": 5.399999976158142
+  }
+}

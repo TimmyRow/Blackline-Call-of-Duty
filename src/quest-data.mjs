@@ -1,0 +1,9 @@
+export const MAIN_CONTRACTS=['coast','array','raider','orbit','echo-vault'];
+export const QUEST_PEOPLE=[
+ {id:'mara',name:'Mara Voss',role:'Pathfinder coordinator',town:'Pathfinder Landing',x:10,z:97,color:0x688f99,quests:[],greeting:'The crash cut our last link to the fleet. These settlements need a way to call home. I can help you put that link back together.'},
+ {id:'lia',name:'Lia Sen',role:'Field cartographer',town:'Pathfinder Landing',x:-14,z:126,color:0xb48857,quests:['survey','surveyor'],greeting:'Our maps end where the old survey crews disappeared. Bring me fresh observations and scanner readings. It will help the next convoy get home.'},
+ {id:'tomas',name:'Tomas Reed',role:'Settlement medic',town:'Pathfinder Landing',x:17,z:78,color:0xb4bdb6,quests:['signals','rescue'],greeting:'There are still people calling from beyond the roads. Some are stranded; others were taken aboard the Corsair. Help them if you can.'},
+ {id:'iris',name:'Iris Okoye',role:'Harbour pilot',town:'Cold Harbour',x:11,z:8,color:0x648ba7,requires:'harbour',quests:['aces','breakwater'],greeting:'Thanks for opening the harbour. Pirate interceptors and the island battery are keeping our relief boats pinned down. I have work for a pilot willing to change that.'},
+ {id:'kito',name:'Kito Arlen',role:'Sunfall engineer',town:'Sunfall Expedition Port',x:42012,z:10,color:0xc59153,quests:['vesper-mine'],greeting:'The extraction crews built this town. Pirates took their mine and cut off our supplies. Clear the Obsidian camp and I can keep Sunfall running.'},
+ {id:'sela',name:'Sela Nadir',role:'Sunfall archivist',town:'Sunfall Expedition Port',x:41988,z:15,color:0x8c86a6,quests:['glass-basin'],greeting:'The observatory in the salt flats has been silent for generations. I think its archive survived. Would you recover it for us?'}
+];

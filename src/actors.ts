@@ -357,7 +357,7 @@ export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle
   };
 }
 
-export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes: THREE.Object3D[]; update: (dt: number, opts: EnemyState) => void; hit:()=>void; setRole:(role:string)=>void } {
+export function createEnemy(scene: THREE.Scene, resident?: {color:number}): { group: THREE.Group; hitMeshes: THREE.Object3D[]; update: (dt: number, opts: EnemyState) => void; hit:()=>void; setRole:(role:string)=>void } {
   if(!enemySolid.bumpMap){
     const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const c=canvas.getContext('2d')!;
     c.fillStyle='#858585';c.fillRect(0,0,128,128);
@@ -367,8 +367,8 @@ export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes
   const group = new THREE.Group(); group.name = 'BLACKLINE / hostile operator'; scene.add(group);
   const rig = new THREE.Group(); group.add(rig);
   const hitMeshes: THREE.Object3D[] = [];
-  const suit = new THREE.MeshStandardMaterial({ color: 0x323e3d, roughness: 1 });
-  const armor = new THREE.MeshStandardMaterial({ color: 0x444f4c, roughness: .78, metalness: .23 });
+  const suit = new THREE.MeshStandardMaterial({ color: resident?.color ?? 0x323e3d, roughness: 1 });
+  const armor = new THREE.MeshStandardMaterial({ color: resident?new THREE.Color(resident.color).lerp(new THREE.Color(0xc5cfce),.22):0x444f4c, roughness: .78, metalness: .23 });
   const webbing = new THREE.MeshStandardMaterial({ color: 0x676953, roughness: 1 });
   const torso = new THREE.Group(); torso.position.y = 1.13; rig.add(torso);
   box(torso, 0, .105, 0, .43, .48, .245, suit, .065);
@@ -461,6 +461,7 @@ export function createEnemy(scene: THREE.Scene): { group: THREE.Group; hitMeshes
   let role='scout';
   const setRole=(next:string)=>{role=roleParts.has(next)?next:'scout';for(const [key,value] of roleParts)value.visible=key===role;const humanoid=role!=='drone';torso.visible=humanoid;pelvis.visible=humanoid;legs.forEach(l=>l.visible=humanoid);rig.scale.set(role==='heavy'?1.12:role==='scout'?.90:1,role==='scout'?.94:1,1);hitMeshes.length=0;if(humanoid)hitMeshes.push(...standardHits);roleParts.get(role)!.traverse(o=>{if(o instanceof THREE.Mesh)hitMeshes.push(o);});group.name=`BLACKLINE / ${role}`;};
   setRole('scout');
+  if(resident){weapon.visible=false;roleParts.forEach(part=>part.visible=false);rig.scale.setScalar(1);group.name='BLACKLINE / settlement resident';}
   const flashMaterial = new THREE.MeshBasicMaterial({ color: 0xffc170, transparent: true, opacity: .92, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
   const muzzleFlash = mesh(muzzle, new THREE.OctahedronGeometry(.078), flashMaterial, 0, 0, -.075); muzzleFlash.scale.z = 2.5; muzzleFlash.visible = false;
   let death = 0;
