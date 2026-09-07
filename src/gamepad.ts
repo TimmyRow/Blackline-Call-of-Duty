@@ -1,5 +1,5 @@
 import {readPad,PAD_KEYS,controllerSettings} from './gamepad-rules.mjs';
-type Actions={enabled:()=>boolean;context:()=>string;vehicle?:()=>boolean;panMap?:(x:number,z:number,dt:number)=>void;settings?:()=>ReturnType<typeof controllerSettings>;key:(code:string,down:boolean)=>void;move:(x:number,z:number)=>void;look:(x:number,y:number,dt:number)=>void;fire:(v:boolean)=>void;aim:(v:boolean)=>void;active:()=>void;disconnect:()=>void;pause:()=>void;missions:()=>void;back:()=>void;panel:()=>HTMLElement|null;wake:()=>void};
+type Actions={enabled:()=>boolean;context:()=>string;vehicle?:()=>boolean;panMap?:(x:number,z:number,dt:number)=>void;settings?:()=>ReturnType<typeof controllerSettings>;key:(code:string,down:boolean)=>void;move:(x:number,z:number)=>void;look:(x:number,y:number,dt:number)=>void;fire:(v:boolean)=>void;aim:(v:boolean)=>void;active:()=>void;disconnect:()=>void;pause:()=>void;map:()=>void;stop:()=>void;back:()=>void;panel:()=>HTMLElement|null;wake:()=>void};
 export function createGamepad(actions:Actions){
  let index:number|null=null,previous:boolean[]=[],blocked=new Set<number>(),held=new Set<string>(),context='',nextNav=0,navDirection=0,connected=false,moveBlocked=false,lookBlocked=false,nextWake=0,hasConnected=false;
  let sprint=false,crouch=false,vehicle=false;
@@ -30,8 +30,8 @@ export function createGamepad(actions:Actions){
   if(Math.hypot(sample.move.x,sample.move.y)<.01)moveBlocked=false;
   if(Math.hypot(sample.look.x,sample.look.y)<.01)lookBlocked=false;
   const pressed=(i:number)=>sample.pressed[i]&&!blocked.has(i),down=(i:number)=>sample.down[i]&&!blocked.has(i);
-  if(pressed(9)){reset();actions.pause();return;}
-  if(pressed(8)){reset();actions.missions();return;}
+  if(pressed(9)){reset();actions.map();return;}
+  if(pressed(8)){reset();actions.pause();return;}
   if(current==='intro'){if(pressed(0)||pressed(1))actions.back();return;}
   if(current!=='playing'){
    const mx=moveBlocked?0:sample.move.x,my=moveBlocked?0:sample.move.y;
@@ -51,14 +51,17 @@ export function createGamepad(actions:Actions){
    else if(Math.abs(ry)>.01)panel?.scrollBy({top:ry*650*Math.min(.05,dt),behavior:'instant'});
    if(pressed(1))actions.back();return;
   }
-  navDirection=0;actions.move(moveBlocked?0:sample.move.x,moveBlocked?0:sample.move.y);actions.aim(down(6));actions.fire(down(7));actions.look(lookBlocked?0:sample.look.x,lookBlocked?0:sample.look.y,dt);
+  navDirection=0;
+  // B cancels held actions and brakes; movement must return to neutral before restarting.
+  if(down(1)){release();moveBlocked=true;sample.down.forEach((v,i)=>{if(v&&i!==1)blocked.add(i);});actions.stop();actions.look(lookBlocked?0:sample.look.x,lookBlocked?0:sample.look.y,dt);return;}
+  actions.move(moveBlocked?0:sample.move.x,moveBlocked?0:sample.move.y);actions.aim(down(6));actions.fire(down(7));actions.look(lookBlocked?0:sample.look.x,lookBlocked?0:sample.look.y,dt);
   const inVehicle=actions.vehicle?.()??false;
   if(inVehicle!==vehicle){sprint=crouch=false;vehicle=inVehicle;}
-  if(pressed(1)&&!vehicle){crouch=!crouch;sprint=false;}
+  if(pressed(13)&&!vehicle){crouch=!crouch;sprint=false;}
   if(pressed(0)&&!vehicle)crouch=false;
   if(pressed(10)){sprint=!sprint;if(sprint)crouch=false;}
   const moving=!moveBlocked&&Math.hypot(sample.move.x,sample.move.y)>.2;
-  if((!moving&&!(vehicle&&(down(0)||down(1)))&&!pressed(10))||(!vehicle&&(down(6)||crouch)))sprint=false;
-  for(const [button,key] of Object.entries(PAD_KEYS)){const i=+button,heldDown=i===1?(vehicle?down(i):crouch):i===10?sprint:down(i);if(heldDown&&!held.has(key)){held.add(key);actions.key(key,true);if(actions.context()!==current){reset();return;}}else if(!heldDown&&held.delete(key))actions.key(key,false);}
+  if((!moving&&!(vehicle&&(down(0)||down(13)))&&!pressed(10))||(!vehicle&&(down(6)||crouch)))sprint=false;
+  for(const [button,key] of Object.entries(PAD_KEYS)){const i=+button,heldDown=i===13?(vehicle?down(i):crouch):i===10?sprint:down(i);if(heldDown&&!held.has(key)){held.add(key);actions.key(key,true);if(actions.context()!==current){reset();return;}}else if(!heldDown&&held.delete(key))actions.key(key,false);}
  }};
 }

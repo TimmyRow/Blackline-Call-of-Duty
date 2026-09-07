@@ -2,21 +2,21 @@
   "checks": [
     "A starts fresh expedition and skips arrival without mouse/keyboard",
     "Controller navigates pause/settings and adjusts quality and look speed",
-    "Left stick walks/strafe; click sprint persists; B toggles crouch; A jumps",
+    "Left stick walks/strafe; click sprint persists; D-pad down toggles crouch; A jumps",
     "Aim, fire, reload, swap weapon, grenade and scan all have controller actions",
-    "RB talks to a resident, A accepts quest, View tracks it",
+    "X talks to a resident, A accepts quest, journal tracks it",
     "Journal equipment refit, all tabs, squad orders and explicit save use pad only",
-    "D-pad map supports bumper zoom, right-stick pan, target selection and return",
+    "Menu (three lines) map supports bumper zoom, right-stick pan, target selection and return",
     "R3 pilots boat; left stick powers/steers; R3 exits when stopped",
     "Hangar purchase, R3 boarding, rise/descend and toggle boost work with pad",
-    "Disconnect pauses and clears movement; reconnect resumes with Menu"
+    "Disconnect pauses and clears movement; reconnect resumes with View"
   ],
   "errors": [],
   "snapshot": {
     "mode": "playing",
     "opening": {
       "active": false,
-      "time": 0.2749000000000014,
+      "time": 0.24169999999999714,
       "exit": [
         0,
         20.7,
@@ -51,9 +51,9 @@
       "firing": false,
       "aiming": false,
       "held": [],
-      "yaw": -0.041389673917119146,
+      "yaw": -0.06829760613584954,
       "pitch": 0,
-      "fov": 75.00000013992033
+      "fov": 75.00000000000469
     },
     "pixelRatio": 1,
     "weapon": "ballistic",
@@ -196,13 +196,13 @@
     "kills": 0,
     "stage": 5,
     "upload": 0,
-    "time": 27.38333333333306,
+    "time": 25.89999999999981,
     "position": [
-      -1116.1259479355167,
-      62.519648056505886,
-      -1170.3910716959765
+      -1117.406293924301,
+      64.17780407062227,
+      -1118.322710278669
     ],
-    "region": "Orison Ocean",
+    "region": "Port Astra City",
     "campaign": {
       "completed": [
         "ship:purchase-route",
@@ -242,8 +242,8 @@
       },
       "salvage": 0,
       "raids": 0,
-      "distanceWalked": 15.848734139549332,
-      "distanceFlown": 242.77710278446693,
+      "distanceWalked": 15.795277421323224,
+      "distanceFlown": 188.8202508746784,
       "airKills": 0,
       "oceanKills": 0,
       "resuppliedAt": {},
@@ -270,37 +270,37 @@
         {
           "title": "A Signal Home / Operation Safe Harbour",
           "text": "Free the Corsair crew and reclaim the vessel. Its command codes will get you into Meridian Anchorage.",
-          "time": 22.08333333333336
+          "time": 19.733333333333494
         },
         {
           "title": "A ship of your own",
           "text": "Purchased Kestrel at Port Astra Hangar 03 for 300 salvage. Your squad can now travel by air and reach other worlds.",
-          "time": 22.08333333333336
+          "time": 19.733333333333494
         },
         {
           "title": "A Signal Home / A ship of your own",
           "text": "Buy Kestrel for 300 salvage at the Hangar 03 sales terminal. Includes squad seats, cannons and a jump drive. Follow the Northwatch highway to Port Astra City.",
-          "time": 20.350000000000126
+          "time": 18.166666666666917
         },
         {
           "title": "Distress / Safe Harbour",
           "text": "Pirates seized an allied vessel southwest of the colony. Mara in Pathfinder is tracing the distress call. Approach by air, or use the aft sea stairs.",
-          "time": 20.350000000000126
+          "time": 18.166666666666917
         },
         {
           "title": "Port Astra City",
           "text": "A colonial city of apartment blocks, markets and an open-sky ship hangar. Buy your first Kestrel at Hangar 03.",
-          "time": 20.350000000000126
+          "time": 18.166666666666917
         },
         {
           "title": "Someone is still out there",
           "text": "Accepted from Tomas Reed.",
-          "time": 14.000000000000275
+          "time": 13.450000000000248
         },
         {
           "title": "Survey sweep",
           "text": "Fallen Courier · Cold Harbour · Lost Survey Team · Cinder Freeport · Pirate Supply Convoy",
-          "time": 12.666666666666876
+          "time": 12.150000000000183
         },
         {
           "title": "Crashfall",
@@ -383,19 +383,19 @@
       "gear": "retracted",
       "energy": 100,
       "position": [
-        -1116.210772543294,
-        61.86964805650589,
-        -1168.3428273780507
+        -1117.5461951946133,
+        63.52780407062227,
+        -1116.2774895975285
       ],
       "velocity": [
-        0.2320251149726892,
-        -0.03576518698983173,
-        -6.183702222493378
+        0.2840428906869942,
+        0,
+        -4.152431161396998
       ],
-      "speed": 6,
-      "altitude": 60,
-      "worldAltitude": 62,
-      "yaw": -0.041389673917119146,
+      "speed": 4,
+      "altitude": 7,
+      "worldAltitude": 64,
+      "yaw": -0.06829760613584954,
       "pitch": 0,
       "pad": null,
       "collisionCount": 0,
@@ -405,12 +405,12 @@
       "piloting": false,
       "health": 100,
       "position": [
-        292.1251674569538,
+        291.0877384872095,
         0.7,
-        931.4525309811152
+        935.9485076657643
       ],
       "speed": 0,
-      "yaw": -0.2241193411331816,
+      "yaw": -0.21972437549477708,
       "travelled": 0,
       "collisionCount": 0,
       "deckY": 2.75,
@@ -431,7 +431,7 @@
       "controls": "W/S throttle · A/D rudder · SHIFT full power · F leave helm when stopped"
     },
     "climate": {
-      "hour": 9.47383333333333,
+      "hour": 9.458999999999998,
       "daylight": 1,
       "twilight": 0,
       "rain": 0,
@@ -453,7 +453,7 @@
     "airPirates": [],
     "world": {
       "terrainChunks": 49,
-      "loadedSites": 10,
+      "loadedSites": 11,
       "streaming": {
         "pendingTerrain": 0,
         "pendingSites": 0,
@@ -461,9 +461,9 @@
         "builds": 0,
         "maxBuilds": 1,
         "lastMs": 0,
-        "maxMs": 23.799999952316284
+        "maxMs": 25.5
       },
-      "colliders": 816,
+      "colliders": 903,
       "chunkSize": 256,
       "streamRadius": 768,
       "procedural": true,
@@ -522,18 +522,6 @@
         "faction": "neutral",
         "description": "An abandoned alien survey structure. Search the remains for supplies.",
         "radius": 45
-      },
-      {
-        "id": "camp:-1:-3",
-        "name": "Wraith Encampment",
-        "x": -137.51534688984975,
-        "z": -1919.1673901630566,
-        "elevation": 56.10640498970821,
-        "kind": "camp",
-        "district": "salvage",
-        "faction": "pirate",
-        "description": "A scrapyard of broken survey ships, stripped engines and a working salvage workshop.",
-        "radius": 62
       },
       {
         "id": "outpost:-1:-2",
@@ -1067,8 +1055,8 @@
         "staggerUntil": 0
       }
     ],
-    "drawCalls": 91,
-    "triangles": 386777,
-    "renderCpuMs": 3.100000023841858
+    "drawCalls": 94,
+    "triangles": 420857,
+    "renderCpuMs": 4
   }
 }

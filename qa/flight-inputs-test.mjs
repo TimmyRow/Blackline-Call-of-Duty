@@ -9,8 +9,8 @@ try{
  await start(page);await page.keyboard.press('f');await page.keyboard.down('Shift');await page.keyboard.down('Space');await page.waitForFunction(()=>window.blacklineQA.snapshot().flight.altitude>400);await page.keyboard.up('Space');await page.keyboard.up('Shift');await page.waitForTimeout(700);
  await page.keyboard.down('w');await page.keyboard.down('Shift');await page.keyboard.down('c');await page.waitForFunction(()=>{const v=window.blacklineQA.snapshot().flight.velocity;return v[1]<-80&&v[2]<-100;});await page.keyboard.up('c');await page.keyboard.up('Shift');await page.keyboard.up('w');
  checks.push('W + Shift + C boosts forward and descends without browser modifiers');
- await page.waitForTimeout(800);await page.evaluate(()=>window.pad.buttons[1]={pressed:true,value:1});await page.waitForFunction(()=>window.blacklineQA.snapshot().flight.velocity[1]<-20);await page.evaluate(()=>window.pad.buttons[1]={pressed:false,value:0});
- checks.push('Xbox B still descends after the input remap');
+ await page.waitForTimeout(800);await page.evaluate(()=>window.pad.buttons[13]={pressed:true,value:1});await page.waitForFunction(()=>window.blacklineQA.snapshot().flight.velocity[1]<-20);await page.evaluate(()=>window.pad.buttons[13]={pressed:false,value:0});
+ checks.push('Xbox D-pad down descends after the input remap');
  await page.keyboard.down('Control');assert(!(await page.evaluate(()=>window.blacklineQA.snapshot().input.held)).includes('ControlLeft'));await page.keyboard.up('Control');
  await page.waitForTimeout(5300);assert(await page.evaluate(()=>{const s=window.blacklineQA.snapshot(),saved=JSON.parse(localStorage.getItem('blackline.expedition.v1'));return s.time-saved.state.time<=5.2;}));
  checks.push('Ctrl is excluded from gameplay and flight progress saves every five seconds');await page.close();

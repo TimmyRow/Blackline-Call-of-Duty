@@ -21,10 +21,10 @@ try{
  checks.push('City quest and terminal reject insufficient funds without charging');
  await page.evaluate(()=>window.blacklineQA.grantSalvage(300));await page.waitForTimeout(200);
  await page.screenshot({path:'qa/ship-hangar-sale.png'});
- await page.evaluate(()=>window.pad.buttons[5]={pressed:true,value:1});
- await page.waitForFunction(()=>window.blacklineQA.snapshot().shipPurchase.owned,null,{timeout:15000});await page.evaluate(()=>window.pad.buttons[5]={pressed:false,value:0});
+ await page.evaluate(()=>window.pad.buttons[2]={pressed:true,value:1});
+ await page.waitForFunction(()=>window.blacklineQA.snapshot().shipPurchase.owned,null,{timeout:15000});await page.evaluate(()=>window.pad.buttons[2]={pressed:false,value:0});
  assert.equal((await snap()).campaign.salvage,0);assert.equal((await snap()).story.stage,'raider');
- checks.push('Xbox RB purchases at the physical terminal and unlocks the next main chapter');
+ checks.push('Xbox X purchases at the physical terminal and unlocks the next main chapter');
  await page.evaluate(()=>window.blacklineQA.save());await page.reload();await ready();await page.locator('#deploy').click();await page.waitForFunction(()=>window.blacklineQA.snapshot().mode==='playing');
  assert((await snap()).shipPurchase.owned);assert.equal((await snap()).campaign.salvage,0);
  await page.evaluate(p=>{window.blacklineQA.teleport3(p.x+6,p.y-.45,p.z);},SHIP_BERTH);await page.keyboard.press('f');

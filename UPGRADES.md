@@ -93,3 +93,10 @@ Verification: 94 automated rule/input tests passed, plus Edge controller, openin
 - Atlas supports right-stick panning and bumper zoom, with stable destination focus and controller-specific hints. Touch map hints remain available when using touch.
 - Input handover clears stale keyboard/touch movement; an idle virtual controller cannot prevent the active Xbox pad from being selected. Loading waits for the playable menu; pause/disconnect releases latched actions.
 - Verified with rule tests and controller browser scenarios, with separate UI screenshot review. Physical controller validation remains outstanding.
+
+
+## Requested Xbox button layout
+
+Menu (three lines) now toggles the map; View (left of Menu) pauses. X interacts; B cancels/back and stops movement, including braking Kestrel and the launch. A starts/confirms/jumps; left stick moves, right stick looks, RT shoots. RB reloads; D-pad down crouches/descends; D-pad left opens the journal/squad. Previous mapping descriptions above record earlier versions and are superseded by this layout.
+
+Unit coverage verifies these exact bindings, held-action cancellation, neutral-stick recovery and menu separation. The controller-only Edge journey includes X quest/ship interactions and B braking both vehicles.
