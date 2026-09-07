@@ -1,3 +1,4 @@
+import {usesShipPurchase,PURCHASE_ROUTE} from './ship-purchase.mjs';
 import {heightAt} from './region-layout.mjs';
 
 // Completed milestone IDs use the existing validated save list. Only new arrivals
@@ -10,7 +11,7 @@ export function beginCrashfall(c){if(c.onboarding?.stage!=='cell'||c.completed.i
 export function crashfallStatus(c){
  if(c.onboarding?.stage!=='ship'||!c.completed.includes(STARTED)||c.completed.includes(DEFENDED))return null;
  const defending=c.completed.includes(REGROUPED);
- return {stage:defending?'defend':'regroup',target:CRASHFALL_RALLY,title:defending?'Hold the survivor rally':'Regroup with the survivors',description:defending?'Three raiders are closing on the wreck. Defeat them with your squad, then take the emergency cell to Kestrel.':'Bring the emergency cell to the survivor rally north of the wreck. Regroup with your squad before crossing to Pathfinder.'};
+ return {stage:defending?'defend':'regroup',target:CRASHFALL_RALLY,title:defending?'Hold the survivor rally':'Regroup with the survivors',description:defending?'Three raiders are closing on the wreck. Defeat them with your squad, then get the survivors to Pathfinder.':'Bring the emergency cell to the survivor rally north of the wreck. Regroup with your squad before crossing to Pathfinder.'};
 }
 export function crashfallEnemies(c,position){return crashfallStatus(c)?.stage==='defend'&&Math.hypot(position.x-CRASHFALL_RALLY.x,position.z-CRASHFALL_RALLY.z)<650?CRASHFALL_RAIDERS:[];}
 export function stepCrashfall(c,position,held,dt,enemyHealth){
@@ -22,11 +23,18 @@ export function stepCrashfall(c,position,held,dt,enemyHealth){
  }
  // Missing streamed enemies are not kills; all three deaths must be recorded.
  if(!CRASHFALL_RAIDERS.every(e=>typeof enemyHealth.get(e.id)==='number'&&enemyHealth.get(e.id)<=0))return null;
- c.completed.push(DEFENDED);c.salvage+=60;return 'defended';
+ c.completed.push(DEFENDED);c.salvage+=60;if(usesShipPurchase(c)){c.onboarding.stage='complete';c.onboarding.progress=0;}return 'defended';
 }
 export function recoveryBrief(c){
  const crash=crashfallStatus(c);if(crash)return crash;
  if(c.onboarding?.stage==='cell')return {title:'Escape the wreck',description:'Leave the broken hull and recover the cyan emergency power cell beside the wreck. Your squad survived the impact.'};
  if(c.onboarding?.stage==='ship')return {title:'Find your ship',description:'Follow Kestrel’s beacon north through the road signs to Pathfinder Landing. Install the emergency cell beside its hull.'};
  return {title:'Your first flight',description:'Board the restored Kestrel. Once aboard, meet Mara Voss at Pathfinder’s communications shelter to learn what brought down your transport.'};
+}
+
+export function prepareShipPurchaseSave(c){
+ if(!['cell','ship'].includes(c.onboarding?.stage))return;
+ if(!usesShipPurchase(c))c.completed.push(PURCHASE_ROUTE);
+ if(c.onboarding.stage==='cell')beginCrashfall(c);
+ else if(!crashfallStatus(c))c.onboarding.stage='complete';
 }

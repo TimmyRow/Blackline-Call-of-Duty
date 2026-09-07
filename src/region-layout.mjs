@@ -1,3 +1,4 @@
+import {CITY,ASTRA_APPROACH} from './ship-purchase.mjs';
 /** Deterministic survey coordinates. Terrain and discoveries share one seed. */
 import {PLANETS,getPlanetAt,getPlanetArrival,biomeAt,vesperHeight,DESTINATION_SITES} from './world-destinations.mjs';
 export {PLANETS,getPlanetAt,getPlanetArrival,biomeAt};
@@ -5,6 +6,7 @@ export const SEA_LEVEL = 0;
 export const REGION_START = {x:0,z:110};
 const building=(a,c,w,d,h,label)=>({a,c,w,d,h,label});
 const BUILDING_LAYOUTS={
+ city:[...[-72,-38,38,72].flatMap((a,i)=>[-65,-25].map((c,j)=>building(a,c,24,27,18+(i+j)%3*8,['ASTRA RESIDENCES','CIVIC EXCHANGE','COLONIAL MEDICAL','TRANSIT OFFICES'][i]))),building(-48,37,29,32,16,'HANGAR WORKSHOPS'),building(48,37,29,32,20,'FLIGHT ACADEMY'),building(-43,79,26,20,12,'MARKET ARCADE'),building(43,79,26,20,15,'CREW LODGINGS')],
  landing:[building(-33,-25,18,21,12,'PATHFINDER / 01'),building(32,-27,17,21,10,'FLIGHT STORES'),building(-34,15,18,19,9,'SQUAD QUARTERS'),building(34,18,17,21,11,'ORBITAL TRANSIT')],
  harbour:[building(-29,-23,15,24,11,'NORTH FREIGHT'),building(29,-26,16,22,10,'CUSTOMS / 12'),building(-30,25,16,19,8,'SERVICE / 04'),building(31,26,16,20,9,'ENGINEERING'),building(-28,63,15,21,10,'DOCKYARD / 08'),building(29,65,17,20,8,'FLIGHT STORES')],
  relay:[building(30,-26,19,25,6,'ARRAY CONTROL'),building(-30,25,16,19,5,'SIGNAL SERVICE')],
@@ -54,7 +56,8 @@ export const WORLD_LANDMARKS=[
 export const REGION_SITES=[
  {id:'harbour',name:'Cold Harbour',x:0,z:-10,elevation:18,kind:'outpost',faction:'pirate',description:'Occupied colonial freight settlement. Recover the pirate route ledger.',action:'Recover the invasion manifest',verb:'RECOVER INVASION MANIFEST',effect:'Patrol positions revealed on the field map',radius:65,holdSeconds:3},
  {id:'relay',name:'Northwatch Array',x:-690,z:-540,elevation:52,kind:'outpost',faction:'pirate',description:'A surveillance compound on the northern heights.',action:'Disable the surveillance relay',verb:'DISABLE SURVEILLANCE',effect:'Enemy detection range reduced across the region',radius:60,holdSeconds:4},
- {id:'depot',name:'Tidebreak Arsenal',x:780,z:-370,elevation:35,kind:'camp',faction:'pirate',description:'Mercenary barracks, ammunition stores and stolen colony supplies.',action:'Cut the fire-control uplink',verb:'CUT FIRE CONTROL',effect:'Enemy fire coordination slowed across the region',radius:65,holdSeconds:4}
+ {id:'depot',name:'Tidebreak Arsenal',x:780,z:-370,elevation:35,kind:'camp',faction:'pirate',description:'Mercenary barracks, ammunition stores and stolen colony supplies.',action:'Cut the fire-control uplink',verb:'CUT FIRE CONTROL',effect:'Enemy fire coordination slowed across the region',radius:65,holdSeconds:4},
+ CITY
 ];
 export const SPECIAL_SITES=[
  {id:'carrier',name:'CNS Wayfarer',x:240,z:900,elevation:12,kind:'carrier',faction:'friendly',description:'A mobile squad base. Land on the open flight deck to regroup and rearm.',radius:95},
@@ -81,12 +84,16 @@ export function getWorldSites(x,z,radius=1800){
 }
 export function heightAt(x,z){
  let h=rawHeight(x,z);
+ // Grade a walkable coastal causeway under the city highway, including its curved shoulders.
+ let roadDistance=Infinity,roadHeight=0;
+ for(let i=1;i<ASTRA_APPROACH.length;i++){const a=ASTRA_APPROACH[i-1],b=ASTRA_APPROACH[i],dx=b[0]-a[0],dz=b[1]-a[1],t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/(dx*dx+dz*dz))),d=Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t);if(d<roadDistance){roadDistance=d;roadHeight=a[2]+(b[2]-a[2])*t;}}
+ if(roadDistance<70)h=roadHeight+(h-roadHeight)*smooth(36,70,roadDistance);
  const candidates=[...REGION_SITES,...DESTINATION_SITES,{...REGION_START,elevation:16,radius:32}];
  // Jittered cell sites need only the surrounding nine cells when flattening terrain.
  const cx=Math.floor(x/CELL),cz=Math.floor(z/CELL);
  for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const site=generatedSite(cx+i,cz+j);if(site)candidates.push(site);}
  let nearestFootprint=Infinity,foundationHeight=0;
- for(const s of candidates){const d=Math.hypot(x-s.x,z-s.z);if(d<110){h=s.elevation+(h-s.elevation)*smooth(s.radius+8,s.radius+42,d);
+ for(const s of candidates){const d=Math.hypot(x-s.x,z-s.z);if(d<Math.max(110,s.radius+50)){h=s.elevation+(h-s.elevation)*smooth(s.radius+8,s.radius+42,d);
   // Grade complete building footprints, including the eight-metre terrain cell
   // around each edge. Choose the nearest foundation when adjacent districts meet.
   for(const {a,c,w,d:l}of getSettlementBuildings(s)){const edge=Math.max(Math.abs(x-s.x-a)-w/2,Math.abs(z-s.z-c)-l/2);if(edge<nearestFootprint){nearestFootprint=edge;foundationHeight=s.elevation;}}
@@ -104,4 +111,4 @@ export function getLandingPads(x,z,radius=1800){
 }
 export const REGION_ROADS=[];
 export function regionName(x,z){if(Math.hypot(x-REGION_START.x,z-REGION_START.z)<48)return 'Pathfinder Landing';const sites=getWorldSites(x,z,220).sort((a,b)=>Math.hypot(a.x-x,a.z-z)-Math.hypot(b.x-x,b.z-z));if(sites[0]&&Math.hypot(sites[0].x-x,sites[0].z-z)<sites[0].radius+15)return sites[0].name;return heightAt(x,z)<SEA_LEVEL?'Orison Ocean':getPlanetAt(x,z).id==='vesper'?`Vesper / ${biomeAt(x,z).name}`:Math.hypot(x,z)<1500?'Ash Coast Wilderness':biomeAt(x,z).name;}
-export const ENEMY_SPAWNS=REGION_SITES.flatMap(s=>[{site:s.id,x:s.x-19,z:s.z-24},{site:s.id,x:s.x+22,z:s.z-19},{site:s.id,x:s.x-24,z:s.z+21},{site:s.id,x:s.x+26,z:s.z+24}]);
+export const ENEMY_SPAWNS=REGION_SITES.filter(s=>s.faction==='pirate').flatMap(s=>[{site:s.id,x:s.x-19,z:s.z-24},{site:s.id,x:s.x+22,z:s.z-19},{site:s.id,x:s.x-24,z:s.z+21},{site:s.id,x:s.x+26,z:s.z+24}]);

@@ -40,18 +40,12 @@ try{
   },target.id,{timeout:12000});
   const s=await snap();assert.equal(s.crashfall.stage,'defend');evidence.weaponRaycast={target:target.id,health:s.enemyPositions.find(e=>e.id===target.id).health,ammo:s.ammo};
  });
- await check('Finishing the defense pays once and tracks the ship; a save reload preserves it',async()=>{
+ await check('Finishing the defense pays once and tracks Mara; a save reload preserves it',async()=>{
   const before=(await snap()).campaign.salvage;await page.evaluate(()=>window.blacklineQA.clear());
   await page.waitForFunction(()=>!window.blacklineQA.snapshot().crashfall);assert.equal((await snap()).campaign.salvage,before+60);
-  await page.waitForFunction(()=>document.getElementById('waypoint-label').textContent.includes('KESTREL'));
+  await page.waitForFunction(()=>document.getElementById('waypoint-label').textContent.includes('Mara'));
   assert(await page.evaluate(()=>window.blacklineQA.save()));await page.reload();await ready();await page.locator('#deploy').click();
-  await page.waitForFunction(()=>window.blacklineQA.snapshot().mode==='playing');const s=await snap();assert(!s.opening.active);assert(!s.crashfall);assert.equal(s.campaign.salvage,before+60);assert.equal(s.campaign.onboarding.stage,'ship');evidence.defenseReward=s.campaign.salvage;
- });
- await check('Install the cell and board Kestrel to reach the main town briefing',async()=>{
-  await page.evaluate(()=>{const q=window.blacklineQA,f=q.snapshot().flight;q.teleport3(f.position[0]+2,f.position[1]+.7,f.position[2]);});
-  await holdUntil(()=>window.blacklineQA.snapshot().campaign.onboarding.stage==='launch');await page.keyboard.press('f');
-  await page.waitForFunction(()=>window.blacklineQA.snapshot().flight.piloting&&window.blacklineQA.snapshot().campaign.onboarding.stage==='complete');
-  assert.equal((await snap()).story.stage,'briefing');await page.keyboard.press('f');await page.waitForFunction(()=>!window.blacklineQA.snapshot().flight.piloting);
+  await page.waitForFunction(()=>window.blacklineQA.snapshot().mode==='playing');const s=await snap();assert(!s.opening.active);assert(!s.crashfall);assert.equal(s.campaign.salvage,before+60);assert.equal(s.campaign.onboarding.stage,'complete');assert(!s.shipPurchase.owned);evidence.defenseReward=s.campaign.salvage;
  });
  await check('First town has accessible Mara briefing and a resident-given optional quest',async()=>{
   await approach('mara');await page.screenshot({path:'qa/opening-first-town.png'});await talk('mara');await page.locator('[data-main-talk]').click();assert.equal((await snap()).story.stage,'coast');

@@ -3,8 +3,7 @@
     "New story can skip arrival and hold to recover the physical emergency cell",
     "Rally hold creates exactly three scout raiders without installing the ship cell",
     "Real ballistic raycasts kill a raider; missing death records keep defense active",
-    "Finishing the defense pays once and tracks the ship; a save reload preserves it",
-    "Install the cell and board Kestrel to reach the main town briefing",
+    "Finishing the defense pays once and tracks Mara; a save reload preserves it",
     "First town has accessible Mara briefing and a resident-given optional quest",
     "Continue preserves main story, accepted side quest and reward without replay"
   ],
@@ -17,9 +16,9 @@
         "site": "crashfall",
         "active": true,
         "position": [
-          44.84910583496094,
-          18.950100708007813,
-          177.05706787109375
+          44.619903564453125,
+          18.950398254394532,
+          177.13735961914062
         ],
         "health": 65,
         "shield": 0,
@@ -31,9 +30,9 @@
         "site": "crashfall",
         "active": true,
         "position": [
-          28.947134017944336,
-          17.568966674804688,
-          160.20700073242188
+          28.85209846496582,
+          17.580160903930665,
+          160.3530731201172
         ],
         "health": 65,
         "shield": 0,
@@ -45,9 +44,9 @@
         "site": "crashfall",
         "active": true,
         "position": [
-          -23.84556770324707,
-          18.354275512695313,
-          170.0483856201172
+          -23.610578536987305,
+          18.35010223388672,
+          170.1136474609375
         ],
         "health": 65,
         "shield": 0,
@@ -74,6 +73,23 @@
       ]
     },
     "crashfall": null,
+    "shipPurchase": {
+      "owned": false,
+      "offer": {
+        "available": false,
+        "description": "Hangar clearance requires Mara’s briefing, the Cold Harbour ledger and the Northwatch transmission keys. Follow your main quest on foot."
+      },
+      "hangar": {
+        "id": "astra-hangar",
+        "name": "PORT ASTRA / HANGAR 03",
+        "x": -1110,
+        "z": -977,
+        "elevation": 54,
+        "kind": "hangar",
+        "faction": "friendly",
+        "radius": 4
+      }
+    },
     "touchMode": false,
     "input": {
       "controller": false,
@@ -107,7 +123,7 @@
       "description": "Recover the route ledger from Cold Harbour. It identifies the relay the pirates use to jam the settlements.",
       "stage": "coast",
       "chapter": 3,
-      "total": 8,
+      "total": 9,
       "target": {
         "id": "harbour",
         "name": "Cold Harbour",
@@ -173,6 +189,28 @@
         "personId": "kito"
       },
       {
+        "id": "person:ada",
+        "name": "Ada Ren / Port Astra City",
+        "x": -1103,
+        "z": -977,
+        "elevation": 54,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "ada"
+      },
+      {
+        "id": "person:orin",
+        "name": "Orin Vale / Port Astra City",
+        "x": -1128,
+        "z": -1083,
+        "elevation": 54,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "orin"
+      },
+      {
         "id": "person:sela",
         "name": "Sela Nadir / Sunfall Expedition Port",
         "x": 41988,
@@ -188,8 +226,8 @@
     "graphics": {
       "lost": false,
       "recoveries": 0,
-      "geometries": 273,
-      "textures": 59,
+      "geometries": 300,
+      "textures": 60,
       "enemyPool": 33
     },
     "health": 100,
@@ -197,17 +235,18 @@
     "reserve": 180,
     "grenades": 3,
     "kills": 36,
-    "stage": 3,
+    "stage": 4,
     "upload": 0,
-    "time": 11.466666666666816,
+    "time": 10.316666666666759,
     "position": [
       -14,
-      17.67487068178911,
+      17.67487068372488,
       128.39999389648438
     ],
     "region": "Pathfinder Landing",
     "campaign": {
       "completed": [
+        "ship:purchase-route",
         "crashfall:arrival",
         "crashfall:regroup",
         "crashfall:defense"
@@ -229,9 +268,9 @@
         "outpost:0:0": 0,
         "camp:1:-1": 0
       },
-      "salvage": 110,
+      "salvage": 60,
       "raids": 0,
-      "distanceWalked": 0.00001773191688059228,
+      "distanceWalked": 0.000016242703253066537,
       "distanceFlown": 0,
       "airKills": 0,
       "oceanKills": 0,
@@ -257,36 +296,31 @@
         {
           "title": "Beyond the road",
           "text": "Accepted from Lia Sen.",
-          "time": 10.650000000000109
+          "time": 9.616666666666724
         },
         {
           "title": "A Signal Home / Break the blockade",
           "text": "Recover the route ledger from Cold Harbour. It identifies the relay the pirates use to jam the settlements.",
-          "time": 10.033333333333411
+          "time": 9.033333333333362
         },
         {
           "title": "A Signal Home / A voice in Pathfinder",
           "text": "Meet Mara Voss beside the communications shelter in Pathfinder Landing.",
-          "time": 6.816666666666648
+          "time": 4.549999999999989
         },
         {
-          "title": "Your horizon",
-          "text": "Kestrel is yours. +50 salvage. Follow a distress signal, raid a camp or find the friendly carrier.",
-          "time": 6.799999999999981
-        },
-        {
-          "title": "Survivors clear",
-          "text": "The crash survivors reached cover. +60 salvage. Follow Kestrel’s beacon to Pathfinder Landing.",
-          "time": 4.516666666666656
+          "title": "Survivors safe",
+          "text": "+60 salvage. Meet Mara in Pathfinder. The road to Port Astra and your first ship starts here.",
+          "time": 4.549999999999989
         },
         {
           "title": "Emergency cell recovered",
-          "text": "Follow the Kestrel beacon. Hold E beside its hull to reconnect flight systems.",
+          "text": "Bring the cell to the survivor rally, then meet Mara in Pathfinder.",
           "time": 2.116666666666664
         },
         {
           "title": "Crashfall",
-          "text": "The transport is lost. Recover its emergency cell, restore Kestrel, then decide where to go.",
+          "text": "The transport is lost. Recover the emergency cell and get the survivors to Pathfinder. A ship of our own will have to wait.",
           "time": 0
         },
         {
@@ -348,9 +382,9 @@
       "gear": "down",
       "energy": 100,
       "position": [
-        12,
-        18.31,
-        114
+        -1120,
+        56.309999999999995,
+        -995
       ],
       "velocity": [
         0,
@@ -359,10 +393,10 @@
       ],
       "speed": 0,
       "altitude": 0,
-      "worldAltitude": 18,
+      "worldAltitude": 56,
       "yaw": 0,
       "pitch": 0,
-      "pad": "Pathfinder Landing",
+      "pad": "Port Astra City",
       "collisionCount": 0,
       "controls": "MOUSE look · WASD fly · SPACE rise · CTRL descend · SHIFT boost · F exit when landed · LMB cannons"
     },
@@ -386,9 +420,9 @@
       ],
       "patrol": {
         "position": [
-          -498.6875669911617,
+          -499.0812729781479,
           0.7,
-          1134.9885159180878
+          1134.9943727266207
         ],
         "health": 150,
         "alive": true
@@ -396,7 +430,7 @@
       "controls": "W/S throttle · A/D rudder · SHIFT full power · F leave helm when stopped"
     },
     "climate": {
-      "hour": 9.314666666666668,
+      "hour": 9.303166666666668,
       "daylight": 1,
       "twilight": 0,
       "rain": 0,
@@ -413,9 +447,9 @@
           "shots": 0,
           "damage": 0,
           "position": [
-            370.2300247136205,
-            43.478966663635234,
-            -129.49498411267254
+            370.1655779741237,
+            43.48251683395104,
+            -129.5364141594919
           ],
           "engaged": false,
           "down": false
@@ -426,9 +460,9 @@
           "shots": 0,
           "damage": 0,
           "position": [
-            372.2300247136205,
-            43.119604092624535,
-            -126.49498411267254
+            372.1655779741237,
+            43.1220743106003,
+            -126.5364141594919
           ],
           "engaged": false,
           "down": false
@@ -483,10 +517,10 @@
         {
           "id": "encounter:convoy:arsenal",
           "name": "Pirate Supply Convoy",
-          "x": 329.01765632631776,
-          "z": -123.64599435980969,
+          "x": 328.7166481474992,
+          "z": -123.48180808045412,
           "kind": "convoy",
-          "elevation": 37.022445157711516,
+          "elevation": 36.902465420873014,
           "radius": 30,
           "faction": "pirate",
           "guardCount": 4,
@@ -504,10 +538,10 @@
         {
           "id": "encounter:patrol:north",
           "name": "Wraith Recon Patrol",
-          "x": -307.0796732468887,
-          "z": -165.76550423014274,
+          "x": -307.27122390613687,
+          "z": -165.8886439396594,
           "kind": "patrol",
-          "elevation": 41.045420185870995,
+          "elevation": 41.08614847769505,
           "radius": 30,
           "faction": "pirate",
           "guardCount": 3,
@@ -546,10 +580,10 @@
         {
           "id": "encounter:friendly:landing",
           "name": "Colonial Recon",
-          "x": 367.2300247136205,
-          "z": -137.49498411267254,
+          "x": 367.1655779741237,
+          "z": -137.5364141594919,
           "kind": "friendly",
-          "elevation": 44.41102970093419,
+          "elevation": 44.41428696045113,
           "radius": 30,
           "faction": "friendly",
           "guardCount": 0,
@@ -572,13 +606,13 @@
     "airPirates": [],
     "world": {
       "terrainChunks": 49,
-      "loadedSites": 19,
-      "colliders": 1451,
+      "loadedSites": 20,
+      "colliders": 1660,
       "chunkSize": 256,
       "streamRadius": 768,
       "procedural": true,
-      "roadRoutes": 5,
-      "roadKilometres": 2.7,
+      "roadRoutes": 8,
+      "roadKilometres": 4.3,
       "roadFurniture": 52
     },
     "sites": [
@@ -761,10 +795,10 @@
       {
         "id": "encounter:convoy:arsenal",
         "name": "Pirate Supply Convoy",
-        "x": 329.01765632631776,
-        "z": -123.64599435980969,
+        "x": 328.7166481474992,
+        "z": -123.48180808045412,
         "kind": "convoy",
-        "elevation": 37.022445157711516,
+        "elevation": 36.902465420873014,
         "radius": 30,
         "faction": "pirate",
         "guardCount": 4,
@@ -774,10 +808,10 @@
       {
         "id": "encounter:patrol:north",
         "name": "Wraith Recon Patrol",
-        "x": -307.0796732468887,
-        "z": -165.76550423014274,
+        "x": -307.27122390613687,
+        "z": -165.8886439396594,
         "kind": "patrol",
-        "elevation": 41.045420185870995,
+        "elevation": 41.08614847769505,
         "radius": 30,
         "faction": "pirate",
         "guardCount": 3,
@@ -800,10 +834,10 @@
       {
         "id": "encounter:friendly:landing",
         "name": "Colonial Recon",
-        "x": 367.2300247136205,
-        "z": -137.49498411267254,
+        "x": 367.1655779741237,
+        "z": -137.5364141594919,
         "kind": "friendly",
-        "elevation": 44.41102970093419,
+        "elevation": 44.41428696045113,
         "radius": 30,
         "faction": "friendly",
         "guardCount": 0,
@@ -825,9 +859,9 @@
           "role": "MEDIC",
           "health": 100,
           "position": [
-            -16.71040153503418,
-            15.955263900756837,
-            128.95492553710938
+            -16.67784309387207,
+            15.955088424682618,
+            128.7888641357422
           ],
           "down": false,
           "status": "FOLLOWING",
@@ -841,9 +875,9 @@
           "role": "SUPPLY",
           "health": 100,
           "position": [
-            -11.285944938659668,
+            -11.322636604309082,
             15.954998779296876,
-            128.95425415039062
+            128.7886505126953
           ],
           "down": false,
           "status": "FOLLOWING",
@@ -1318,8 +1352,8 @@
         "staggerUntil": 0
       }
     ],
-    "drawCalls": 331,
-    "triangles": 713598,
-    "renderCpuMs": 8.699999928474426
+    "drawCalls": 360,
+    "triangles": 748560,
+    "renderCpuMs": 6.299999952316284
   }
 }

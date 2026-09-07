@@ -1,3 +1,4 @@
+import {usesShipPurchase,ownsShip,shipOffer,HANGAR} from './ship-purchase.mjs';
 import {MAIN_CONTRACTS,QUEST_PEOPLE} from './quest-data.mjs';
 import {CONTRACTS,ensureProgression,acceptContract} from './progression.mjs';
 import {AUTHORED_SITES} from './mission-rules.mjs';
@@ -26,6 +27,7 @@ export function mainQuest(c){
   ];return {stage:id,title:contract.title,description:descriptions[i],done:c.completed.includes(contract.target),target:site,contract:id};}),
   {stage:'home',title:'Send the signal home',description:'Return to Mara in Pathfinder Landing on Orison. Give her the archive and bring the fleet beacon online.',done:c.story.finished,target:mara}
  ];
+ if(usesShipPurchase(c))chapters.splice(4,0,{stage:'ship-purchase',title:'A ship of your own',description:shipOffer(c).description+' Follow the Northwatch highway to Port Astra City.',done:ownsShip(c),target:HANGAR});
  const index=chapters.findIndex(ch=>!ch.done),chapter=index<0?chapters.at(-1):chapters[index];
  return {id:'main',name:'A Signal Home',title:chapter.title,description:index<0?'The fleet has your signal. The settlements are connected again. Continue exploring and helping the people you meet.':chapter.description,stage:index<0?'complete':chapter.stage,chapter:index<0?chapters.length:index+1,total:chapters.length,target:index<0?null:chapter.target,contract:chapter.contract,complete:index<0};
 }

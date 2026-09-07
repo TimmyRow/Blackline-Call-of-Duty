@@ -9,10 +9,10 @@ const empty=()=>0;
 test('discoveries persist without automatically looting or requiring an objective order',()=>{
  const state=createAdventure();
  for(const site of [...SPECIAL_SITES,...REGION_SITES])stepAdventure(state,[site],at(site),false,10,empty,10);
- assert.equal(state.discovered.length,6);assert.equal(state.completed.length,0);assert.equal(state.tracked,null);
+ assert.equal(state.discovered.length,SPECIAL_SITES.length+REGION_SITES.length);assert.equal(state.completed.length,0);assert.equal(state.tracked,null);
  const site=REGION_SITES[2];stepAdventure(state,[site],at(site),true,2.5,empty,20);
  assert.deepEqual(state.completed,[site.id]);assert.equal(state.raids,1);
- stepAdventure(state,[site],at(site),false,1,empty,30);assert.equal(state.discovered.length,6);
+ stepAdventure(state,[site],at(site),false,1,empty,30);assert.equal(state.discovered.length,SPECIAL_SITES.length+REGION_SITES.length);
 });
 
 test('pirate guards prevent cargo collection until cleared',()=>{

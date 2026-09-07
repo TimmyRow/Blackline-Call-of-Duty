@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "Fresh arrival has no ship at Pathfinder; hangar ship cannot be boarded early",
+    "City quest and terminal reject insufficient funds without charging",
+    "Xbox RB purchases at the physical terminal and unlocks the next main chapter",
+    "Purchased ownership survives reload and the hangar permits collision-free takeoff"
+  ],
+  "errors": []
+}

@@ -6,6 +6,9 @@ import {heightAt,worldHash} from './region-layout.mjs';
 type Point={x:number;z:number};
 type Route={name:string;width:number;points:Point[]};
 const controls:[string,number,number[][]][]=[
+ ['Port Astra highway',9,[[-690,-540],[-690,-640],[-800,-725],[-900,-790],[-1030,-830],[-1120,-880],[-1120,-940]]],
+ ['Astra civic avenue',10,[[-1120,-940],[-1120,-975],[-1120,-1030],[-1120,-1105]]],
+ ['Astra market ring',7,[[-1120,-940],[-1215,-940],[-1215,-1120],[-1025,-1120],[-1025,-940],[-1120,-940]]],
  ['Colonial freight road',9,[[0,150],[-19,128],[-24,103],[-17,85],[0,67],[0,34],[0,-10],[0,-61]]],
  ['Landing approach',7,[[0,92],[0,80],[0,67]]],
  ['Northwatch highway',8.5,[[0,70],[-58,69.5],[-115,43],[-193,2],[-260,-67],[-309,-167],[-393,-247],[-503,-286],[-598,-373],[-690,-465],[-690,-540]]],
@@ -85,6 +88,8 @@ export function createIndustrialRoads(scene:THREE.Scene,world:RAPIER.World,pool:
  sign(-11,40,'FREIGHT DISTRICT  07',['↑  CUSTOMS / DOCK YARD'],true);
  sign(-63,78,'HIGHWAY N-4',['←  NORTHWATCH ARRAY','AUTHORIZED FREIGHT ONLY'],true);
  sign(73,66,'HIGHWAY E-2',['→  TIDEBREAK ARSENAL','COASTAL DEFENCE COMMAND'],true);
+ sign(-701,-603,'PORT ASTRA CITY',['↑  CIVIC AVENUE / MARKET','HANGAR 03 / SHIP SALES'],true);
+ sign(-1107,-913,'WELCOME TO PORT ASTRA',['↑  HANGAR 03 / 300 SALVAGE','MARKET / MEDICAL / CREW LODGINGS'],true);
  sign(-680,-445,'NORTHWATCH ARRAY',['↑  SIGNALS / BARRACKS','REDUCE SPEED     20'],true);
  sign(790,-279,'TIDEBREAK ARSENAL',['↑  MUNITIONS / TRANSIT','MILITARY CHECKPOINT'],true);
  for(const r of INDUSTRIAL_ROUTES){if(r.name==='Landing approach'||r.name==='Harbour service loop')continue;let travelled=0,next=30,lampNext=64;

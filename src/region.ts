@@ -248,7 +248,19 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
    for(const room of getSettlementBuildings(s))building(room.a,room.c,room.w,room.d,room.h,room.label);
    // Shared landing/recovery space stays clear; each district has a distinct perimeter.
    pad(0,35,13);
-   if(harbour){
+   if(style==='city'){
+    // Open sky above the central berth keeps takeoff clear; covered service wings frame it.
+    for(const side of [-1,1]){
+     block(side*15,5.5,35,.6,11,30,steel);block(side*12,11,35,6,.45,30,steel);
+     for(const c of [22,35,48]){block(side*12,5.5,c,.35,11,.35,steel);deco(side*11.7,4,c,.1,5,.16,cyan);}
+     for(const c of [-82,-42,0,70])streetlight(side*16,c);
+    }
+    gantry(19,30,12);sign('HANGAR 03 / SHIP SALES','KESTREL  /  300 SALVAGE  /  OPEN-SKY BERTH',0,9.2,50,16,1.7);
+    block(10,.7,53,1.6,1.4,1,dark);deco(10,1.45,53,1.4,.13,.8,cyan);
+    sign('KESTREL / 300 SALVAGE','HOLD INTERACT TO PURCHASE',10,1.9,53,1.8,.48);
+    sign('PORT ASTRA','CIVIC AVENUE / MARKET / HANGAR 03',0,6,-84,14,1.8);
+    for(const a of [-79,-45,45,79]){deco(a,.03,-4,25,.06,9,concrete);deco(a,.03,60,24,.06,6,concrete);}
+   }else if(harbour){
     container(-15.8,-12,teal,0,'07');container(-15.8,-12,blue,1);container(16,-8,orange,0,'12');container(16,-8,teal,1);container(-16,15,blue,0,'04');container(19,13,teal,0,'09');
     for(const [a,c]of [[-6,23],[7,-26],[-8,-30],[27,4]])barrier(a,c);yard(-34,8);yard(23,-8);yard(-26,-42);gantry(-37,41,12);
     container(-17,48,orange,0,'16');container(18,50,blue,0,'18');crane(-44,-43,31);crane(47,-47,37);

@@ -67,3 +67,11 @@ Procedural visuals and simplified AI remain prototype-scale. No multiplayer, mov
 - Xbox inputs are verified with simulated standard gamepads. A physical Xbox One controller remains a required user playtest; browser testing does not certify hardware behavior.
 
 Verification: 94 automated rule/input tests passed, plus Edge controller, opening/quest, encounter and streaming/recovery checks. Mobile settings were tested at phone/tablet dimensions; WebKit touch dialogue and journal checks preserve the touch path.
+
+## City ship purchase
+
+- New expeditions reach Port Astra City after Mara’s briefing, Cold Harbour and Northwatch. The main story now has nine chapters.
+- Port Astra adds twelve city buildings, two residents, street signs, a graded causeway, a market ring and Hangar 03 with an open-sky launch berth.
+- Kestrel costs 300 salvage. Purchase at the physical sales terminal with keyboard, touch interaction or Xbox RB. Funds and ownership persist; repeat purchases and early boarding are blocked.
+- Existing pilots keep their ships. Unfinished legacy recovery saves move to the new route.
+- Verification: 100 rule/input tests, revised opening checks and Edge purchase/save/controller/takeoff checks. Browser scripts use teleportation and a completed-ground-mission save fixture to isolate the purchase. Physical Xbox and Apple hardware remain untested.
