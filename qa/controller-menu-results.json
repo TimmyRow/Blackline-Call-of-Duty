@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "Controller A deploys and skips opening without pointer lock",
+    "Maximum refit safely restores controller focus instead of closing journal",
+    "Controller planet jump preserves the selected mission destination"
+  ],
+  "errors": []
+}

@@ -3,7 +3,7 @@ import RAPIER from '@dimforge/rapier3d-compat';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {heightAt,SEA_LEVEL} from './region-layout.mjs';
 
-type HelmInput={keys:Set<string>,yaw:number,pitch:number};
+type HelmInput={keys:Set<string>,move?:{x:number,z:number},yaw:number,pitch:number};
 const MOORING=new THREE.Vector3(289,SEA_LEVEL+.7,950),DECK=2.05;
 /** A single bounded launch with a physical deck. Uncrewed vessels stop, so infantry can safely stand aboard. */
 export function createMarine(scene:THREE.Scene,world:RAPIER.World){
@@ -47,7 +47,7 @@ export function createMarine(scene:THREE.Scene,world:RAPIER.World){
  const waterClear=(x:number,z:number,heading=yaw)=>[-6,0,6].every(d=>[-2.8,0,2.8].every(w=>heightAt(x-Math.sin(heading)*d+Math.cos(heading)*w,z-Math.cos(heading)*d-Math.sin(heading)*w)<SEA_LEVEL-1.6));
  function board(player:THREE.Vector3){const atDeck=player.distanceTo(position.clone().add(new THREE.Vector3(0,DECK+1,0)))<8;const atMooring=position.distanceTo(MOORING)<3&&player.distanceTo(new THREE.Vector3(275,13.7,950))<7;if(piloting||health<=0||(!atDeck&&!atMooring))return false;piloting=true;return true;}
  function tryExit(){if(!piloting||Math.abs(speed)>1.2)return null;piloting=false;speed=0;velocity.set(0,0,0);return new THREE.Vector3(0,DECK+1.7,3).applyAxisAngle(THREE.Object3D.DEFAULT_UP,yaw).add(position);}
- function step(dt:number,input:HelmInput){if(!piloting){speed=0;velocity.set(0,0,0);return;}lookYaw=input.yaw;pitch=THREE.MathUtils.clamp(input.pitch,-1.15,1.15);const throttle=Number(input.keys.has('KeyW'))-Number(input.keys.has('KeyS')),steer=Number(input.keys.has('KeyA'))-Number(input.keys.has('KeyD'));yaw+=steer*dt*(.4+Math.min(Math.abs(speed)/25,1)*.55);const target=health>0?throttle*(input.keys.has('ShiftLeft')?42:28):0;speed=THREE.MathUtils.damp(speed,target,throttle?1.1:2.5,dt);velocity.set(-Math.sin(yaw)*speed,0,-Math.cos(yaw)*speed);const delta=velocity.clone().multiplyScalar(dt),next=position.clone().add(delta);rotation.setFromAxisAngle(THREE.Object3D.DEFAULT_UP,yaw);
+ function step(dt:number,input:HelmInput){if(!piloting){speed=0;velocity.set(0,0,0);return;}lookYaw=input.yaw;pitch=THREE.MathUtils.clamp(input.pitch,-1.15,1.15);const throttle=THREE.MathUtils.clamp(Number(input.keys.has('KeyW'))-Number(input.keys.has('KeyS'))-(input.move?.z??0),-1,1),steer=THREE.MathUtils.clamp(Number(input.keys.has('KeyA'))-Number(input.keys.has('KeyD'))-(input.move?.x??0),-1,1);yaw+=steer*dt*(.4+Math.min(Math.abs(speed)/25,1)*.55);const target=health>0?throttle*(input.keys.has('ShiftLeft')?42:28):0;speed=THREE.MathUtils.damp(speed,target,throttle?1.1:2.5,dt);velocity.set(-Math.sin(yaw)*speed,0,-Math.cos(yaw)*speed);const delta=velocity.clone().multiplyScalar(dt),next=position.clone().add(delta);rotation.setFromAxisAngle(THREE.Object3D.DEFAULT_UP,yaw);
   const hit=delta.lengthSq()>.000001?world.castShape(position.clone().add(new THREE.Vector3(0,1.2,0)),rotation,delta,sweep,.05,1,true,RAPIER.QueryFilterFlags.ONLY_FIXED):null;
   if(!waterClear(next.x,next.z)||hit){if(Math.abs(speed)>8)health=Math.max(0,health-Math.min(8,Math.abs(speed)*.12));collisions++;speed=0;velocity.set(0,0,0);}else{position.copy(next);travelled+=delta.length();}body.setNextKinematicTranslation(position);body.setNextKinematicRotation(rotation);
  }

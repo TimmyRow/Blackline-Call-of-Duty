@@ -11,7 +11,7 @@ try{
   await page.screenshot({path:`artifacts/navigation-qa/real-${mobile?'mobile':'desktop'}-hud.png`});
   if(mobile)await page.locator('[data-tap="Tab"]').click();else await page.keyboard.press('Tab');await page.waitForSelector('.field-map:not([hidden])');assert.match(await page.locator('.fm-tracked-summary').innerText(),/Meridian Anchorage/);assert.match(await page.locator('.fm-site.is-tracked').innerText(),/Meridian Anchorage/);await page.screenshot({path:`artifacts/navigation-qa/real-${mobile?'mobile':'desktop'}-map.png`});await page.locator('.fm-close').click();
   await page.evaluate(()=>{blacklineQA.track('kestrel');blacklineQA.flight.board(blacklineQA.flight.position);});await page.waitForTimeout(350);assert.equal(await page.locator('.nav-ship').isVisible(),false);assert.equal(await page.locator('.nav-target').isVisible(),false);assert.equal(await page.locator('.nav-flight').isVisible(),true);
-  await page.evaluate(()=>blacklineQA.openJournal());await page.locator('#expedition-systems').scrollIntoViewIfNeeded();await page.screenshot({path:`artifacts/navigation-qa/real-${mobile?'mobile':'desktop'}-journal.png`});assert.equal(await page.locator('[data-scan]').count(),1);assert.equal(await page.locator('[data-travel]').count(),2);
+  await page.evaluate(()=>blacklineQA.openJournal('equipment'));await page.locator('#expedition-systems').scrollIntoViewIfNeeded();await page.screenshot({path:`artifacts/navigation-qa/real-${mobile?'mobile':'desktop'}-journal.png`});assert.equal(await page.locator('[data-scan]').count(),1);assert.equal(await page.locator('[data-travel]').count(),2);
   console.log(JSON.stringify({mobile,first,second,errors}));await page.close();
  }
 }finally{await browser.close();}

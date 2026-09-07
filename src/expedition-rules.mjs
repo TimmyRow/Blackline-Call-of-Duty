@@ -12,12 +12,13 @@ export function regionalWar(c,sites){
  return {pressure,secured,label:secured?'COLONIAL FOOTHOLD':'CONTESTED FRONTIER',description:secured?`${secured} secured local bases reduce nearby pirate garrisons. Convoy losses weaken their supply lines.`:'Pirate alarms call reinforcements. Secure bases and intercept convoys to weaken nearby garrisons.'};
 }
 export function boardingStatus(c){
- if(!c.boarding?.disabled)return {stage:'disable',label:'DISABLE CORSAIR ENGINES',description:'Use Kestrel cannons on the orange engine on the starboard stern before boarding.'};
+ if(!c.boarding?.disabled)return {stage:'disable',label:'DISABLE CORSAIR ENGINES',description:'Use Kestrel cannons on the orange engine, or board from the aft sea stairs and hold USE at the engine to sabotage it.'};
  if(!(c.rescued??[]).includes('corsair'))return {stage:'rescue',label:'RESCUE THE CORSAIR PRISONER',description:'Land on the aft deck, clear the guards, and hold USE at the cyan rescue beacon inside.'};
+ if(c.safeHarbour?.defending&&!c.safeHarbour?.repelled&&!c.completed.includes('corsair'))return {stage:'defend',label:'PROTECT THE RESCUED CREW',description:'A pirate boarding team has reached the aft deck. Defeat them before recovering the ship’s command codes.'};
  if(!c.completed.includes('corsair'))return {stage:'cargo',label:'RECOVER CORSAIR CARGO',description:'The prisoner is safe. Recover the cargo at the ship center to secure this vessel.'};
  return {stage:'complete',label:'CORSAIR SECURED',description:'The prisoner is safe and this vessel can resupply your squad.'};
 }
-export function rescuePrisoner(c,id){c.rescued??=[];if(c.rescued.includes(id)||!c.boarding?.disabled)return false;c.rescued.push(id);c.salvage+=120;return true;}
+export function rescuePrisoner(c,id){c.rescued??=[];if(c.rescued.includes(id)||!c.boarding?.disabled)return false;c.rescued.push(id);c.salvage+=120;if(id==='corsair'){c.safeHarbour??={};c.safeHarbour.defending=true;}return true;}
 export function jumpPermission({flying,altitude,speed,health,energy,cooldown,current,destination}){
  if(current===destination)return 'Already orbiting this planet';
  if(!flying)return 'Board Kestrel to travel';
@@ -27,4 +28,11 @@ export function jumpPermission({flying,altitude,speed,health,energy,cooldown,cur
  if(energy<30)return 'Requires 30 ship energy';
  if(cooldown>0)return `Drive cooling: ${Math.ceil(cooldown)} s`;
  return null;
+}
+
+export function finishSafeHarbour(c){
+ if(!c.completed.includes('corsair')||c.safeHarbour?.rewarded)return null;
+ c.safeHarbour??={};c.safeHarbour.rewarded=true;c.safeHarbour.repelled=true;c.upgrades??={};
+ if((c.upgrades.engine??0)<3){c.upgrades.engine=(c.upgrades.engine??0)+1;return 'Vector thrusters upgraded';}
+ c.salvage+=160;return '160 salvage (thrusters already maximum)';
 }

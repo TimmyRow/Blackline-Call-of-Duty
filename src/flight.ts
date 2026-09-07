@@ -4,7 +4,7 @@ import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import * as region from './region-layout.mjs';
 
 type LandingPad={id:string,name:string,x:number,z:number,y:number,radius:number};
-type FlightInput={keys:Set<string>,yaw:number,pitch:number};
+type FlightInput={keys:Set<string>,move?:{x:number,z:number},yaw:number,pitch:number};
 type FlightRegion={REGION_START:{x:number,z:number},SEA_LEVEL?:number,heightAt:(x:number,z:number)=>number,getLandingPads?:(x:number,z:number,radius:number)=>LandingPad[]};
 const layout=region as FlightRegion;
 const GEAR_HEIGHT=2.15, CRUISE=140, BOOST=420;
@@ -121,7 +121,7 @@ export function createFlight(scene:THREE.Scene,world:RAPIER.World,initial?:{x:nu
    if(!piloting){if(landed)health=Math.min(maxHealth(),health+dt*.7);return;}
    yaw=input.yaw;pitch=THREE.MathUtils.clamp(input.pitch,-1.45,1.45);
    const keys=input.keys,boost=keys.has('ShiftLeft')||keys.has('ShiftRight');
-   const forward=Number(keys.has('KeyW'))-Number(keys.has('KeyS')),right=Number(keys.has('KeyD'))-Number(keys.has('KeyA'));
+   const forward=THREE.MathUtils.clamp(Number(keys.has('KeyW'))-Number(keys.has('KeyS'))-(input.move?.z??0),-1,1),right=THREE.MathUtils.clamp(Number(keys.has('KeyD'))-Number(keys.has('KeyA'))+(input.move?.x??0),-1,1);
    const ascent=Number(keys.has('Space'))-Number(keys.has('ControlLeft')||keys.has('ControlRight')||keys.has('KeyC'));
    if(landed&&ascent>0&&health>0)landed=false;
    if(landed){velocity.set(0,0,0);padName=surface(position.x,position.z,position.y).name;health=Math.min(maxHealth(),health+dt*.7);return;}

@@ -35,3 +35,12 @@ Halo-inspired military sci-fi with No Man's Sky-inspired exploration. The number
 See `qa/expansion-results.json`, `qa/expansion-mobile-results.json` and `qa/stability-results.json`, plus the navigation and world browser scripts in `tests/`. Existing saves migrate; destination, equipment and tracked pins survive a fresh page reload.
 
 Procedural visuals and simplified AI remain prototype-scale. No multiplayer, moving capital ships, destructive building simulation or physical iPhone/iPad certification is included. The original spontaneous Edge tab exit was not reproduced; resource limits and graphics recovery are tested, not a guarantee against every crash.
+
+
+## Missions and Xbox controller update
+
+- I / controller View / touch Missions opens all 12 contracts. Start & Track accepts a mission and marks its next destination; survey goals advance their markers. Equipment/travel and squad orders have separate tabs.
+- Operation Safe Harbour: distress transmission, ship cannons or deck sabotage, aft sea boarding stairs, crew rescue, a two-pirate counterattack, command-code recovery, friendly resupply base, and one free engine refit (160 salvage if already fully upgraded). Existing completed saves stay completed.
+- Standard Xbox controller mapping: sticks move/look, RT fire, LT aim, A jump/rise, B crouch/descend, X reload, Y switch, LB grenade, RB hold interaction, L3 hold sprint/boost, R3 board/exit, View missions, Menu pause, D-pad up scan/down atlas/left squad/right ship. Menus use D-pad or left stick, A select, B back, LB/RB missions/equipment.
+- Analog movement works on foot, aboard Kestrel and at the launch helm. Controller look speed and invert-Y settings are in Controls & Settings. Disconnect/API failure pauses and releases input. Held triggers cannot fire through pause/resume.
+- Validation uses simulated standard gamepads in Windows Edge and mobile Chromium/WebKit emulation. Physical Xbox controller and iPhone/iPad hardware remain unverified.
