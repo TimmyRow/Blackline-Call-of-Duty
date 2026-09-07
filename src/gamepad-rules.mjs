@@ -11,7 +11,7 @@ export function readPad(pad,previous=[],settings={}){
  const config=controllerSettings(settings);
  return {down,pressed:down.map((v,i)=>v&&!previous[i]),move:stick(pad.axes?.[0],pad.axes?.[1],config.moveDeadzone),look:stick(pad.axes?.[2],pad.axes?.[3],config.lookDeadzone)};
 }
-export const PAD_KEYS={0:'Space',1:'ControlLeft',2:'KeyR',3:'KeyX',4:'KeyG',5:'KeyE',10:'ShiftLeft',11:'KeyF',12:'KeyV',13:'Tab',14:'KeyO',15:'KeyH'};
+export const PAD_KEYS={0:'Space',1:'KeyC',2:'KeyR',3:'KeyX',4:'KeyG',5:'KeyE',10:'ShiftLeft',11:'KeyF',12:'KeyV',13:'Tab',14:'KeyO',15:'KeyH'};
 export function controllerSettings(value={}){
  const v=value&&typeof value==='object'?value:{};
  const bounded=(key,fallback,min,max)=>Number.isFinite(v[key])?Math.max(min,Math.min(max,v[key])):fallback;

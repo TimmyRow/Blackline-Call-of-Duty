@@ -11,68 +11,98 @@
     {
       "lap": 0,
       "graphics": {
+        "antialias": false,
         "lost": false,
         "recoveries": 0,
-        "geometries": 247,
+        "geometries": 245,
         "textures": 37,
         "enemyPool": 33
       },
       "world": {
         "terrainChunks": 49,
         "loadedSites": 14,
+        "streaming": {
+          "pendingTerrain": 0,
+          "pendingSites": 0,
+          "pendingHorizon": false,
+          "builds": 0,
+          "maxBuilds": 2,
+          "lastMs": 0,
+          "maxMs": 43.199999928474426
+        },
         "colliders": 1079,
         "chunkSize": 256,
         "streamRadius": 768,
         "procedural": true,
-        "roadRoutes": 5,
-        "roadKilometres": 2.7,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
         "roadFurniture": 0
       },
-      "heap": 24045940
+      "heap": 25822860
     },
     {
       "lap": 1,
       "graphics": {
+        "antialias": false,
         "lost": false,
         "recoveries": 0,
-        "geometries": 247,
+        "geometries": 245,
         "textures": 37,
         "enemyPool": 33
       },
       "world": {
         "terrainChunks": 49,
         "loadedSites": 14,
+        "streaming": {
+          "pendingTerrain": 0,
+          "pendingSites": 0,
+          "pendingHorizon": false,
+          "builds": 0,
+          "maxBuilds": 2,
+          "lastMs": 0,
+          "maxMs": 43.199999928474426
+        },
         "colliders": 1079,
         "chunkSize": 256,
         "streamRadius": 768,
         "procedural": true,
-        "roadRoutes": 5,
-        "roadKilometres": 2.7,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
         "roadFurniture": 0
       },
-      "heap": 25583936
+      "heap": 25399740
     },
     {
       "lap": 2,
       "graphics": {
+        "antialias": false,
         "lost": false,
         "recoveries": 0,
-        "geometries": 247,
+        "geometries": 245,
         "textures": 37,
         "enemyPool": 33
       },
       "world": {
         "terrainChunks": 49,
         "loadedSites": 14,
+        "streaming": {
+          "pendingTerrain": 0,
+          "pendingSites": 0,
+          "pendingHorizon": false,
+          "builds": 0,
+          "maxBuilds": 2,
+          "lastMs": 0,
+          "maxMs": 43.199999928474426
+        },
         "colliders": 1079,
         "chunkSize": 256,
         "streamRadius": 768,
         "procedural": true,
-        "roadRoutes": 5,
-        "roadKilometres": 2.7,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
         "roadFurniture": 0
       },
-      "heap": 25178060
+      "heap": 25487236
     }
   ],
   "errors": [],

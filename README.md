@@ -29,7 +29,7 @@ WebGL 2 with hardware acceleration is required. Desktop uses keyboard and mouse;
 | Right mouse | Aim | Zoom |
 | Shift | Sprint | Boost |
 | Space | Jump | Ascend / take off |
-| C / Ctrl | Crouch | Descend |
+| C | Crouch | Descend |
 | F | Board from beside Kestrel | Exit after landing safely |
 | E (hold) | Loot, resupply or revive | — |
 | Q | Order squad to focus a hostile | — |
@@ -41,7 +41,7 @@ WebGL 2 with hardware acceleration is required. Desktop uses keyboard and mouse;
 | I | Journal, contracts, refits and saving | Journal, contracts, refits and saving |
 | Esc / P / M | Pause / mute | Pause / mute |
 
-Kestrel has a permanent live compass beacon, a pinned atlas entry and an H tracking shortcut. New expeditions protect the crash survivors, meet Mara, complete Cold Harbour and Northwatch on foot, then follow the causeway to Port Astra City. Kestrel costs 300 salvage at Hangar 03. Hold E / Xbox RB / touch Interact beside the sales terminal to buy; the main quest and compass mark it. Existing pilots keep their ships. Walk beside it and press F, then Space to lift off. Base cruise speed is 140 m/s, or 420 m/s with boost; refits increase performance. Use Ctrl to descend and release thrust to slow before landing. The ship checks its swept hull against physical buildings and terrain, and refuses airborne or open-ocean disembarkation. Land on marked carrier and station pads to explore on foot.
+Kestrel has a permanent live compass beacon, a pinned atlas entry and an H tracking shortcut. New expeditions protect the crash survivors, meet Mara, complete Cold Harbour and Northwatch on foot, then follow the causeway to Port Astra City. Kestrel costs 300 salvage at Hangar 03. Hold E / Xbox RB / touch Interact beside the sales terminal to buy; the main quest and compass mark it. Existing pilots keep their ships. Walk beside it and press F, then Space to lift off. Base cruise speed is 140 m/s, or 420 m/s with boost; refits increase performance. Use C to descend and release thrust to slow before landing. The ship checks its swept hull against physical buildings and terrain, and refuses airborne or open-ocean disembarkation. Land on marked carrier and station pads to explore on foot.
 
 At CNS Wayfarer, approach the launch dock and press F to take the helm. W/S controls throttle, A/D steers, and Shift increases speed. Release throttle and slow before pressing F to leave the helm onto the launch deck. The squad travels aboard with you. Watch for the armed Corsair coastal patrol.
 
@@ -95,7 +95,7 @@ The large carrier, Corsair boarding vessel and station remain stationary; the la
 
 ### Clear flight view
 
-Kestrel uses an unobstructed pilot view with hull, energy, speed and altitude in the existing HUD. Move the mouse up/down/left/right to look; looking does not require holding fire, including browsers without pointer lock. WASD supplies thrust, Space/Ctrl changes altitude, Shift boosts, and left click fires. On touch devices, swipe to look; only Descend, Rise and Fire remain in the flight action row. Infantry buttons return on exit.
+Kestrel uses an unobstructed pilot view with hull, energy, speed and altitude in the existing HUD. Move the mouse up/down/left/right to look; looking does not require holding fire, including browsers without pointer lock. WASD supplies thrust, Space/C changes altitude, Shift boosts, and left click fires. On touch devices, swipe to look; only Descend, Rise and Fire remain in the flight action row. Infantry buttons return on exit.
 
 Verified with `node qa/flight-view-test.mjs`: captured and uncaptured mouse directions, cannon input, iPhone/iPad landscape touch layouts and swipe input. Screenshots and results are in `qa/flight-clear-*.png` and `qa/flight-view-results.json`. Mobile checks use browser emulation, not physical Apple hardware. Six flight physics tests and the production build also pass.
 
@@ -117,3 +117,5 @@ Connect an Xbox One/standard-mapping controller and press A. Sticks move/look; L
 Controls & Settings saves look speed, aiming speed, flight speed, separate stick deadzones and inversion. Use D-pad/left stick to navigate, left/right to adjust, A to select, and B to return. Release held controls after changing menus or reconnecting. The game pauses on disconnect. Hardware behavior still needs a physical controller playtest.
 
 New expeditions now include a visible survivor rally and three-raider defense before meeting Mara. Ship ownership comes later through the city purchase. Existing saves keep their current progression. Wrecks and distress signals have separate interaction steps and residents respond to completed work.
+
+Flight descent and infantry crouch use **C**. Ctrl is not a game control: Ctrl+W (or Ctrl+Shift+W while boosting) closes an Edge tab/window. Xbox B and the touch Descend button keep their existing behavior.

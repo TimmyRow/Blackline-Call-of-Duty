@@ -1,0 +1,9 @@
+{
+  "checks": [
+    "W + Shift + C boosts forward and descends without browser modifiers",
+    "Xbox B still descends after the input remap",
+    "Ctrl is excluded from gameplay and flight progress saves every five seconds",
+    "Touch Rise and Descend retain their behavior"
+  ],
+  "errors": []
+}

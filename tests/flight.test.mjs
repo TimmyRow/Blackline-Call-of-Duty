@@ -24,7 +24,7 @@ test('VTOL requires nearby boarding and landed safe disembarkation',()=>{
  assert.equal(ship.board(ship.position.clone()),true);
  const start=ship.position.y;tick(ship,['Space'],120);
  assert.ok(ship.position.y>start+90);assert.equal(ship.landed,false);assert.equal(ship.tryExit(),null);
- tick(ship,['ControlLeft'],240);
+ tick(ship,['KeyC'],240);
  assert.equal(ship.landed,true);assert.ok(ship.tryExit() instanceof THREE.Vector3);assert.equal(ship.piloting,false);world.free();
 });
 

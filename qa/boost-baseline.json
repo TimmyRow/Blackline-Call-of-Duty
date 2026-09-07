@@ -1,0 +1,497 @@
+{
+  "gpu": [
+    {
+      "vendorId": 32902,
+      "deviceId": 42888,
+      "subSysId": 200871976,
+      "revision": 4,
+      "vendorString": "",
+      "deviceString": "Intel(R) UHD Graphics",
+      "driverVendor": "Intel",
+      "driverVersion": "32.0.101.7085"
+    },
+    {
+      "vendorId": 4318,
+      "deviceId": 10336,
+      "subSysId": 200871976,
+      "revision": 161,
+      "vendorString": "",
+      "deviceString": "NVIDIA GeForce RTX 4070 Laptop GPU",
+      "driverVendor": "",
+      "driverVersion": "32.0.15.9608"
+    },
+    {
+      "vendorId": 5140,
+      "deviceId": 140,
+      "subSysId": 0,
+      "revision": 0,
+      "vendorString": "",
+      "deviceString": "Microsoft Basic Render Driver",
+      "driverVendor": "",
+      "driverVersion": "10.0.26100.8972"
+    }
+  ],
+  "featureStatus": {
+    "2d_canvas": "enabled",
+    "direct_rendering_display_compositor": "disabled_off_ok",
+    "gpu_compositing": "enabled",
+    "multiple_raster_threads": "enabled_on",
+    "opengl": "enabled_on",
+    "rasterization": "enabled",
+    "raw_draw": "disabled_off_ok",
+    "skia_graphite": "disabled_off",
+    "trees_in_viz": "disabled_off",
+    "video_decode": "enabled",
+    "video_encode": "enabled",
+    "webgl": "enabled",
+    "webgpu": "enabled",
+    "webnn": "disabled_off"
+  },
+  "samples": [
+    {
+      "mode": "playing",
+      "position": [
+        -796.159940467098,
+        370.11545046747716,
+        476.0606959632914
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 349,
+        "textures": 75,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 15,
+        "colliders": 1321,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 88,
+      "triangles": 320634,
+      "renderCpuMs": 2.799999952316284,
+      "simulationSeconds": 6.06666666666665,
+      "longTasks": {
+        "count": 6,
+        "max": 403,
+        "total": 976
+      },
+      "heap": 40646572
+    },
+    {
+      "mode": "playing",
+      "position": [
+        -385.33795222976977,
+        370.16227545478097,
+        2342.2414297647692
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 298,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 18,
+        "colliders": 1265,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 79,
+      "triangles": 439654,
+      "renderCpuMs": 1.600000023841858,
+      "simulationSeconds": 10.616666666666774,
+      "longTasks": {
+        "count": 14,
+        "max": 403,
+        "total": 1837
+      },
+      "heap": 38508740
+    },
+    {
+      "mode": "playing",
+      "position": [
+        45.0773747469037,
+        370.1622884458467,
+        4297.425946988595
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 297,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 11,
+        "colliders": 847,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 73,
+      "triangles": 534356,
+      "renderCpuMs": 1.600000023841858,
+      "simulationSeconds": 15.383333333333677,
+      "longTasks": {
+        "count": 22,
+        "max": 403,
+        "total": 2504
+      },
+      "heap": 51045252
+    },
+    {
+      "mode": "playing",
+      "position": [
+        478.50260721923615,
+        370.16228844828663,
+        6266.283120027808
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 300,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 10,
+        "colliders": 482,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 89,
+      "triangles": 359362,
+      "renderCpuMs": 2.100000023841858,
+      "simulationSeconds": 20.18333333333347,
+      "longTasks": {
+        "count": 30,
+        "max": 403,
+        "total": 3129
+      },
+      "heap": 25819192
+    },
+    {
+      "mode": "playing",
+      "position": [
+        913.4327884169518,
+        370.16228844828663,
+        8241.97660270248
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 289,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 8,
+        "colliders": 505,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 75,
+      "triangles": 416976,
+      "renderCpuMs": 1.2999999523162842,
+      "simulationSeconds": 24.99999999999986,
+      "longTasks": {
+        "count": 37,
+        "max": 403,
+        "total": 3687
+      },
+      "heap": 40102580
+    },
+    {
+      "mode": "playing",
+      "position": [
+        1342.3431747191973,
+        370.16228844828663,
+        10190.324846862623
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 285,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 9,
+        "colliders": 673,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 71,
+      "triangles": 358810,
+      "renderCpuMs": 1.899999976158142,
+      "simulationSeconds": 29.74999999999959,
+      "longTasks": {
+        "count": 45,
+        "max": 403,
+        "total": 4383
+      },
+      "heap": 27707464
+    },
+    {
+      "mode": "playing",
+      "position": [
+        1774.263458469178,
+        370.16228844828663,
+        12152.34571028003
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 280,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 12,
+        "colliders": 876,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 76,
+      "triangles": 520762,
+      "renderCpuMs": 2.299999952316284,
+      "simulationSeconds": 34.533333333332656,
+      "longTasks": {
+        "count": 53,
+        "max": 403,
+        "total": 5022
+      },
+      "heap": 46769984
+    },
+    {
+      "mode": "playing",
+      "position": [
+        2197.154049875953,
+        370.16228844828663,
+        14073.348715925644
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 287,
+        "textures": 37,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 11,
+        "colliders": 909,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 60,
+      "triangles": 449934,
+      "renderCpuMs": 1.4000000953674316,
+      "simulationSeconds": 39.21666666666572,
+      "longTasks": {
+        "count": 59,
+        "max": 403,
+        "total": 5640
+      },
+      "heap": 33501368
+    },
+    {
+      "mode": "playing",
+      "position": [
+        2626.064436178199,
+        370.16228844828663,
+        16021.696960085786
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 308,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 11,
+        "colliders": 895,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 72,
+      "triangles": 463878,
+      "renderCpuMs": 1.600000023841858,
+      "simulationSeconds": 43.96666666666545,
+      "longTasks": {
+        "count": 67,
+        "max": 403,
+        "total": 6312
+      },
+      "heap": 28867300
+    },
+    {
+      "mode": "playing",
+      "position": [
+        3060.9946173759145,
+        370.16228844828663,
+        17997.390442760887
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 290,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 14,
+        "colliders": 993,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 50,
+      "triangles": 264328,
+      "renderCpuMs": 1.2999999523162842,
+      "simulationSeconds": 48.783333333331846,
+      "longTasks": {
+        "count": 75,
+        "max": 403,
+        "total": 6904
+      },
+      "heap": 27705972
+    },
+    {
+      "mode": "playing",
+      "position": [
+        3495.92479857363,
+        370.16228844828663,
+        19973.083925436084
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 292,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 5,
+        "colliders": 431,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 81,
+      "triangles": 314358,
+      "renderCpuMs": 1.4000000953674316,
+      "simulationSeconds": 53.59999999999824,
+      "longTasks": {
+        "count": 83,
+        "max": 403,
+        "total": 7500
+      },
+      "heap": 36333512
+    },
+    {
+      "mode": "playing",
+      "position": [
+        3924.8351848758757,
+        370.16228844828663,
+        21921.432169596745
+      ],
+      "speed": 420,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 292,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 9,
+        "colliders": 707,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 8,
+        "roadKilometres": 4.3,
+        "roadFurniture": 0
+      },
+      "drawCalls": 74,
+      "triangles": 273004,
+      "renderCpuMs": 2.299999952316284,
+      "simulationSeconds": 58.34999999999797,
+      "longTasks": {
+        "count": 90,
+        "max": 403,
+        "total": 8095
+      },
+      "heap": 53159388
+    }
+  ],
+  "errors": []
+}

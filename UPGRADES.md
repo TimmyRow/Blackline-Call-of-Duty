@@ -75,3 +75,12 @@ Verification: 94 automated rule/input tests passed, plus Edge controller, openin
 - Kestrel costs 300 salvage. Purchase at the physical sales terminal with keyboard, touch interaction or Xbox RB. Funds and ownership persist; repeat purchases and early boarding are blocked.
 - Existing pilots keep their ships. Unfinished legacy recovery saves move to the new route.
 - Verification: 100 rule/input tests, revised opening checks and Edge purchase/save/controller/takeoff checks. Browser scripts use teleportation and a completed-ground-mission save fixture to isolate the purchase. Physical Xbox and Apple hardware remain untested.
+
+## Boost-flight stability follow-up
+
+- Flight streams terrain, settlements and the horizon in a queue capped at two builds per rendered frame. Direction changes replace stale pending work, and normal loading/teleports still finish collision setup before play.
+- Removed duplicate ship/camera streaming calls at terrain boundaries. Removed browser-canvas MSAA because the composer already renders the scene offscreen. Scene materials, textures and detail settings are preserved.
+- Flight saves every five seconds and on boarding or graphics interruption.
+- C now descends/crouches; Xbox B and touch controls keep their behavior. Browser modifiers are not gameplay bindings. The reported Shift-only closure was not attributed to Ctrl+W.
+- A 60-second Edge boost run stayed open: long-task time changed from 8,095 ms to 1,533 ms, and the longest task from 403 ms to 134 ms. These are local test observations, not a guarantee against every browser crash. The original spontaneous tab closure was not reproduced.
+- 100 rule/input tests passed; Edge streaming, forced GPU recovery, keyboard/controller flight and touch descent checks cover the changes.

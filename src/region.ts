@@ -317,22 +317,36 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
    else horizonColors.fill(1,i*3,i*3+3);
   }horizonGeometry.attributes.color.needsUpdate=true;
  }
- let current='';
- function sync(position:{x:number;y?:number;z:number}){
-  const cx=Math.floor(position.x/CHUNK),cz=Math.floor(position.z/CHUNK),key=`${cx}:${cz}`;if(key===current)return;current=key;
+ let current='',pendingTerrain:string[]=[],pendingSites:Site[]=[],pendingHorizon:{x:number;z:number}|null=null;
+ let streamBuilds=0,maxStreamBuilds=0,lastStreamMs=0,maxStreamMs=0;
+ function drainStream(immediate=false){
+  const start=performance.now();let built=0;
+  // A flight frame uploads at most two new assets; late frames never catch up with a giant batch.
+  while(pendingTerrain.length||pendingSites.length||pendingHorizon){
+   if(!immediate&&built>0&&(built>=2||performance.now()-start>=4))break;
+   if(pendingTerrain.length){const k=pendingTerrain.shift()!,[a,b]=k.split(':').map(Number);if(!chunks.has(k))chunks.set(k,terrain(a,b));}
+   else if(pendingSites.length){const site=pendingSites.shift()!;if(!sites.has(site.id))sites.set(site.id,structure(site));}
+   else if(pendingHorizon){updateHorizon(pendingHorizon.x,pendingHorizon.z);pendingHorizon=null;}
+   built++;
+  }
+  if(!immediate){streamBuilds=built;maxStreamBuilds=Math.max(maxStreamBuilds,built);lastStreamMs=performance.now()-start;maxStreamMs=Math.max(maxStreamMs,lastStreamMs);}
+ }
+ function sync(position:{x:number;y?:number;z:number},incremental=false){
+  const cx=Math.floor(position.x/CHUNK),cz=Math.floor(position.z/CHUNK),key=`${cx}:${cz}`;
+  if(key===current){if(!incremental)drainStream(true);return;}current=key;
   const wanted=new Set<string>();for(let dx=-RANGE;dx<=RANGE;dx++)for(let dz=-RANGE;dz<=RANGE;dz++)wanted.add(`${cx+dx}:${cz+dz}`);
   for(const[k,c]of chunks)if(!wanted.has(k)){remove(c);chunks.delete(k);}
-  const cells=[...wanted].sort((a,b)=>{const[ax,az]=a.split(':').map(Number),[bx,bz]=b.split(':').map(Number);return Math.hypot(ax-cx,az-cz)-Math.hypot(bx-cx,bz-cz);});
-  for(const k of cells)if(!chunks.has(k)){const[a,b]=k.split(':').map(Number);chunks.set(k,terrain(a,b));}
+  // Replace pending work when the pilot changes direction, keeping the queue bounded.
+  pendingTerrain=[...wanted].filter(k=>!chunks.has(k)).sort((a,b)=>{const[ax,az]=a.split(':').map(Number),[bx,bz]=b.split(':').map(Number);return Math.hypot(ax-cx,az-cz)-Math.hypot(bx-cx,bz-cz);});
   const discovered=getWorldSites(position.x,position.z,1650),active=new Set(discovered.map(s=>s.id));
   for(const[k,s]of sites)if(!active.has(k)){remove(s);sites.delete(k);signals.delete(k);practicalLamps.delete(k);stackLocations.delete(k);}
-  for(const site of discovered)if(!sites.has(site.id))sites.set(site.id,structure(site));
-  updateHorizon(position.x,position.z);
+  pendingSites=discovered.filter(s=>!sites.has(s.id)).sort((a,b)=>Math.hypot(a.x-position.x,a.z-position.z)-Math.hypot(b.x-position.x,b.z-position.z));
+  pendingHorizon={x:position.x,z:position.z};if(!incremental)drainStream(true);
  }
  // Landing platform is part of the same streamed site system but has no mission gate.
  const landingTemplate=getWorldSites(0,0,150).find(s=>s.id==='harbour')!;
  const startHub=structure({...landingTemplate,id:'landing-services',name:'Pathfinder Landing',x:0,z:110,elevation:16});
  const start=load(),startPad=getLandingPads(REGION_START.x,REGION_START.z,30)[0];
  const platform=new THREE.Mesh(new THREE.CylinderGeometry(17,17,.16,48),asphalt);platform.position.set(startPad.x,16.08,startPad.z);start.group.add(platform);start.geometries.push(platform.geometry);start.colliders.push(world.createCollider(RAPIER.ColliderDesc.cylinder(.08,17).setTranslation(startPad.x,16.08,startPad.z)));
- return{sync,smokestacks(){return [...stackLocations.values()].flat();},lamps(){return [...practicalLamps.values()].flat();},update(player:{x:number;y:number;z:number},time=0){kit.update(time);foamTime.value=time;startHub.detail.visible=Math.hypot(player.x,player.y-16,player.z-110)<320;for(const chunk of chunks.values())chunk.detail.visible=Math.hypot(player.x-chunk.center.x,player.z-chunk.center.z)<740&&player.y<800;for(const site of sites.values()){const distance=Math.hypot(player.x-site.center.x,player.y-site.center.y,player.z-site.center.z);site.group.visible=distance<1250;site.detail.visible=distance<320;}},setSiteComplete(id:string,done:boolean){if(done)completed.add(id);else completed.delete(id);const signal=signals.get(id);if(signal)signal.material=done?cyan:amber;},stats(){return{terrainChunks:chunks.size,loadedSites:sites.size,colliders:[...chunks.values(),...sites.values()].reduce((n,c)=>n+c.colliders.length,0),chunkSize:CHUNK,streamRadius:RANGE*CHUNK,procedural:true};}};
+ return{sync,smokestacks(){return [...stackLocations.values()].flat();},lamps(){return [...practicalLamps.values()].flat();},update(player:{x:number;y:number;z:number},time=0){drainStream();kit.update(time);foamTime.value=time;startHub.detail.visible=Math.hypot(player.x,player.y-16,player.z-110)<320;for(const chunk of chunks.values())chunk.detail.visible=Math.hypot(player.x-chunk.center.x,player.z-chunk.center.z)<740&&player.y<800;for(const site of sites.values()){const distance=Math.hypot(player.x-site.center.x,player.y-site.center.y,player.z-site.center.z);site.group.visible=distance<1250;site.detail.visible=distance<320;}},setSiteComplete(id:string,done:boolean){if(done)completed.add(id);else completed.delete(id);const signal=signals.get(id);if(signal)signal.material=done?cyan:amber;},stats(){return{terrainChunks:chunks.size,loadedSites:sites.size,streaming:{pendingTerrain:pendingTerrain.length,pendingSites:pendingSites.length,pendingHorizon:!!pendingHorizon,builds:streamBuilds,maxBuilds:maxStreamBuilds,lastMs:lastStreamMs,maxMs:maxStreamMs},colliders:[...chunks.values(),...sites.values()].reduce((n,c)=>n+c.colliders.length,0),chunkSize:CHUNK,streamRadius:RANGE*CHUNK,procedural:true};}};
 }
