@@ -112,10 +112,19 @@ Expansion validation: 64 unit tests, seven desktop expedition checks, four new m
 
 ## Xbox controller comfort
 
-Connect an Xbox One/standard-mapping controller and press A. Sticks move/look; LT aims; RT fires; A jumps/rises; B crouches/descends; X reloads; Y switches weapons; LB throws a grenade; hold RB to interact; L3 sprints/boosts; R3 boards/exits; View opens missions; Menu pauses. D-pad up scans, down opens the map, left opens squad orders and right finds Kestrel.
+Connect an Xbox One/standard-mapping controller and press A. Sticks move/look; LT aims; RT fires; A jumps/rises; B toggles crouch on foot / holds descent in vehicles; X reloads; Y switches weapons; LB throws a grenade; hold RB to interact; click L3 while moving to toggle sprint/boost (neutral stick or aiming ends sprint); R3 boards/exits; View opens missions; Menu pauses. D-pad up scans, down opens the map, left opens squad orders and right finds Kestrel.
 
-Controls & Settings saves look speed, aiming speed, flight speed, separate stick deadzones and inversion. Use D-pad/left stick to navigate, left/right to adjust, A to select, and B to return. Release held controls after changing menus or reconnecting. The game pauses on disconnect. Hardware behavior still needs a physical controller playtest.
+Controls & Settings saves look speed, aiming speed, flight speed, separate stick deadzones and inversion. Use D-pad/left stick to navigate, left/right to adjust, A to select, and B to return. LB/RB cycles every journal tab, including the current conversation. On the map, right stick pans and LB/RB zooms. Right stick scrolls long menus. Release held controls after changing menus or reconnecting. The game pauses on disconnect. Hardware behavior still needs a physical controller playtest.
 
 New expeditions now include a visible survivor rally and three-raider defense before meeting Mara. Ship ownership comes later through the city purchase. Existing saves keep their current progression. Wrecks and distress signals have separate interaction steps and residents respond to completed work.
 
 Flight descent and infantry crouch use **C**. Ctrl is not a game control: Ctrl+W (or Ctrl+Shift+W while boosting) closes an Edge tab/window. Xbox B and the touch Descend button keep their existing behavior.
+
+
+### Complete controller flow
+
+The controller pass adds latched sprint/crouch, active-pad selection when a dormant virtual controller is connected, clean handover from touch/keyboard, stable menu focus, and controller prompts for the atlas, journal, boats and grenades. Gameplay and menus require no mouse/keyboard once the page is focused. Browser audio policy can still require an initial click for sound.
+
+Reference: [Minecraft controls](https://www.minecraft.net/en-us/article/minecraft-controls), particularly left-stick movement/click-to-sprint, right-stick look and A/B movement buttons. BLACKLINE retains its FPS trigger, reload and weapon bindings.
+
+`node qa/controller-complete-test.mjs` exercises fresh start, settings, walk/strafe, jump, sprint/crouch, combat, NPC quests, refits, squad orders, map, launch, hangar purchase and flight using simulated Xbox input. Scenario positions and later quest progression are injected; gameplay actions use the controller adapter. `qa/controller-ui-test.mjs` checks map/tab focus and screenshots; phone/tablet controller settings are checked separately. Physical Xbox hardware remains untested.

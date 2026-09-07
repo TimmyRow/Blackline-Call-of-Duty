@@ -1,8 +1,9 @@
 import {readPad,PAD_KEYS,controllerSettings} from './gamepad-rules.mjs';
-type Actions={enabled:()=>boolean;context:()=>string;settings?:()=>ReturnType<typeof controllerSettings>;key:(code:string,down:boolean)=>void;move:(x:number,z:number)=>void;look:(x:number,y:number,dt:number)=>void;fire:(v:boolean)=>void;aim:(v:boolean)=>void;active:()=>void;disconnect:()=>void;pause:()=>void;missions:()=>void;back:()=>void;panel:()=>HTMLElement|null;wake:()=>void};
+type Actions={enabled:()=>boolean;context:()=>string;vehicle?:()=>boolean;panMap?:(x:number,z:number,dt:number)=>void;settings?:()=>ReturnType<typeof controllerSettings>;key:(code:string,down:boolean)=>void;move:(x:number,z:number)=>void;look:(x:number,y:number,dt:number)=>void;fire:(v:boolean)=>void;aim:(v:boolean)=>void;active:()=>void;disconnect:()=>void;pause:()=>void;missions:()=>void;back:()=>void;panel:()=>HTMLElement|null;wake:()=>void};
 export function createGamepad(actions:Actions){
  let index:number|null=null,previous:boolean[]=[],blocked=new Set<number>(),held=new Set<string>(),context='',nextNav=0,navDirection=0,connected=false,moveBlocked=false,lookBlocked=false,nextWake=0,hasConnected=false;
- function release(){for(const key of held)actions.key(key,false);held.clear();actions.move(0,0);actions.fire(false);actions.aim(false);}
+ let sprint=false,crouch=false,vehicle=false;
+ function release(){sprint=crouch=false;for(const key of held)actions.key(key,false);held.clear();actions.move(0,0);actions.fire(false);actions.aim(false);}
  function reset(){release();previous.forEach((v,i)=>{if(v)blocked.add(i);});moveBlocked=true;lookBlocked=true;navDirection=0;}
  function controls(){return Array.from(actions.panel()?.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled)')??[]).filter(e=>e.getClientRects().length>0&&!e.closest('[hidden]'));}
  function focus(el:HTMLElement|undefined){el?.focus();el?.scrollIntoView({block:'nearest',inline:'nearest'});}
@@ -11,8 +12,13 @@ export function createGamepad(actions:Actions){
  function disconnect(){if(!connected)return;const wasActive=actions.enabled();release();connected=false;index=null;previous=[];blocked.clear();context='';moveBlocked=false;lookBlocked=false;if(wasActive)actions.disconnect();}
  return {reset,get connected(){return connected;},poll(dt:number,now:number){
   let pads:readonly (Gamepad|null)[]=[];try{pads=navigator.getGamepads?.()??[];}catch{disconnect();return;}
-  const pad=index===null?pads.find(p=>p?.connected&&p.mapping==='standard'):pads[index];
+  // A dormant virtual/second controller must not capture the playable controller.
+  const standard=pads.filter((p):p is Gamepad=>!!p?.connected&&p.mapping==='standard');
+  const hasInput=(p:Gamepad)=>p.buttons.some(b=>b.pressed||b.value>.25)||p.axes.some(v=>Math.abs(v)>.4);
+  const selected=standard.find(p=>p.index===index);
+  const pad=selected&&hasInput(selected)?selected:standard.find(hasInput)??selected??standard[0];
   if(!pad||!pad.connected||pad.mapping!=='standard'){disconnect();return;}
+  if(connected&&index!==pad.index){reset();previous=[];blocked.clear();index=pad.index;}
   const reconnecting=!connected&&hasConnected;if(!connected){index=pad.index;connected=true;hasConnected=true;previous=[];}
   const sample=readPad(pad,previous,actions.settings?.())!;previous=sample.down;if(reconnecting){sample.down.forEach((v,i)=>{if(v)blocked.add(i);});moveBlocked=true;lookBlocked=true;}
   const activity=sample.down.some(Boolean)||Math.hypot(sample.move.x,sample.move.y,sample.look.x,sample.look.y)>.01;
@@ -33,11 +39,26 @@ export function createGamepad(actions:Actions){
    const horizontal=down(14)||mx<-.55?-1:down(15)||mx>.55?1:0;
    const direction=vertical||horizontal*2;
    if(direction&&(direction!==navDirection||now>=nextNav)){if(vertical)navigate(vertical);else adjust(horizontal);nextNav=now+(direction!==navDirection?360:140);}navDirection=direction;
-   if(pressed(4)||pressed(5)){const tab=actions.panel()?.querySelector<HTMLButtonElement>(pressed(4)?'[data-section="missions"]':'[data-section="equipment"]');tab?.click();focus(tab??undefined);}
-   if(pressed(0)){const items=controls(),focused=document.activeElement as HTMLElement;const button=items.includes(focused)?focused:items[0];button?.click();}
+   const panel=actions.panel();
+   if(!controls().includes(document.activeElement as HTMLElement))focus(controls()[0]);
+   if(pressed(4)||pressed(5)){
+    if(current==='map')panel?.querySelector<HTMLButtonElement>(pressed(4)?'[data-zoom="out"]':'[data-zoom="in"]')?.click();
+    else{const tabs=Array.from(panel?.querySelectorAll<HTMLButtonElement>('[data-section]')??[]).filter(e=>!e.hidden);const i=tabs.findIndex(e=>e.getAttribute('aria-pressed')==='true');const tab=tabs[(i+(pressed(4)?-1:1)+tabs.length)%tabs.length];tab?.click();focus(tab);}
+   }
+   if(pressed(0)){const items=controls(),focused=document.activeElement as HTMLElement;const button=items.includes(focused)?focused:items[0];if(button instanceof HTMLSelectElement)adjust(1);else button?.click();}
+   const rx=lookBlocked?0:sample.look.x,ry=lookBlocked?0:sample.look.y;
+   if(current==='map')actions.panMap?.(rx,ry,dt);
+   else if(Math.abs(ry)>.01)panel?.scrollBy({top:ry*650*Math.min(.05,dt),behavior:'instant'});
    if(pressed(1))actions.back();return;
   }
   navDirection=0;actions.move(moveBlocked?0:sample.move.x,moveBlocked?0:sample.move.y);actions.aim(down(6));actions.fire(down(7));actions.look(lookBlocked?0:sample.look.x,lookBlocked?0:sample.look.y,dt);
-  for(const [button,key] of Object.entries(PAD_KEYS)){const i=+button;if(down(i)&&!held.has(key)){held.add(key);actions.key(key,true);if(actions.context()!==current){reset();return;}}else if(!down(i)&&held.delete(key))actions.key(key,false);}
+  const inVehicle=actions.vehicle?.()??false;
+  if(inVehicle!==vehicle){sprint=crouch=false;vehicle=inVehicle;}
+  if(pressed(1)&&!vehicle){crouch=!crouch;sprint=false;}
+  if(pressed(0)&&!vehicle)crouch=false;
+  if(pressed(10)){sprint=!sprint;if(sprint)crouch=false;}
+  const moving=!moveBlocked&&Math.hypot(sample.move.x,sample.move.y)>.2;
+  if((!moving&&!(vehicle&&(down(0)||down(1)))&&!pressed(10))||(!vehicle&&(down(6)||crouch)))sprint=false;
+  for(const [button,key] of Object.entries(PAD_KEYS)){const i=+button,heldDown=i===1?(vehicle?down(i):crouch):i===10?sprint:down(i);if(heldDown&&!held.has(key)){held.add(key);actions.key(key,true);if(actions.context()!==current){reset();return;}}else if(!heldDown&&held.delete(key))actions.key(key,false);}
  }};
 }

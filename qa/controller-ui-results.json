@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "RB cycles missions/equipment/squad and LB reverses",
+    "Conversation remains reachable in bumper cycle",
+    "Right stick visibly changes map canvas; focus remains inside map",
+    "Focused destination remains selected after pan rebuild",
+    "Map RB zoom changes map scale"
+  ],
+  "errors": []
+}

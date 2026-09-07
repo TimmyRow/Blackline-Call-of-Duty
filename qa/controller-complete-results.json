@@ -1,0 +1,1074 @@
+{
+  "checks": [
+    "A starts fresh expedition and skips arrival without mouse/keyboard",
+    "Controller navigates pause/settings and adjusts quality and look speed",
+    "Left stick walks/strafe; click sprint persists; B toggles crouch; A jumps",
+    "Aim, fire, reload, swap weapon, grenade and scan all have controller actions",
+    "RB talks to a resident, A accepts quest, View tracks it",
+    "Journal equipment refit, all tabs, squad orders and explicit save use pad only",
+    "D-pad map supports bumper zoom, right-stick pan, target selection and return",
+    "R3 pilots boat; left stick powers/steers; R3 exits when stopped",
+    "Hangar purchase, R3 boarding, rise/descend and toggle boost work with pad",
+    "Disconnect pauses and clears movement; reconnect resumes with Menu"
+  ],
+  "errors": [],
+  "snapshot": {
+    "mode": "playing",
+    "opening": {
+      "active": false,
+      "time": 0.2749000000000014,
+      "exit": [
+        0,
+        20.7,
+        231
+      ]
+    },
+    "crashfall": null,
+    "shipPurchase": {
+      "owned": true,
+      "offer": {
+        "available": false,
+        "description": "Kestrel belongs to you. Board at its beacon."
+      },
+      "hangar": {
+        "id": "astra-hangar",
+        "name": "PORT ASTRA / HANGAR 03",
+        "x": -1110,
+        "z": -977,
+        "elevation": 54,
+        "kind": "hangar",
+        "faction": "friendly",
+        "radius": 4
+      }
+    },
+    "touchMode": false,
+    "input": {
+      "controller": true,
+      "move": {
+        "x": 0,
+        "z": 0
+      },
+      "firing": false,
+      "aiming": false,
+      "held": [],
+      "yaw": -0.041389673917119146,
+      "pitch": 0,
+      "fov": 75.00000013992033
+    },
+    "pixelRatio": 1,
+    "weapon": "ballistic",
+    "energy": 100,
+    "shield": 70,
+    "planet": "orison",
+    "boarding": {
+      "hull": 180,
+      "progress": 0,
+      "stage": "disable",
+      "label": "DISABLE CORSAIR ENGINES",
+      "description": "Use Kestrel cannons on the orange engine, or board from the aft sea stairs and hold USE at the engine to sabotage it."
+    },
+    "story": {
+      "id": "main",
+      "name": "A Signal Home",
+      "title": "Operation Safe Harbour",
+      "description": "Free the Corsair crew and reclaim the vessel. Its command codes will get you into Meridian Anchorage.",
+      "stage": "raider",
+      "chapter": 6,
+      "total": 9,
+      "target": {
+        "id": "corsair",
+        "name": "Corsair Boarding Target",
+        "x": -650,
+        "z": 1140,
+        "elevation": 9,
+        "kind": "pirate-ship",
+        "faction": "pirate",
+        "description": "Pirate ocean raider. Board the aft deck and clear the bridge.",
+        "radius": 75
+      },
+      "contract": "raider",
+      "complete": false
+    },
+    "talking": null,
+    "people": [
+      {
+        "id": "person:mara",
+        "name": "Mara Voss / Pathfinder Landing",
+        "x": 10,
+        "z": 97,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "mara"
+      },
+      {
+        "id": "person:lia",
+        "name": "Lia Sen / Pathfinder Landing",
+        "x": -14,
+        "z": 126,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "lia"
+      },
+      {
+        "id": "person:tomas",
+        "name": "Tomas Reed / Pathfinder Landing",
+        "x": 17,
+        "z": 78,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "tomas"
+      },
+      {
+        "id": "person:iris",
+        "name": "Iris Okoye / Cold Harbour",
+        "x": 11,
+        "z": 8,
+        "elevation": 18,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "iris"
+      },
+      {
+        "id": "person:kito",
+        "name": "Kito Arlen / Sunfall Expedition Port",
+        "x": 42012,
+        "z": 10,
+        "elevation": 58,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "kito"
+      },
+      {
+        "id": "person:ada",
+        "name": "Ada Ren / Port Astra City",
+        "x": -1103,
+        "z": -977,
+        "elevation": 54,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "ada"
+      },
+      {
+        "id": "person:orin",
+        "name": "Orin Vale / Port Astra City",
+        "x": -1128,
+        "z": -1083,
+        "elevation": 54,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "orin"
+      },
+      {
+        "id": "person:sela",
+        "name": "Sela Nadir / Sunfall Expedition Port",
+        "x": 41988,
+        "z": 15,
+        "elevation": 58,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "sela"
+      }
+    ],
+    "scanCooldown": 0,
+    "graphics": {
+      "antialias": false,
+      "lost": false,
+      "recoveries": 0,
+      "geometries": 350,
+      "textures": 79,
+      "enemyPool": 33
+    },
+    "health": 100,
+    "ammo": 30,
+    "reserve": 176,
+    "grenades": 2,
+    "kills": 0,
+    "stage": 5,
+    "upload": 0,
+    "time": 27.38333333333306,
+    "position": [
+      -1116.1259479355167,
+      62.519648056505886,
+      -1170.3910716959765
+    ],
+    "region": "Orison Ocean",
+    "campaign": {
+      "completed": [
+        "ship:purchase-route",
+        "crashfall:arrival",
+        "harbour",
+        "relay",
+        "ship:owned"
+      ],
+      "discovered": [
+        "encounter:wreck:landing",
+        "harbour",
+        "relay",
+        "depot",
+        "carrier",
+        "island-redoubt",
+        "ruin:-1:-1",
+        "camp:-1:0",
+        "camp:0:-1",
+        "outpost:0:0",
+        "encounter:distress:coast",
+        "encounter:convoy:arsenal",
+        "encounter:patrol:north",
+        "encounter:bunker:ridge",
+        "encounter:friendly:landing",
+        "landmark:basalt-gate",
+        "landmark:survey-wreck",
+        "port-astra"
+      ],
+      "tracked": "corsair",
+      "progress": {
+        "relay": 0,
+        "port-astra": 0,
+        "camp:-2:-3": 0,
+        "ruin:-2:-2": 0,
+        "outpost:-1:-2": 0,
+        "ruin:-1:-1": 0
+      },
+      "salvage": 0,
+      "raids": 0,
+      "distanceWalked": 15.848734139549332,
+      "distanceFlown": 242.77710278446693,
+      "airKills": 0,
+      "oceanKills": 0,
+      "resuppliedAt": {},
+      "visited": {},
+      "encountersCompleted": [],
+      "upgrades": {
+        "armor": 0,
+        "handling": 1,
+        "engine": 0,
+        "shield": 0,
+        "cannon": 0,
+        "scanner": 0,
+        "reactor": 0,
+        "medical": 0,
+        "shieldCell": 0
+      },
+      "contracts": {
+        "coast": "complete",
+        "array": "complete",
+        "signals": "active",
+        "raider": "active"
+      },
+      "journal": [
+        {
+          "title": "A Signal Home / Operation Safe Harbour",
+          "text": "Free the Corsair crew and reclaim the vessel. Its command codes will get you into Meridian Anchorage.",
+          "time": 22.08333333333336
+        },
+        {
+          "title": "A ship of your own",
+          "text": "Purchased Kestrel at Port Astra Hangar 03 for 300 salvage. Your squad can now travel by air and reach other worlds.",
+          "time": 22.08333333333336
+        },
+        {
+          "title": "A Signal Home / A ship of your own",
+          "text": "Buy Kestrel for 300 salvage at the Hangar 03 sales terminal. Includes squad seats, cannons and a jump drive. Follow the Northwatch highway to Port Astra City.",
+          "time": 20.350000000000126
+        },
+        {
+          "title": "Distress / Safe Harbour",
+          "text": "Pirates seized an allied vessel southwest of the colony. Mara in Pathfinder is tracing the distress call. Approach by air, or use the aft sea stairs.",
+          "time": 20.350000000000126
+        },
+        {
+          "title": "Port Astra City",
+          "text": "A colonial city of apartment blocks, markets and an open-sky ship hangar. Buy your first Kestrel at Hangar 03.",
+          "time": 20.350000000000126
+        },
+        {
+          "title": "Someone is still out there",
+          "text": "Accepted from Tomas Reed.",
+          "time": 14.000000000000275
+        },
+        {
+          "title": "Survey sweep",
+          "text": "Fallen Courier · Cold Harbour · Lost Survey Team · Cinder Freeport · Pirate Supply Convoy",
+          "time": 12.666666666666876
+        },
+        {
+          "title": "Crashfall",
+          "text": "The transport is lost. Recover the emergency cell and get the survivors to Pathfinder. A ship of our own will have to wait.",
+          "time": 0
+        },
+        {
+          "title": "Fallen Courier",
+          "text": "Isolate the damaged drive, then recover the courier flight data from its orange case.",
+          "time": 0
+        }
+      ],
+      "blueprints": [],
+      "scanned": [
+        "harbour",
+        "relay",
+        "depot",
+        "carrier",
+        "island-redoubt",
+        "ruin:-1:-1",
+        "camp:-1:0",
+        "camp:0:-1",
+        "outpost:0:0",
+        "encounter:wreck:landing",
+        "encounter:distress:coast",
+        "encounter:convoy:arsenal",
+        "encounter:patrol:north",
+        "encounter:bunker:ridge",
+        "encounter:friendly:landing",
+        "landmark:basalt-gate",
+        "landmark:survey-wreck"
+      ],
+      "rescued": [],
+      "boarding": {
+        "disabled": false
+      },
+      "planet": "orison",
+      "activeMission": "main",
+      "metPeople": [
+        "tomas"
+      ],
+      "story": {
+        "briefed": true,
+        "finished": false,
+        "notified": "raider"
+      },
+      "safeHarbour": {
+        "announced": true,
+        "defending": false,
+        "repelled": false,
+        "rewarded": false
+      },
+      "onboarding": {
+        "stage": "complete",
+        "introSeen": true,
+        "progress": 0
+      },
+      "trackedTarget": {
+        "id": "corsair",
+        "name": "DISABLE CORSAIR ENGINES",
+        "x": -634,
+        "z": 1155,
+        "elevation": 11.3,
+        "kind": "pirate-ship",
+        "faction": "pirate",
+        "radius": 5
+      }
+    },
+    "flight": {
+      "piloting": true,
+      "landed": false,
+      "health": 100,
+      "maxHealth": 100,
+      "upgrades": {
+        "engine": 0,
+        "shield": 0,
+        "cannon": 0,
+        "reactor": 0
+      },
+      "gear": "retracted",
+      "energy": 100,
+      "position": [
+        -1116.210772543294,
+        61.86964805650589,
+        -1168.3428273780507
+      ],
+      "velocity": [
+        0.2320251149726892,
+        -0.03576518698983173,
+        -6.183702222493378
+      ],
+      "speed": 6,
+      "altitude": 60,
+      "worldAltitude": 62,
+      "yaw": -0.041389673917119146,
+      "pitch": 0,
+      "pad": null,
+      "collisionCount": 0,
+      "controls": "MOUSE look · WASD fly · SPACE rise · C descend · SHIFT boost · F exit when landed · LMB cannons"
+    },
+    "marine": {
+      "piloting": false,
+      "health": 100,
+      "position": [
+        292.1251674569538,
+        0.7,
+        931.4525309811152
+      ],
+      "speed": 0,
+      "yaw": -0.2241193411331816,
+      "travelled": 0,
+      "collisionCount": 0,
+      "deckY": 2.75,
+      "mooring": [
+        289,
+        0.7,
+        950
+      ],
+      "patrol": {
+        "position": [
+          -500,
+          0.7,
+          1135
+        ],
+        "health": 150,
+        "alive": true
+      },
+      "controls": "W/S throttle · A/D rudder · SHIFT full power · F leave helm when stopped"
+    },
+    "climate": {
+      "hour": 9.47383333333333,
+      "daylight": 1,
+      "twilight": 0,
+      "rain": 0,
+      "storm": 0,
+      "wind": 2,
+      "weather": "clear",
+      "cycleSeconds": 2400
+    },
+    "encounters": {
+      "scouts": [],
+      "completed": [],
+      "rememberedPatrols": 1,
+      "loaded": 0,
+      "sites": [],
+      "progress": 0
+    },
+    "saveMessage": "Expedition saved on this browser",
+    "resolutionScale": 1,
+    "airPirates": [],
+    "world": {
+      "terrainChunks": 49,
+      "loadedSites": 10,
+      "streaming": {
+        "pendingTerrain": 0,
+        "pendingSites": 0,
+        "pendingHorizon": false,
+        "builds": 0,
+        "maxBuilds": 1,
+        "lastMs": 0,
+        "maxMs": 23.799999952316284
+      },
+      "colliders": 816,
+      "chunkSize": 256,
+      "streamRadius": 768,
+      "procedural": true,
+      "roadRoutes": 8,
+      "roadKilometres": 4.3,
+      "roadFurniture": 37
+    },
+    "sites": [
+      {
+        "id": "relay",
+        "name": "Northwatch Array",
+        "x": -690,
+        "z": -540,
+        "elevation": 52,
+        "kind": "outpost",
+        "faction": "pirate",
+        "description": "A surveillance compound on the northern heights.",
+        "action": "Disable the surveillance relay",
+        "verb": "DISABLE SURVEILLANCE",
+        "effect": "Enemy detection range reduced across the region",
+        "radius": 60,
+        "holdSeconds": 4
+      },
+      {
+        "id": "port-astra",
+        "name": "Port Astra City",
+        "x": -1120,
+        "z": -1030,
+        "elevation": 54,
+        "kind": "outpost",
+        "district": "city",
+        "faction": "friendly",
+        "radius": 105,
+        "description": "A colonial city of apartment blocks, markets and an open-sky ship hangar. Buy your first Kestrel at Hangar 03."
+      },
+      {
+        "id": "camp:-2:-3",
+        "name": "Hollow Encampment",
+        "x": -1152.3028951254673,
+        "z": -1688.6700859246776,
+        "elevation": 67.31102229102922,
+        "kind": "camp",
+        "district": "market",
+        "faction": "pirate",
+        "description": "A pirate trading settlement of supply stalls, cargo warehouses and operations rooms.",
+        "radius": 62
+      },
+      {
+        "id": "ruin:-2:-2",
+        "name": "Ashfall Relic",
+        "x": -930.1002225396223,
+        "z": -896.8208015942946,
+        "elevation": 19.527613653706197,
+        "kind": "ruin",
+        "district": "market",
+        "faction": "neutral",
+        "description": "An abandoned alien survey structure. Search the remains for supplies.",
+        "radius": 45
+      },
+      {
+        "id": "camp:-1:-3",
+        "name": "Wraith Encampment",
+        "x": -137.51534688984975,
+        "z": -1919.1673901630566,
+        "elevation": 56.10640498970821,
+        "kind": "camp",
+        "district": "salvage",
+        "faction": "pirate",
+        "description": "A scrapyard of broken survey ships, stripped engines and a working salvage workshop.",
+        "radius": 62
+      },
+      {
+        "id": "outpost:-1:-2",
+        "name": "Redwater Freeport",
+        "x": -361.76208093529567,
+        "z": -1097.4109257035889,
+        "elevation": 35.28027864474926,
+        "kind": "outpost",
+        "district": "market",
+        "faction": "pirate",
+        "description": "A pirate trading settlement of supply stalls, cargo warehouses and operations rooms.",
+        "radius": 62
+      },
+      {
+        "id": "ruin:-1:-1",
+        "name": "Ashfall Relic",
+        "x": -410.10074673220515,
+        "z": -152.50654134666547,
+        "elevation": 52.52664579340417,
+        "kind": "ruin",
+        "district": "market",
+        "faction": "neutral",
+        "description": "An abandoned alien survey structure. Search the remains for supplies.",
+        "radius": 45
+      }
+    ],
+    "guards": 5,
+    "squad": {
+      "order": "follow",
+      "embarked": true,
+      "medicReady": true,
+      "medicCooldown": 0,
+      "supplyReady": true,
+      "supplyCooldown": 0,
+      "members": [
+        {
+          "name": "VALE",
+          "role": "MEDIC",
+          "health": 100,
+          "position": [
+            -1113.4012451171875,
+            53.954953002929685,
+            -975.322509765625
+          ],
+          "down": false,
+          "status": "ABOARD",
+          "combatTarget": null,
+          "shotsFired": 0,
+          "damageDealt": 0,
+          "kills": 0
+        },
+        {
+          "name": "ROOK",
+          "role": "SUPPLY",
+          "health": 100,
+          "position": [
+            -1107.54931640625,
+            53.95491485595703,
+            -975.2691650390625
+          ],
+          "down": false,
+          "status": "ABOARD",
+          "combatTarget": null,
+          "shotsFired": 0,
+          "damageDealt": 0,
+          "kills": 0
+        }
+      ]
+    },
+    "enemyPositions": [
+      {
+        "id": "camp:-2:-3:1",
+        "site": "camp:-2:-3",
+        "active": true,
+        "position": [
+          -1146.4315185546875,
+          67.51102142333984,
+          -1670.5999755859375
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-2:-3:2",
+        "site": "camp:-2:-3",
+        "active": true,
+        "position": [
+          -1162.0111083984375,
+          67.51102142333984,
+          -1681.61669921875
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-2:-3:0",
+        "site": "camp:-2:-3",
+        "active": true,
+        "position": [
+          -1140.3028564453125,
+          67.51102142333984,
+          -1688.6700439453125
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-2:-3:4",
+        "site": "camp:-2:-3",
+        "active": true,
+        "position": [
+          -1148.5947265625,
+          67.51102142333984,
+          -1700.082763671875
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-2:-3:3",
+        "site": "camp:-2:-3",
+        "active": true,
+        "position": [
+          -1167.6741943359375,
+          67.51102142333984,
+          -1699.8380126953125
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy",
+        "staggerUntil": 0
+      },
+      {
+        "id": "harbour:5",
+        "site": "harbour",
+        "active": false,
+        "position": [
+          9.500000000000002,
+          18.2,
+          -26.454482671904334
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:distress:coast:0",
+        "site": "encounter:distress:coast",
+        "active": false,
+        "position": [
+          -169,
+          19.2,
+          140
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:distress:coast:1",
+        "site": "encounter:distress:coast",
+        "active": false,
+        "position": [
+          -184,
+          19.2,
+          140
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "outpost:0:0:3",
+        "site": "outpost:0:0",
+        "active": false,
+        "position": [
+          324.99713256862015,
+          32.26597049376859,
+          205.62230017967522
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
+      },
+      {
+        "id": "outpost:0:0:4",
+        "site": "outpost:0:0",
+        "active": false,
+        "position": [
+          337.99713256862015,
+          32.26597049376859,
+          195.22999533426196
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "outpost:0:0:2",
+        "site": "outpost:0:0",
+        "active": false,
+        "position": [
+          337.99713256862015,
+          32.26597049376859,
+          216.01460502508849
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper",
+        "staggerUntil": 0
+      },
+      {
+        "id": "outpost:0:0:5",
+        "site": "outpost:0:0",
+        "active": false,
+        "position": [
+          353.49713256862015,
+          32.26597049376859,
+          189.16781750777088
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "outpost:0:0:0",
+        "site": "outpost:0:0",
+        "active": false,
+        "position": [
+          355.99713256862015,
+          32.26597049376859,
+          205.62230017967522
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy",
+        "staggerUntil": 0
+      },
+      {
+        "id": "outpost:0:0:1",
+        "site": "outpost:0:0",
+        "active": false,
+        "position": [
+          353.49713256862015,
+          32.26597049376859,
+          222.07678285157957
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:convoy:arsenal:1",
+        "site": "encounter:convoy:arsenal",
+        "active": false,
+        "position": [
+          326,
+          36.0555594971133,
+          -113
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:convoy:arsenal:2",
+        "site": "encounter:convoy:arsenal",
+        "active": false,
+        "position": [
+          320,
+          36.0555594971133,
+          -122
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:convoy:arsenal:0",
+        "site": "encounter:convoy:arsenal",
+        "active": false,
+        "position": [
+          332,
+          36.0555594971133,
+          -122
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:convoy:arsenal:3",
+        "site": "encounter:convoy:arsenal",
+        "active": false,
+        "position": [
+          326,
+          36.0555594971133,
+          -131
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:patrol:north:0",
+        "site": "encounter:patrol:north",
+        "active": false,
+        "position": [
+          -303,
+          41.65490786164618,
+          -167
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:patrol:north:1",
+        "site": "encounter:patrol:north",
+        "active": false,
+        "position": [
+          -313.5,
+          41.65490786164618,
+          -159.20577136594005
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:patrol:north:2",
+        "site": "encounter:patrol:north",
+        "active": false,
+        "position": [
+          -312,
+          41.65490786164618,
+          -172.19615242270663
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:3",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          340.79375317459926,
+          44.90169713932332,
+          -213.59640904003754
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:2",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          353.79375317459926,
+          44.90169713932332,
+          -203.20410419462428
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:1",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          369.29375317459926,
+          44.90169713932332,
+          -197.1419263681332
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:4",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          353.79375317459926,
+          44.90169713932332,
+          -223.9887138854508
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:0",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          371.79375317459926,
+          44.90169713932332,
+          -213.59640904003754
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:5",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          369.29375317459926,
+          44.90169713932332,
+          -230.0508917119419
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:5",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -300.13347506243736,
+          16.343085195966598,
+          532.4289661998796
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:0",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -297.63347506243736,
+          16.343085195966598,
+          548.8834488717839
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:4",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -315.63347506243736,
+          16.343085195966598,
+          538.4911440263706
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:1",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -300.13347506243736,
+          16.343085195966598,
+          565.3379315436882
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:3",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -328.63347506243736,
+          16.343085195966598,
+          548.8834488717839
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:2",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -315.63347506243736,
+          16.343085195966598,
+          559.2757537171972
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
+      }
+    ],
+    "drawCalls": 91,
+    "triangles": 386777,
+    "renderCpuMs": 3.100000023841858
+  }
+}

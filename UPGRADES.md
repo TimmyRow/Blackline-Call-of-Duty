@@ -41,7 +41,7 @@ Procedural visuals and simplified AI remain prototype-scale. No multiplayer, mov
 
 - I / controller View / touch Missions opens all 12 contracts. Start & Track accepts a mission and marks its next destination; survey goals advance their markers. Equipment/travel and squad orders have separate tabs.
 - Operation Safe Harbour: distress transmission, ship cannons or deck sabotage, aft sea boarding stairs, crew rescue, a two-pirate counterattack, command-code recovery, friendly resupply base, and one free engine refit (160 salvage if already fully upgraded). Existing completed saves stay completed.
-- Standard Xbox controller mapping: sticks move/look, RT fire, LT aim, A jump/rise, B crouch/descend, X reload, Y switch, LB grenade, RB hold interaction, L3 hold sprint/boost, R3 board/exit, View missions, Menu pause, D-pad up scan/down atlas/left squad/right ship. Menus use D-pad or left stick, A select, B back, LB/RB missions/equipment.
+- Standard Xbox controller mapping: sticks move/look, RT fire, LT aim, A jump/rise, B crouch/descend, X reload, Y switch, LB grenade, RB hold interaction, L3 toggle sprint/boost while moving, R3 board/exit, View missions, Menu pause, D-pad up scan/down atlas/left squad/right ship. Menus use D-pad or left stick, A select, B back, LB/RB cycles journal tabs.
 - Analog movement works on foot, aboard Kestrel and at the launch helm. Controller look speed and invert-Y settings are in Controls & Settings. Disconnect/API failure pauses and releases input. Held triggers cannot fire through pause/resume.
 - Validation uses simulated standard gamepads in Windows Edge and mobile Chromium/WebKit emulation. Physical Xbox controller and iPhone/iPad hardware remain unverified.
 
@@ -84,3 +84,12 @@ Verification: 94 automated rule/input tests passed, plus Edge controller, openin
 - C now descends/crouches; Xbox B and touch controls keep their behavior. Browser modifiers are not gameplay bindings. The reported Shift-only closure was not attributed to Ctrl+W.
 - A 60-second Edge boost run stayed open: long-task time changed from 8,095 ms to 1,533 ms, and the longest task from 403 ms to 134 ms. These are local test observations, not a guarantee against every browser crash. The original spontaneous tab closure was not reproduced.
 - 100 rule/input tests passed; Edge streaming, forced GPU recovery, keyboard/controller flight and touch descent checks cover the changes.
+
+
+## Complete Xbox play flow
+
+- Click left stick to sprint/boost; release to neutral to stop. B toggles crouch on foot and holds descent in vehicles; A stands and jumps.
+- All journal tabs, including resident conversations, cycle with LB/RB. A selects, B returns; right stick scrolls. Settings and all squad orders remain accessible.
+- Atlas supports right-stick panning and bumper zoom, with stable destination focus and controller-specific hints. Touch map hints remain available when using touch.
+- Input handover clears stale keyboard/touch movement; an idle virtual controller cannot prevent the active Xbox pad from being selected. Loading waits for the playable menu; pause/disconnect releases latched actions.
+- Verified with rule tests and controller browser scenarios, with separate UI screenshot review. Physical controller validation remains outstanding.
