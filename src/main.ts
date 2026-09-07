@@ -194,14 +194,14 @@ window.addEventListener('mousemove',e=>{
   const previous=flightMouse;flightMouse={x:e.clientX,y:e.clientY};
   if(!previous)return;dx=e.clientX-previous.x;dy=e.clientY-previous.y;
  }else{flightMouse=null;if(!document.pointerLockElement&&!dragging)return;}
- const scale=.0018*sensitivity*(aiming?.55:1);state.yaw-=dx*scale;
+ const scale=.0018*sensitivity*(aiming?.35:1);state.yaw-=dx*scale;
  state.pitch=THREE.MathUtils.clamp(state.pitch-dy*scale,-1.45,1.45);
 });
 
 async function capturePointer(){if(touchMode||!renderer?.domElement.requestPointerLock)return;try{await renderer.domElement.requestPointerLock();}catch{toast(flight?.piloting?'MOVE MOUSE TO LOOK':'HOLD LEFT MOUSE TO LOOK',3);}}
 function mobileHint(text:string){return touchMode?text.replace(/F boards/g,'Tap BOARD for').replace(/F beside the hull/g,'Tap BOARD beside the hull').replace(/HOLD E/g,'HOLD USE').replace(/\bF\b/g,'BOARD / EXIT').replace(/\bE\b/g,'USE').replace(/\bQ\b/g,'MORE → FOCUS').replace(/\bH\b/g,'MORE → FIND SHIP').replace(/\bTab\b|\bTAB\b/g,'MAP').replace(/\bSpace\b|\bSPACE\b/g,'RISE').replace(/\bCTRL\b/g,'DESCEND').replace(/\bSHIFT\b/g,'BOOST'):text;}
 function movementKeys(){const result=new Set(keys);if(touchMove.z<-.2)result.add('KeyW');if(touchMove.z>.2)result.add('KeyS');if(touchMove.x<-.2)result.add('KeyA');if(touchMove.x>.2)result.add('KeyD');return result;}
-if(touchMode)touch=createTouchControls({key:(code,down)=>{if(down)handleKey(code);else keys.delete(code);},move:(x,z)=>{touchMove.x=x;touchMove.z=z;},look:(dx,dy)=>{if(state.mode!=='playing'||opening.active)return;const scale=.003*sensitivity*(aiming?.55:1);state.yaw-=dx*scale;state.pitch=THREE.MathUtils.clamp(state.pitch-dy*scale,-1.45,1.45);},fire:down=>{firing=down&&state.mode==='playing'&&!opening.active;},aim:down=>{aiming=down&&state.mode==='playing';},skip:finishOpening,wake:()=>{if(ready)sound.start();}});
+if(touchMode)touch=createTouchControls({key:(code,down)=>{if(down)handleKey(code);else keys.delete(code);},move:(x,z)=>{touchMove.x=x;touchMove.z=z;},look:(dx,dy)=>{if(state.mode!=='playing'||opening.active)return;const scale=.003*sensitivity*(aiming?.35:1);state.yaw-=dx*scale;state.pitch=THREE.MathUtils.clamp(state.pitch-dy*scale,-1.45,1.45);},fire:down=>{firing=down&&state.mode==='playing'&&!opening.active;},aim:down=>{aiming=down&&state.mode==='playing';},skip:finishOpening,wake:()=>{if(ready)sound.start();}});
 function reload(){if(state.weapon==='energy'){toast('ENERGY CELL RECHARGES BETWEEN SHOTS');return;}if(state.reload>0||state.ammo===30||state.reserve===0)return;state.reload=reloadDuration();sound.reload();toast('RELOADING',1.85);}
 function isWorldCover(c:RAPIER.Collider){const rb=c.parent();return !rb||rb.isFixed()||!!(rb.userData as {worldCover?:boolean}|undefined)?.worldCover;}
 function blocked(from:THREE.Vector3,to:THREE.Vector3){v.subVectors(to,from);const distance=v.length();if(distance<.15)return false;v.normalize();return world.castRay(new RAPIER.Ray(from,v),distance-.15,true,RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,undefined,undefined,undefined,isWorldCover)!==null;}
@@ -332,7 +332,7 @@ function animate(now:number){
  else if(state.mode==='playing'){
   accumulator+=elapsed;while(accumulator>=1/60){fixedStep(1/60);accumulator-=1/60;if(state.mode!=='playing'){accumulator=0;break;}}
   if(flight.piloting||marine.piloting){const pose=flight.piloting?flight.cameraPose():marine.cameraPose();camera.position.copy(pose.position);camera.rotation.set(pose.pitch,pose.yaw,0,'YXZ');}else camera.rotation.set(state.pitch+state.recoil*.2,state.yaw,0,'YXZ');state.recoil*=Math.exp(-elapsed*15);
-  const targetFov=aiming?52:keys.has('ShiftLeft')?80:75;camera.fov=THREE.MathUtils.lerp(camera.fov,targetFov,1-Math.exp(-elapsed*12));camera.updateProjectionMatrix();updateHud();
+  const targetFov=aiming?30:keys.has('ShiftLeft')?80:75;camera.fov=THREE.MathUtils.lerp(camera.fov,targetFov,1-Math.exp(-elapsed*12));camera.updateProjectionMatrix();updateHud();
  }else if(state.mode==='menu'){camera.position.set(REGION_START.x,heightAt(REGION_START.x,REGION_START.z)+2.1,REGION_START.z);camera.rotation.set(.035,Math.sin(total*.055)*.1,0,'YXZ');}
  const moving=state.mode==='playing'&&(['KeyW','KeyA','KeyS','KeyD'].some(k=>keys.has(k))||Math.hypot(touchMove.x,touchMove.z)>.15)?1:0;
  touch?.update(state.mode==='playing',opening.active,flight.piloting?'ship':marine.piloting?'boat':'foot');opening.setPaused(state.mode!=='playing');weapon.group.visible=!flight.piloting&&!opening.active;marine.render(elapsed,state.time);flight.render(elapsed,state.time);
