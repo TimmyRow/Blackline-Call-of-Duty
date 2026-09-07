@@ -11,7 +11,7 @@ npm install
 npm run dev -- --port 5180
 ```
 
-Desktop WebGL 2, keyboard and mouse required. Start a **New Expedition** to play Crashfall: a short, skippable transport descent and crash, followed by recovering a power cell and restoring Kestrel. Existing saves continue without replaying the opening. Use a normal browser tab for mouse capture; when capture is unavailable, hold left mouse to look and fire.
+WebGL 2 with hardware acceleration is required. Desktop uses keyboard and mouse; iPhone and iPad receive touch controls automatically. Start a **New Expedition** to play Crashfall: a short, skippable transport descent and crash, followed by recovering a power cell and restoring Kestrel. Existing saves continue without replaying the opening. On desktop, use a normal browser tab for mouse capture; when capture is unavailable, hold left mouse to look and fire.
 
 | Controls | On foot | In Kestrel |
 | --- | --- | --- |
@@ -39,6 +39,14 @@ At CNS Wayfarer, approach the launch dock and press F to take the helm. W/S cont
 
 **Auto** visual quality is the default: sustained low frame rates reduce rendering resolution. Choose **Performance** in settings to reduce resolution and disable shadows and bloom, or **High** to retain those effects. Performance depends on hardware and travel conditions.
 
+## iPhone and iPad
+
+Open the game in Safari. Landscape provides more room, while portrait is supported. Move with the left stick and swipe the right side to look. Hold FIRE and drag that button to aim while shooting; AIM, RUN and CROUCH toggle. Firing stops a foot sprint. Hold USE for quest interactions and revives. BOARD / EXIT enters vehicles; RISE / DESCEND controls the dropship. MAP, JOURNAL and MORE provide ship tracking, squad orders, supplies, grenades and pause access without a keyboard.
+
+Mobile Auto quality starts with shadows and bloom off, caps Retina render resolution and limits large-tablet pixel allocation. High quality remains optional. Controls clear on interrupted touches, backgrounding, menus and rotation. Saves remain local to each browser/device.
+
+Phone/tablet layouts and multi-touch are tested in Chromium emulation, with WebGL rendering and touch-menu checks in Playwright WebKit. Physical iPhone/iPad performance, Safari chrome and thermal behavior are not certified by desktop emulation. Use an up-to-date Safari with WebGL 2 enabled.
+
 ## Adventure
 
 - Deterministic terrain and discoveries extend beyond the starter peninsula. Only 49 terrain chunks remain active around the player; distant physics and geometry are released. There are 64 discoverable sites within 4.5 km of the start, with more generated farther away.
@@ -65,6 +73,7 @@ node qa/adventure-flight-test.mjs
 node qa/adventure-ground-test.mjs
 node qa/frontier-test.mjs
 node qa/crashfall-test.mjs
+node qa/mobile-test.mjs
 node qa/frontier-performance.mjs
 ```
 

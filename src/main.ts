@@ -22,6 +22,9 @@ import {createExpeditionUI} from './expedition-ui';
 import './style.css';
 import './region-hud.css';
 import './discovery.css';
+import './mobile.css';
+import {touchDevice,renderRatio} from './mobile-rules.mjs';
+import {createTouchControls} from './touch-controls';
 import {createOpening} from './opening';
 import {headingDegrees,bearingTo,bearingDelta,cardinal,RECOVERY_CELL,recoveryStep} from './navigation.mjs';
 
@@ -30,6 +33,8 @@ $('app').innerHTML=`<div id="viewport"></div><div id="vignette"></div><div id="d
 <div id="hud" hidden><div id="objective"><small id="objective-phase">01 / INFILTRATE</small><div id="objective-name">Clear the container yard</div><div id="objective-detail">Hostiles remaining: 6</div></div><div id="compass">W · · · N · · · E<strong id="bearing">000</strong></div><div id="telemetry">COLD HARBOUR<br><span id="fps"></span></div><div id="health-cluster"><span>VIPER 1 <span id="health-value">100</span></span><div id="health-track"><div id="health-fill"></div></div><span id="stance">STANDING</span></div><div id="ammo-cluster"><div id="weapon-name">MK18 MOD 1 &nbsp; / &nbsp; AUTO</div><div><span id="ammo">30</span> <span id="reserve">/ 180</span></div><div id="utility">G &nbsp; FRAG × <span id="grenades">3</span></div></div><div id="crosshair"></div><div id="hitmarker">×</div><div id="toast"></div><div id="prompt" hidden><span id="prompt-text"></span><div id="terminal-progress"></div></div><div id="subtitle" hidden></div></div>
 <main id="menu"><header class="masthead"><div class="brand"><span class="brand-mark"></span>BLACKLINE</div><div class="classification">SPECIAL OPERATIONS DIVISION &nbsp; / &nbsp; 07</div></header><section class="menu-content" id="menu-content"><div class="eyebrow" id="eyebrow">SINGLE PLAYER · NIGHT OPERATION</div><h1 id="title">BLACKLINE</h1><h2 id="mission-title">OPERATION COLD HARBOUR</h2><p class="mission-copy" id="mission-copy">A stolen uplink. A port gone dark.<br>Infiltrate the yard, recover the signal, and get out.</p><div class="mission-meta" id="mission-meta"><div>LOCATION<span>NORTH ATLANTIC</span></div><div>LOCAL TIME<span>03:47 AM</span></div><div>CONDITIONS<span>HEAVY RAIN</span></div></div><div id="result-stats" hidden></div><button class="primary" id="deploy" disabled><span id="deploy-label">PREPARING OPERATION</span><span>↗</span></button><div id="loading">Establishing uplink…</div><div id="mobile-note">Keyboard and mouse required. Open on a desktop to deploy.</div><button class="secondary" id="controls-button">CONTROLS & SETTINGS</button></section><section id="settings" hidden><h3>FIELD SETTINGS</h3><div class="control-grid"><span><b>W A S D</b> &nbsp; Move</span><span><b>MOUSE</b> &nbsp; Look</span><span><b>LEFT CLICK</b> &nbsp; Fire</span><span><b>RIGHT CLICK</b> &nbsp; Aim</span><span><b>SHIFT</b> &nbsp; Sprint</span><span><b>SPACE</b> &nbsp; Jump</span><span><b>C / CTRL</b> &nbsp; Crouch</span><span><b>R</b> &nbsp; Reload</span><span><b>G</b> &nbsp; Grenade</span><span><b>E</b> &nbsp; Interact</span><span><b>ESC / P</b> &nbsp; Pause</span><span><b>M</b> &nbsp; Mute</span></div><label>Mouse sensitivity<input id="sensitivity" type="range" min="0.3" max="2" step="0.05" value="1"></label><label>Visual quality<select id="quality"><option value="auto" selected>Auto — balance detail and frame rate</option><option value="high">High — atmospheric lighting</option><option value="low">Performance — reduced effects</option></select></label><button class="secondary" id="audio-toggle">SOUND ON</button><br><button class="secondary" id="settings-close">← RETURN TO OPERATION</button></section><footer class="bottomline"><div><span class="status-dot"></span>UPLINK <strong>ESTABLISHED</strong><br><span style="display:block;margin-top:7px">THREE.JS &nbsp; / &nbsp; TACTICAL FPS</span></div><div class="coordinate">ORISON / EXPEDITION 07<br><strong>CLASSIFIED / EYES ONLY</strong></div></footer></main>`;
 
+const touchMode=touchDevice();document.body.classList.toggle('touch-device',touchMode);
+let touch:ReturnType<typeof createTouchControls>|null=null;const touchMove={x:0,z:0};
 type Mode='menu'|'playing'|'paused'|'won'|'dead';
 const state={mode:'menu' as Mode,health:100,ammo:30,reserve:180,grenades:3,kills:0,shots:0,hits:0,time:0,stage:0,upload:0,reload:0,lastShot:-10,lastDamage:-10,recoil:0,yaw:0,pitch:0,vertical:0,grounded:false};
 let campaign:any=createAdventure(),mapOpen=false,currentRegion='South Landing',regionToastUntil=0,waterExposure=0;
@@ -52,6 +57,7 @@ $('deploy').insertAdjacentHTML('afterend','<button class="secondary" id="new-exp
 $('compass').innerHTML='<div id="compass-tape"></div><i id="ship-tick">◇</i><strong id="bearing">N · 000°</strong>';
 const compassTicks=Array.from({length:24},(_,i)=>{const el=document.createElement('span');el.textContent=i%3===0?cardinal(i*15):'·';$('compass-tape').append(el);return el;});
 $('hud').insertAdjacentHTML('beforeend','<div id="ship-hint">H · LOCATE KESTREL</div>');
+if(touchMode){$('utility').firstChild!.textContent='FRAG × ';document.querySelector('.fm-map-note')!.textContent='Drag to explore · Tap + / − to zoom · Tap a destination to set its bearing.';$('mobile-note').textContent='Touch controls ready. Left stick moves; swipe the right side to look. Landscape gives you more room.';document.querySelector('.control-grid')!.innerHTML='<span><b>LEFT STICK</b> Move / steer</span><span><b>RIGHT SIDE</b> Swipe to look</span><span><b>FIRE</b> Hold; drag to aim</span><span><b>USE</b> Hold to interact</span><span><b>BOARD / EXIT</b> Vehicles</span><span><b>RISE / DESCEND</b> Fly</span><span><b>MAP / JOURNAL</b> Explore</span><span><b>MORE</b> Ship / squad / grenade</span>';document.querySelector('.classification')!.textContent='TOUCH EXPEDITION';}
 const sound=new Sound(), keys=new Set<string>();
 let firing=false,aiming=false,dragging=false,sensitivity=1,ready=false,accumulator=0,total=0,stepTime=0,toastUntil=0,subtitleUntil=0,hitUntil=0,crouched=false;
 const blastLight=new THREE.PointLight(0xff9f42,0,18,2);
@@ -75,7 +81,7 @@ const extraction=new THREE.Vector3(REGION_START.x,heightAt(REGION_START.x,REGION
 const terminalScreens:THREE.Mesh<THREE.BoxGeometry,THREE.MeshStandardMaterial>[]=[];
 let beacon:THREE.Mesh,revivePrompt:{name:string,progress:number}|null=null;
 
-function shipSite(){return {id:'kestrel',name:'YOUR SHIP / KESTREL',x:flight.position.x,z:flight.position.z,elevation:flight.position.y-1,kind:'ship',faction:'friendly',radius:8,description:'Your personal dropship. H tracks this live beacon from anywhere.'};}
+function shipSite(){return {id:'kestrel',name:'YOUR SHIP / KESTREL',x:flight.position.x,z:flight.position.z,elevation:flight.position.y-1,kind:'ship',faction:'friendly',radius:8,description:touchMode?'Your dropship. Tap More → Find ship to track this beacon.':'Your personal dropship. H tracks this live beacon from anywhere.'};}
 function recoveryTarget(){const stage=campaign.onboarding?.stage;if(stage==='cell')return {id:'recovery-cell',name:'EMERGENCY POWER CELL',x:RECOVERY_CELL.x,z:RECOVERY_CELL.z,elevation:heightAt(RECOVERY_CELL.x,RECOVERY_CELL.z),kind:'recovery',faction:'friendly',radius:5};if(stage==='ship'||stage==='launch')return shipSite();return null;}
 function finishOpening(){if(!opening.active)return;const exit=opening.finish();document.body.classList.remove('arriving');env.sync(exit);placePlayer(exit);safePosition.copy(exit);state.yaw=0;state.pitch=0;state.health=100;state.lastDamage=state.time;campaign.onboarding.introSeen=true;world.step();squad.disembark(exit,0);syncEnemies();journal(campaign,'Crashfall','The transport is lost. Recover its emergency cell, restore Kestrel, then decide where to go.',state.time);subtitle('Rook: We made it. The cyan case by the wreck has a power cell. Kestrel came down in the landing district — follow its beacon.',8);saveGame();}
 function finishRecovery(event:string){const q=campaign.onboarding;if(!q||q.stage==='complete')return;if(event==='complete'){q.stage='complete';campaign.salvage+=50;journal(campaign,'Your horizon','Kestrel is yours. +50 salvage. Follow a distress signal, raid a camp or find the friendly carrier.',state.time);toast('KESTREL RECOVERED · +50 SALVAGE · THE HORIZON IS YOURS',5);}else if(event==='cell'){journal(campaign,'Emergency cell recovered','Follow the Kestrel beacon. Hold E beside its hull to reconnect flight systems.',state.time);subtitle('Vale: Cell is intact. Kestrel is north, past the road signs. I’ll cover you.',6);}else{flight.repair();subtitle('Rook: Systems green. F boards the ship. Space takes us up. Where we go next is your call.',6);}saveGame();}
@@ -83,11 +89,12 @@ function stepRecovery(dt:number){const target=recoveryTarget();if(!target)return
 
 function mapSnapshot(){return {position:{x:camera.position.x,y:camera.position.y,z:camera.position.z},yaw:state.yaw,completed:[...campaign.completed,...campaign.encountersCompleted],signals:[...(encounters?.sites()??[]),...(flight?[shipSite()]:[])],boat:marine?{x:marine.position.x,z:marine.position.z}:undefined,discovered:campaign.discovered,tracked:campaign.tracked,patrols:enemies.map(e=>({x:e.position.x,z:e.position.z,alive:e.active&&e.health>0})),intel:true,ship:flight?{x:flight.position.x,z:flight.position.z}:undefined,allies:squad?.members.map(m=>({x:m.position.x,z:m.position.z,alive:m.health>0}))??[]};}
 function openMap(){if(state.mode!=='playing')return;setMenu('paused');mapOpen=true;$('menu').hidden=true;fieldMap.open(mapSnapshot());}
-function closeMap(){if(!mapOpen)return;mapOpen=false;fieldMap.close();setMenu('playing');void renderer.domElement.requestPointerLock().catch(()=>{});}
+function closeMap(){if(!mapOpen)return;mapOpen=false;fieldMap.close();setMenu('playing');void capturePointer();}
 
 function toast(text:string,seconds=2){$('toast').textContent=text;toastUntil=total+seconds;$('toast').style.opacity='1';}
-function subtitle(text:string,seconds=5){$('subtitle').innerHTML=`<b>OVERWATCH</b> &nbsp; ${text}`;$('subtitle').hidden=false;subtitleUntil=total+seconds;}
+function subtitle(text:string,seconds=5){$('subtitle').innerHTML=`<b>OVERWATCH</b> &nbsp; ${mobileHint(text)}`;$('subtitle').hidden=false;subtitleUntil=total+seconds;}
 function setMenu(mode:Mode){
+ touch?.reset();
  if(ready&&mode==='paused'&&state.mode==='playing')saveGame();
  if(journalOpen){journalOpen=false;expeditionUI.close();}
  if(mapOpen){mapOpen=false;fieldMap.close();}
@@ -118,45 +125,49 @@ function reset(withOpening=false){
 async function deploy(){
  if(!ready)return;
  sound.start(); if(state.mode!=='paused'){const saved=loadGame();if(!saved)reset(true);}setMenu('playing');
- try{await renderer.domElement.requestPointerLock();}catch{toast('POINTER CAPTURE UNAVAILABLE · HOLD LEFT MOUSE TO LOOK',5);}
+ await capturePointer();
 }
 $('deploy').addEventListener('click',()=>void deploy());
-$('new-expedition').onclick=()=>{if(!ready)return;sound.start();reset(true);setMenu('playing');saveGame();void renderer.domElement.requestPointerLock().catch(()=>{});};
+$('new-expedition').onclick=()=>{if(!ready)return;sound.start();reset(true);setMenu('playing');saveGame();void capturePointer();};
 $('controls-button').onclick=()=>{$('settings').hidden=false;$('menu-content').hidden=true;};
 $('settings-close').onclick=()=>{$('settings').hidden=true;$('menu-content').hidden=false;};
 $<HTMLInputElement>('sensitivity').oninput=e=>{sensitivity=+(e.target as HTMLInputElement).value;};
 function toggleSound(){sound.toggle();$('audio-toggle').textContent=sound.muted?'SOUND OFF':'SOUND ON';}
 $('audio-toggle').onclick=toggleSound;
-$<HTMLSelectElement>('quality').onchange=()=>{if(!renderer)return;const high=$<HTMLSelectElement>('quality').value!=='low';resolutionScale=1;slowSeconds=0;renderer.setPixelRatio(Math.min(devicePixelRatio,high?1.5:1));renderer.shadowMap.enabled=high;composer.passes[1].enabled=high;resize();};
-window.addEventListener('keydown',e=>{
- if(journalOpen){if(e.code==='Escape'||e.code==='KeyI'){e.preventDefault();closeJournal();}return;}
- if(mapOpen){if(e.code==='Escape'){e.preventDefault();closeMap();}return;}
- if(['Space','Tab','ControlLeft','ControlRight'].includes(e.code))e.preventDefault();
- if(e.code==='Tab'&&!e.repeat&&state.mode==='playing'){openMap();return;}
- if(e.code==='KeyM'&&!e.repeat)toggleSound();
- if((e.code==='KeyP'||e.code==='Escape')&&state.mode==='playing'){setMenu('paused');return;}
+$<HTMLSelectElement>('quality').onchange=()=>{if(!renderer)return;const value=$<HTMLSelectElement>('quality').value,high=value==='high'||(!touchMode&&value!=='low');resolutionScale=1;slowSeconds=0;renderer.setPixelRatio(renderRatio(touchMode,innerWidth,innerHeight,Math.min(devicePixelRatio,high?1.5:1)));renderer.shadowMap.enabled=high;composer.passes[1].enabled=high;resize();};
+function handleKey(code:string,repeat=false){
+ if(journalOpen){if(code==='Escape'||code==='KeyI'){closeJournal();}return;}
+ if(mapOpen){if(code==='Escape'){closeMap();}return;}
+ if(code==='Tab'&&!repeat&&state.mode==='playing'){openMap();return;}
+ if(code==='KeyM'&&!repeat)toggleSound();
+ if((code==='KeyP'||code==='Escape')&&state.mode==='playing'){setMenu('paused');return;}
  if(state.mode!=='playing')return;
- if(opening.active){if(e.code==='Space')finishOpening();return;}
- keys.add(e.code);
- if(e.code==='KeyH'&&!e.repeat){campaign.tracked='kestrel';toast('KESTREL BEACON TRACKED · FOLLOW THE CYAN COMPASS MARK');return;}
- if(e.code==='KeyI'&&!e.repeat){openJournal();return;}
- if(e.code==='KeyF'&&!e.repeat){toggleFlight();return;}
- if(e.code==='KeyQ'&&!e.repeat&&!flight.piloting&&!marine.piloting){focusTarget();return;}
- if(e.code==='KeyJ'&&!e.repeat&&!flight.piloting&&!marine.piloting){if(squad.supply(camera.position)){state.reserve=Math.min(360,state.reserve+90);state.grenades=Math.min(5,state.grenades+1);toast('ROOK · AMMUNITION DELIVERED');}else toast('SUPPLY UNAVAILABLE · REGROUP WITH SQUAD');return;}
- if(flight.piloting)return;if(marine.piloting){if(!e.repeat&&e.code==='KeyR')reload();return;}
- if(e.code==='KeyB'&&!e.repeat){const order=squad.toggle();toast(order==='hold'?'SQUAD HOLDING POSITION':'SQUAD FOLLOWING');subtitle(order==='hold'?'Vale: We’ll hold here. Call us when you need support.':'Rook: Moving with you.');}
- if(!e.repeat&&e.code==='KeyR')reload();if(!e.repeat&&e.code==='KeyG')throwGrenade();
- if(e.code==='Space'&&!e.repeat&&state.grounded){state.vertical=5.6;state.grounded=false;}
-});
+ if(opening.active){if(code==='Space')finishOpening();return;}
+ keys.add(code);
+ if(code==='KeyH'&&!repeat){campaign.tracked='kestrel';toast('KESTREL BEACON TRACKED · FOLLOW THE CYAN COMPASS MARK');return;}
+ if(code==='KeyI'&&!repeat){openJournal();return;}
+ if(code==='KeyF'&&!repeat){toggleFlight();return;}
+ if(code==='KeyQ'&&!repeat&&!flight.piloting&&!marine.piloting){focusTarget();return;}
+ if(code==='KeyJ'&&!repeat&&!flight.piloting&&!marine.piloting){if(squad.supply(camera.position)){state.reserve=Math.min(360,state.reserve+90);state.grenades=Math.min(5,state.grenades+1);toast('ROOK · AMMUNITION DELIVERED');}else toast('SUPPLY UNAVAILABLE · REGROUP WITH SQUAD');return;}
+ if(flight.piloting)return;if(marine.piloting){if(!repeat&&code==='KeyR')reload();return;}
+ if(code==='KeyB'&&!repeat){const order=squad.toggle();toast(order==='hold'?'SQUAD HOLDING POSITION':'SQUAD FOLLOWING');subtitle(order==='hold'?'Vale: We’ll hold here. Call us when you need support.':'Rook: Moving with you.');}
+ if(!repeat&&code==='KeyR')reload();if(!repeat&&code==='KeyG')throwGrenade();
+ if(code==='Space'&&!repeat&&state.grounded){state.vertical=5.6;state.grounded=false;}
+}
+window.addEventListener('keydown',e=>{if(['Space','Tab','ControlLeft','ControlRight'].includes(e.code))e.preventDefault();handleKey(e.code,e.repeat);});
 window.addEventListener('keyup',e=>keys.delete(e.code));
 window.addEventListener('blur',()=>{if(state.mode==='playing')setMenu('paused');});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.mode==='playing')setMenu('paused');});
-document.addEventListener('pointerlockchange',()=>{if(!document.pointerLockElement&&state.mode==='playing')setMenu('paused');});
+document.addEventListener('pointerlockchange',()=>{if(!touchMode&&!document.pointerLockElement&&state.mode==='playing')setMenu('paused');});
 window.addEventListener('contextmenu',e=>e.preventDefault());
 window.addEventListener('mousedown',e=>{if(state.mode!=='playing'||e.target!==renderer.domElement)return;if(e.button===0){firing=true;dragging=true;}if(e.button===2)aiming=true;});
 window.addEventListener('mouseup',e=>{if(e.button===0){firing=false;dragging=false;}if(e.button===2)aiming=false;});
 window.addEventListener('mousemove',e=>{if(state.mode!=='playing'||(!document.pointerLockElement&&!dragging))return;const scale=.0018*sensitivity*(aiming?.55:1);state.yaw-=e.movementX*scale;state.pitch=THREE.MathUtils.clamp(state.pitch-e.movementY*scale,-1.45,1.45);});
 
+async function capturePointer(){if(touchMode||!renderer?.domElement.requestPointerLock)return;try{await renderer.domElement.requestPointerLock();}catch{toast('HOLD LEFT MOUSE TO LOOK',3);}}
+function mobileHint(text:string){return touchMode?text.replace(/F boards/g,'Tap BOARD for').replace(/F beside the hull/g,'Tap BOARD beside the hull').replace(/HOLD E/g,'HOLD USE').replace(/\bF\b/g,'BOARD / EXIT').replace(/\bE\b/g,'USE').replace(/\bQ\b/g,'MORE → FOCUS').replace(/\bH\b/g,'MORE → FIND SHIP').replace(/\bTab\b|\bTAB\b/g,'MAP').replace(/\bSpace\b|\bSPACE\b/g,'RISE').replace(/\bCTRL\b/g,'DESCEND').replace(/\bSHIFT\b/g,'BOOST'):text;}
+function movementKeys(){const result=new Set(keys);if(touchMove.z<-.2)result.add('KeyW');if(touchMove.z>.2)result.add('KeyS');if(touchMove.x<-.2)result.add('KeyA');if(touchMove.x>.2)result.add('KeyD');return result;}
+if(touchMode)touch=createTouchControls({key:(code,down)=>{if(down)handleKey(code);else keys.delete(code);},move:(x,z)=>{touchMove.x=x;touchMove.z=z;},look:(dx,dy)=>{if(state.mode!=='playing'||opening.active)return;const scale=.003*sensitivity*(aiming?.55:1);state.yaw-=dx*scale;state.pitch=THREE.MathUtils.clamp(state.pitch-dy*scale,-1.45,1.45);},fire:down=>{firing=down&&state.mode==='playing'&&!opening.active;},aim:down=>{aiming=down&&state.mode==='playing';},skip:finishOpening,wake:()=>{if(ready)sound.start();}});
 function reload(){if(state.reload>0||state.ammo===30||state.reserve===0)return;state.reload=reloadDuration();sound.reload();toast('RELOADING',1.85);}
 function isWorldCover(c:RAPIER.Collider){const rb=c.parent();return !rb||rb.isFixed()||!!(rb.userData as {worldCover?:boolean}|undefined)?.worldCover;}
 function blocked(from:THREE.Vector3,to:THREE.Vector3){v.subVectors(to,from);const distance=v.length();if(distance<.15)return false;v.normalize();return world.castRay(new RAPIER.Ray(from,v),distance-.15,true,RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,undefined,undefined,undefined,isWorldCover)!==null;}
@@ -219,14 +230,14 @@ function fixedStep(dt:number){
  state.time+=dt;stepRecovery(dt);encounters.update(dt,state.time,camera.position);if(state.time>streamAt){streamAt=state.time+.6;env.sync(flight.piloting?flight.position:camera.position);syncEnemies();}
  const flying=flight.piloting,boating=marine.piloting;let crouching=false,sprinting=false;
  if(!flying&&flight.landed)parkedShipPosition.copy(flight.position);
- if(flying){const before=flight.position.clone();flight.step(dt,{keys,yaw:state.yaw,pitch:state.pitch});camera.position.copy(flight.cameraPose().position);campaign.distanceFlown+=before.distanceTo(flight.position);if(firing)fireCannons();if(flight.health<=0){hurt(100);return;}}
- else if(boating){marine.step(dt,{keys,yaw:state.yaw,pitch:state.pitch});camera.position.copy(marine.cameraPose().position);advanceReload(dt);if(firing)fire();if(marine.health<=0){hurt(1000);return;}}
+ if(flying){const before=flight.position.clone();flight.step(dt,{keys:movementKeys(),yaw:state.yaw,pitch:state.pitch});camera.position.copy(flight.cameraPose().position);campaign.distanceFlown+=before.distanceTo(flight.position);if(firing)fireCannons();if(flight.health<=0){hurt(100);return;}}
+ else if(boating){marine.step(dt,{keys:movementKeys(),yaw:state.yaw,pitch:state.pitch});camera.position.copy(marine.cameraPose().position);advanceReload(dt);if(firing)fire();if(marine.health<=0){hurt(1000);return;}}
  else{
   let p=body.translation();const wantsCrouch=keys.has('KeyC')||keys.has('ControlLeft');
   if(wantsCrouch&&!crouched){collider.setHalfHeight(.35);body.setTranslation({x:p.x,y:p.y-.3,z:p.z},true);crouched=true;p=body.translation();}
   else if(!wantsCrouch&&crouched){let occupied=false;world.intersectionsWithShape({x:p.x,y:p.y+.3,z:p.z},{x:0,y:0,z:0,w:1},new RAPIER.Capsule(.64,.29),()=>{occupied=true;return false;},undefined,undefined,collider,body);if(!occupied){collider.setHalfHeight(.65);body.setTranslation({x:p.x,y:p.y+.3,z:p.z},true);crouched=false;p=body.translation();}}
   crouching=crouched;sprinting=(keys.has('ShiftLeft')||keys.has('ShiftRight'))&&!aiming&&!crouching;
-  let x=(keys.has('KeyD')?1:0)-(keys.has('KeyA')?1:0),z=(keys.has('KeyS')?1:0)-(keys.has('KeyW')?1:0);const magnitude=Math.hypot(x,z)||1;x/=magnitude;z/=magnitude;const swimming=p.y<SEA_LEVEL+.4,speed=swimming?3.5:crouching?2.3:sprinting?8:4.6,cs=Math.cos(state.yaw),sn=Math.sin(state.yaw);state.vertical=swimming?Math.max(0,(SEA_LEVEL+.7-p.y)*4):Math.max(-35,state.vertical-17*dt);
+  let x=(keys.has('KeyD')?1:0)-(keys.has('KeyA')?1:0)+touchMove.x,z=(keys.has('KeyS')?1:0)-(keys.has('KeyW')?1:0)+touchMove.z;const magnitude=Math.max(1,Math.hypot(x,z));x/=magnitude;z/=magnitude;const swimming=p.y<SEA_LEVEL+.4,speed=swimming?3.5:crouching?2.3:sprinting?8:4.6,cs=Math.cos(state.yaw),sn=Math.sin(state.yaw);state.vertical=swimming?Math.max(0,(SEA_LEVEL+.7-p.y)*4):Math.max(-35,state.vertical-17*dt);
   controller.computeColliderMovement(collider,{x:(x*cs+z*sn)*speed*dt,y:state.vertical*dt,z:(z*cs-x*sn)*speed*dt});const movement=controller.computedMovement();state.grounded=controller.computedGrounded();if(state.grounded&&state.vertical<0)state.vertical=0;body.setNextKinematicTranslation({x:p.x+movement.x,y:p.y+movement.y,z:p.z+movement.z});waterExposure=swimming?1:0;
   if(Math.hypot(movement.x,movement.z)>.001&&state.grounded){stepTime+=dt;if(stepTime>(sprinting?.3:.46)){sound.step();stepTime=0;}}
   advanceReload(dt);
@@ -261,28 +272,28 @@ function updateHud(){
  const ss=squad.snapshot();const climate=env.climate();$('climate-status').textContent=`${String(Math.floor(climate.hour)).padStart(2,'0')}:${String(Math.floor(climate.hour%1*60)).padStart(2,'0')} · ${climate.weather.toUpperCase()}`;
  $('squad-order').textContent=`SQUAD / ${squad.embarked?(boating?'ABOARD LAUNCH':'ABOARD KESTREL'):squad.order.toUpperCase()}`;$('squad-members').textContent=ss.members.map(m=>`${m.name} ${m.down?'DOWN':m.status} · ${m.kills} K`).join(' / ');$('region-arrival').style.opacity=total<regionToastUntil?'1':'0';
  $('world-waypoint').hidden=!site;if(site){const worldTarget=new THREE.Vector3(site.x,site.elevation+3,site.z);camera.updateMatrixWorld();const behind=worldTarget.clone().applyMatrix4(camera.matrixWorldInverse).z>0;worldTarget.project(camera);$('world-waypoint').style.left=`${(behind?.5:THREE.MathUtils.clamp((worldTarget.x+1)/2,.08,.92))*100}%`;$('world-waypoint').style.top=`${(behind?.76:THREE.MathUtils.clamp((1-worldTarget.y)/2,.2,.75))*100}%`;$('world-waypoint').querySelector('span')!.textContent=behind?'↶':'◇';const d=siteDistance(camera.position,site);$('waypoint-label').textContent=`${site.name} · ${d>1000?(d/1000).toFixed(1)+' km':Math.round(d)+' m'}${site.kind==='station'?' · ↑ 1800m':''}`;}
- const heading=headingDegrees(state.yaw);$('bearing').textContent=`${cardinal(heading)} · ${String(Math.round(heading)%360).padStart(3,'0')}°`;compassTicks.forEach((el,i)=>{const d=bearingDelta(i*15,heading);el.style.transform=`translateX(${d*2}px)`;el.hidden=Math.abs(d)>85;});const shipDelta=bearingDelta(bearingTo(camera.position,flight.position),heading);$('ship-tick').style.transform=`translateX(${THREE.MathUtils.clamp(shipDelta,-68,68)*2}px)`;$('ship-tick').textContent=Math.abs(shipDelta)>75?(shipDelta<0?'◁':'▷'):'◇';$('ship-hint').textContent=`H · KESTREL ${Math.round(camera.position.distanceTo(flight.position))} m`;
+ const heading=headingDegrees(state.yaw);$('bearing').textContent=`${cardinal(heading)} · ${String(Math.round(heading)%360).padStart(3,'0')}°`;compassTicks.forEach((el,i)=>{const d=bearingDelta(i*15,heading);el.style.transform=`translateX(${d*2}px)`;el.hidden=Math.abs(d)>85;});const shipDelta=bearingDelta(bearingTo(camera.position,flight.position),heading);$('ship-tick').style.transform=`translateX(${THREE.MathUtils.clamp(shipDelta*2,-$('compass').clientWidth/2+14,$('compass').clientWidth/2-14)}px)`;$('ship-tick').textContent=Math.abs(shipDelta)>75?(shipDelta<0?'◁':'▷'):'◇';$('ship-hint').textContent=`H · KESTREL ${Math.round(camera.position.distanceTo(flight.position))} m`;
  const stage=campaign.onboarding?.stage;if(stage&&stage!=='complete'){$('objective-phase').textContent='CRASHFALL / RECOVER YOUR SHIP';$('objective-name').textContent=stage==='cell'?'Recover the emergency power cell':stage==='ship'?'Restore Kestrel’s flight systems':'Board your Kestrel';$('objective-detail').textContent=stage==='cell'?'Search the cyan case beside the wreck · Hold E':stage==='ship'?'Follow the ship beacon · Hold E beside the hull':'F beside the hull · Space to lift off · H always locates your ship';}
  $('crosshair').classList.toggle('aiming',aiming&&!flying);
  const near=nearbySites.find(s=>siteDistance(camera.position,s)<6);const encounterPrompt=encounters.prompt(camera.position,guardCount);let prompt='';if(boating)prompt='W/S THROTTLE · A/D RUDDER · STOP THEN F TO LEAVE HELM';else if(flying)prompt=flight.landed?'F · DISEMBARK / SPACE · TAKE OFF':'SPACE ↑   CTRL ↓   SHIFT BOOST · LAND SLOWLY TO EXIT';else if(revivePrompt)prompt=`HOLD E · REVIVE ${revivePrompt.name}`;else if(encounterPrompt)prompt=encounterPrompt.text;else if(near)prompt=interactionLabel(campaign,near,guardCount(near.id),state.time);else prompt=marine.nearbyPrompt(camera.position)??flight.nearbyPrompt(camera.position)??(state.reload>0?'RELOADING':state.ammo===0?'R · RELOAD':'');
  const recovery=recoveryTarget();if(recovery&&['cell','ship'].includes(campaign.onboarding.stage)&&siteDistance(camera.position,recovery)<5)prompt=campaign.onboarding.stage==='cell'?'HOLD E · RECOVER EMERGENCY CELL':'HOLD E · INSTALL CELL / RESTORE KESTREL';
- state.upload=near?(campaign.progress[near.id]??0):0;$('prompt').hidden=!prompt;$('prompt-text').textContent=prompt;$('terminal-progress').style.width=`${campaign.onboarding?.progress?campaign.onboarding.progress/2*100:encounterPrompt?encounterPrompt.progress*100:near?state.upload/(near.faction==='friendly'?1.2:2.5)*100:(revivePrompt?.progress??0)*100}%`;$('damage').style.opacity=String(Math.max(state.health<30?.25:0,1-(state.time-state.lastDamage)*1.5)*.7);
+ state.upload=near?(campaign.progress[near.id]??0):0;$('prompt').hidden=!prompt;$('prompt-text').textContent=mobileHint(prompt);$('objective-detail').textContent=mobileHint($('objective-detail').textContent||'');$('terminal-progress').style.width=`${campaign.onboarding?.progress?campaign.onboarding.progress/2*100:encounterPrompt?encounterPrompt.progress*100:near?state.upload/(near.faction==='friendly'?1.2:2.5)*100:(revivePrompt?.progress??0)*100}%`;$('damage').style.opacity=String(Math.max(state.health<30?.25:0,1-(state.time-state.lastDamage)*1.5)*.7);
 }
-function resize(){if(!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(innerWidth,innerHeight);}
-window.addEventListener('resize',resize);
+function resize(){if(!renderer)return;if(touchMode)renderer.setPixelRatio(renderRatio(true,innerWidth,innerHeight,devicePixelRatio,resolutionScale));camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(innerWidth,innerHeight);}
+window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',()=>{touch?.reset();resize();});
 let resolutionScale=1,slowSeconds=0;
 let last=performance.now(),frames=0,frameSum=0,lastRenderMs=0,shadowCell='';
 function animate(now:number){
  requestAnimationFrame(animate);const realElapsed=(now-last)/1000,elapsed=Math.min(.05,realElapsed);last=now;total+=elapsed;frames++;frameSum+=realElapsed;
- if(frameSum>=1){if(state.mode==='playing'&&$<HTMLSelectElement>('quality').value==='auto'){const fps=frames/frameSum;slowSeconds=fps<55?slowSeconds+1:Math.max(0,slowSeconds-1);if(slowSeconds>=3&&resolutionScale>.701){resolutionScale=Math.max(.7,resolutionScale-.1);renderer.setPixelRatio(Math.min(devicePixelRatio,1.5)*resolutionScale);resize();slowSeconds=0;}}$('fps').textContent=`${Math.round(frames/frameSum)} FPS`;frames=0;frameSum=0;}
+ if(frameSum>=1){if(state.mode==='playing'&&$<HTMLSelectElement>('quality').value==='auto'){const fps=frames/frameSum;slowSeconds=fps<55?slowSeconds+1:Math.max(0,slowSeconds-1);if(slowSeconds>=3&&resolutionScale>.701){resolutionScale=Math.max(.7,resolutionScale-.1);renderer.setPixelRatio(renderRatio(touchMode,innerWidth,innerHeight,devicePixelRatio,resolutionScale));resize();slowSeconds=0;}}$('fps').textContent=`${Math.round(frames/frameSum)} FPS`;frames=0;frameSum=0;}
  if(state.mode==='playing'&&opening.active){const result=opening.step(elapsed);if(result.impact)sound.explosion();if(result.done)finishOpening();}
  else if(state.mode==='playing'){
   accumulator+=elapsed;while(accumulator>=1/60){fixedStep(1/60);accumulator-=1/60;if(state.mode!=='playing'){accumulator=0;break;}}
   if(flight.piloting||marine.piloting){const pose=flight.piloting?flight.cameraPose():marine.cameraPose();camera.position.copy(pose.position);camera.rotation.set(pose.pitch,pose.yaw,0,'YXZ');}else camera.rotation.set(state.pitch+state.recoil*.2,state.yaw,0,'YXZ');state.recoil*=Math.exp(-elapsed*15);
   const targetFov=aiming?52:keys.has('ShiftLeft')?80:75;camera.fov=THREE.MathUtils.lerp(camera.fov,targetFov,1-Math.exp(-elapsed*12));camera.updateProjectionMatrix();updateHud();
  }else if(state.mode==='menu'){camera.position.set(REGION_START.x,heightAt(REGION_START.x,REGION_START.z)+2.1,REGION_START.z);camera.rotation.set(.035,Math.sin(total*.055)*.1,0,'YXZ');}
- const moving=state.mode==='playing'&&['KeyW','KeyA','KeyS','KeyD'].some(k=>keys.has(k))?1:0;
- opening.setPaused(state.mode!=='playing');weapon.group.visible=!flight.piloting&&!opening.active;marine.render(elapsed,state.time);flight.render(elapsed,state.time);
+ const moving=state.mode==='playing'&&(['KeyW','KeyA','KeyS','KeyD'].some(k=>keys.has(k))||Math.hypot(touchMove.x,touchMove.z)>.15)?1:0;
+ touch?.update(state.mode==='playing',opening.active,flight.piloting?'ship':marine.piloting?'boat':'foot');opening.setPaused(state.mode!=='playing');weapon.group.visible=!flight.piloting&&!opening.active;marine.render(elapsed,state.time);flight.render(elapsed,state.time);
  weapon.update(elapsed,{time:total,moving,sprinting:keys.has('ShiftLeft')&&!aiming,aiming,reload:state.reload>0?1-state.reload/reloadDuration():0,recoil:state.recoil});
  for(const e of enemies){e.visual.group.visible=e.active&&e.position.distanceTo(camera.position)<280;if(e.visual.group.visible)e.visual.update(state.mode==='playing'?elapsed:0,{time:state.time+e.seed,moving:e.health>0&&e.moving,firing:e.health>0&&state.time<e.flashUntil,dead:e.health<=0,alert:e.alert>0,crouching:e.alert>0&&!e.moving&&e.health<60});}
  squad.render(state.mode==='playing'?elapsed:0,state.time,camera.position);
@@ -299,7 +310,7 @@ function reloadDuration(){return RELOAD_SECONDS*(1-.12*(campaign.upgrades?.handl
 function atBase(){return !flight?.piloting&&!marine?.piloting&&(camera.position.distanceTo(new THREE.Vector3(0,17.7,110))<45||nearbySites.some(s=>!isEncounterId(s.id)&&(s.faction==='friendly'||campaign.completed.includes(s.id))&&siteDistance(camera.position,s)<Math.min(s.radius,80)));}
 function refreshJournal(){expeditionUI.update({campaign,atBase:atBase(),saveMessage});}
 function openJournal(){if(state.mode!=='playing')return;setMenu('paused');journalOpen=true;$('menu').hidden=true;expeditionUI.open({campaign,atBase:atBase(),saveMessage});}
-function closeJournal(){if(!journalOpen)return;journalOpen=false;expeditionUI.close();setMenu('playing');void renderer.domElement.requestPointerLock().catch(()=>{});}
+function closeJournal(){if(!journalOpen)return;journalOpen=false;expeditionUI.close();setMenu('playing');void capturePointer();}
 function settleContracts(){for(const contract of resolveContracts(campaign)){journal(campaign,contract.title,`Contract complete · ${contract.reward} salvage`,state.time);toast(`${contract.title.toUpperCase()} · +${contract.reward} SALVAGE`,4);}}
 function peekSave(){try{return readSave(localStorage);}catch{return null;}}
 function placePlayer(p:THREE.Vector3){body.setTranslation({x:p.x,y:p.y-.7,z:p.z},true);body.setNextKinematicTranslation({x:p.x,y:p.y-.7,z:p.z});camera.position.copy(p);collider.setEnabled(true);state.vertical=0;state.pitch=0;}
@@ -308,17 +319,17 @@ function loadGame(){const saved=peekSave();if(!saved)return false;reset();campai
 window.addEventListener('pagehide',()=>saveGame());
 async function boot(){
  try{
-  renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.outputColorSpace=THREE.SRGBColorSpace;$('viewport').append(renderer.domElement);
+  renderer=new THREE.WebGLRenderer({antialias:!touchMode,powerPreference:'high-performance'});renderer.setPixelRatio(renderRatio(touchMode,innerWidth,innerHeight,devicePixelRatio));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=!touchMode;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.outputColorSpace=THREE.SRGBColorSpace;$('viewport').append(renderer.domElement);
   renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();setMenu('paused');$('loading').textContent='Graphics context interrupted. Restoring…';});renderer.domElement.addEventListener('webglcontextrestored',()=>location.reload());
   scene.add(camera,blastLight);renderer.info.autoReset=false;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
   await RAPIER.init();world=new RAPIER.World({x:0,y:-17,z:0});env=buildEnvironment(scene,world);env.sync(camera.position.set(REGION_START.x,heightAt(REGION_START.x,REGION_START.z)+1.7,REGION_START.z));weapon=createWeapon(camera);weapon.group.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=false;o.receiveShadow=false;}});camera.position.set(REGION_START.x,heightAt(REGION_START.x,REGION_START.z)+1.7,REGION_START.z);
-  composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.23,.5,1.2));composer.addPass(new OutputPass());
+  composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.23,.5,1.2));composer.addPass(new OutputPass());composer.passes[1].enabled=!touchMode;
   body=world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(REGION_START.x,heightAt(REGION_START.x,REGION_START.z)+1,REGION_START.z));collider=world.createCollider(RAPIER.ColliderDesc.capsule(.65,.3),body);controller=world.createCharacterController(.025);controller.enableAutostep(.4,.25,true);controller.enableSnapToGround(.6);controller.setMaxSlopeClimbAngle(Math.PI/3);controller.setApplyImpulsesToDynamicBodies(true);
   opening=createOpening(scene,camera,world);squad=createSquad(scene,world);flight=createFlight(scene,world);parkedShipPosition.copy(flight.position);marine=createMarine(scene,world);encounters=createEncounters(scene,world);spacePirates=createSpacePirates(scene);ensureProgression(campaign);syncEnemies();
-  world.step();scene.updateMatrixWorld(true);await renderer.compileAsync(scene,camera);ready=true;$<HTMLButtonElement>('deploy').disabled=false;$('deploy-label').textContent=peekSave()?'CONTINUE EXPEDITION':'BEGIN EXPEDITION';$('new-expedition').hidden=!peekSave();$('loading').textContent='New expedition: Crashfall   /   H · Locate your ship   /   Tab · Planet atlas';
+  world.step();scene.updateMatrixWorld(true);await renderer.compileAsync(scene,camera);ready=true;$<HTMLButtonElement>('deploy').disabled=false;$('deploy-label').textContent=peekSave()?'CONTINUE EXPEDITION':'BEGIN EXPEDITION';$('new-expedition').hidden=!peekSave();$('loading').textContent=touchMode?'Tap to begin · Touch controls appear in game':'New expedition: Crashfall   /   H · Locate your ship   /   Tab · Planet atlas';
   last=performance.now();requestAnimationFrame(animate);
   // Read-only diagnostics in every build; deterministic QA controls only in local development.
-  const diagnostics={snapshot:()=>({mode:state.mode,opening:opening.snapshot(),health:state.health,ammo:state.ammo,reserve:state.reserve,grenades:state.grenades,kills:state.kills,stage:state.stage,upload:state.upload,time:state.time,position:camera.position.toArray(),region:currentRegion,campaign:JSON.parse(JSON.stringify(campaign)),flight:flight.snapshot(),marine:marine.snapshot(),climate:env.climate(),encounters:encounters.snapshot(),saveMessage,resolutionScale,airPirates:spacePirates.snapshot(),world:env.stats(),sites:nearbySites,guards:enemies.filter(e=>e.active).length,squad:squad.snapshot(),enemyPositions:enemies.map(e=>({id:e.id,site:e.site,active:e.active,position:e.position.toArray(),health:e.health})),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,renderCpuMs:lastRenderMs})};
+  const diagnostics={snapshot:()=>({mode:state.mode,opening:opening.snapshot(),touchMode,input:{move:{...touchMove},firing,aiming,held:[...keys]},pixelRatio:renderer.getPixelRatio(),health:state.health,ammo:state.ammo,reserve:state.reserve,grenades:state.grenades,kills:state.kills,stage:state.stage,upload:state.upload,time:state.time,position:camera.position.toArray(),region:currentRegion,campaign:JSON.parse(JSON.stringify(campaign)),flight:flight.snapshot(),marine:marine.snapshot(),climate:env.climate(),encounters:encounters.snapshot(),saveMessage,resolutionScale,airPirates:spacePirates.snapshot(),world:env.stats(),sites:nearbySites,guards:enemies.filter(e=>e.active).length,squad:squad.snapshot(),enemyPositions:enemies.map(e=>({id:e.id,site:e.site,active:e.active,position:e.position.toArray(),health:e.health})),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,renderCpuMs:lastRenderMs})};
   Object.assign(window,{blackline:diagnostics});
   type ToolContext={registerTool:(tool:{name:string,description:string,inputSchema:object,annotations:object,execute:(input:unknown)=>unknown},options:{signal:AbortSignal})=>void|Promise<void>};
   const context=(document as Document&{modelContext?:ToolContext}).modelContext;

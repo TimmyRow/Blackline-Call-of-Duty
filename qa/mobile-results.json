@@ -1,0 +1,34 @@
+{
+  "engine": "Chromium touch emulation; genuine multi-touch via CDP",
+  "results": [
+    {
+      "name": "iPhone touch start and opening skip need no pointer lock",
+      "pass": true
+    },
+    {
+      "name": "real simultaneous touch movement, swipe look and held fire",
+      "pass": true
+    },
+    {
+      "name": "pointer cancellation releases interaction and movement",
+      "pass": true
+    },
+    {
+      "name": "touch recovery interaction, repair, boarding and flight controls",
+      "pass": true
+    },
+    {
+      "name": "touch atlas, journal, commands and pause are usable",
+      "pass": true
+    },
+    {
+      "name": "touch boat boarding, steering and stopped disembarkation",
+      "pass": true
+    },
+    {
+      "name": "rotation and iPhone/iPad layouts keep primary touch targets visible",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

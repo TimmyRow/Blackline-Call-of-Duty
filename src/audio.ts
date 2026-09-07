@@ -17,8 +17,9 @@ export class Sound {
     this.shotVoices++;window.setTimeout(()=>{this.shotVoices--;},270);
   }
   start() {
-    if (this.ctx) { void this.ctx.resume(); return; }
-    this.ctx = new AudioContext(); this.master = this.ctx.createGain(); this.master.gain.value = this.muted ? 0 : .32; this.master.connect(this.ctx.destination);
+    if (this.ctx) { void this.ctx.resume().catch(()=>{}); return; }
+    const Context=window.AudioContext||(window as Window&{webkitAudioContext?:typeof AudioContext}).webkitAudioContext;
+    if(!Context)return;try{this.ctx=new Context();}catch{return;} this.master = this.ctx.createGain(); this.master.gain.value = this.muted ? 0 : .32; this.master.connect(this.ctx.destination);
     const buffer = this.ctx.createBuffer(1,this.ctx.sampleRate*3,this.ctx.sampleRate);
     const data = buffer.getChannelData(0); for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*.075;
     const source = this.ctx.createBufferSource(); source.buffer=buffer; source.loop=true;

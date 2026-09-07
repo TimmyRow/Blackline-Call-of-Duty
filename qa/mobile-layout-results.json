@@ -1,0 +1,65 @@
+{
+  "engine": "WebKit desktop, emulated touch viewports and simulated CSS safe areas",
+  "results": [
+    {
+      "name": "iphone-small",
+      "pass": true,
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "simulatedInsets": [
+        10,
+        12,
+        12,
+        12
+      ],
+      "pixelRatio": 1
+    },
+    {
+      "name": "iphone-small-landscape",
+      "pass": true,
+      "viewport": {
+        "width": 568,
+        "height": 320
+      },
+      "simulatedInsets": [
+        10,
+        12,
+        12,
+        12
+      ],
+      "pixelRatio": 1
+    },
+    {
+      "name": "iphone-safe-landscape",
+      "pass": true,
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "simulatedInsets": [
+        10,
+        21,
+        47,
+        47
+      ],
+      "pixelRatio": 0.9
+    },
+    {
+      "name": "ipad-webkit",
+      "pass": true,
+      "viewport": {
+        "width": 1194,
+        "height": 834
+      },
+      "simulatedInsets": [
+        24,
+        20,
+        12,
+        12
+      ],
+      "pixelRatio": 0.879061223842028
+    }
+  ]
+}
