@@ -64,6 +64,7 @@ const blastLight=new THREE.PointLight(0xff9f42,0,18,2);
 const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.08,22000);
 // Renderer creation stays in the guarded boot path so an unavailable GPU has a readable failure state.
 let renderer:THREE.WebGLRenderer,composer:EffectComposer;
+let graphicsLost=false,graphicsRecoveries=0;
 let env:ReturnType<typeof buildEnvironment>,weapon:ReturnType<typeof createWeapon>;
 let world:RAPIER.World,body:RAPIER.RigidBody,collider:RAPIER.Collider,controller:RAPIER.KinematicCharacterController;
 const ray=new THREE.Raycaster(), v=new THREE.Vector3(), forward=new THREE.Vector3(), targetPos=new THREE.Vector3();
@@ -94,6 +95,7 @@ function closeMap(){if(!mapOpen)return;mapOpen=false;fieldMap.close();setMenu('p
 function toast(text:string,seconds=2){$('toast').textContent=text;toastUntil=total+seconds;$('toast').style.opacity='1';}
 function subtitle(text:string,seconds=5){$('subtitle').innerHTML=`<b>OVERWATCH</b> &nbsp; ${mobileHint(text)}`;$('subtitle').hidden=false;subtitleUntil=total+seconds;}
 function setMenu(mode:Mode){
+ if(graphicsLost&&mode==='playing')return;
  touch?.reset();
  if(ready&&mode==='paused'&&state.mode==='playing')saveGame();
  if(journalOpen){journalOpen=false;expeditionUI.close();}
@@ -123,18 +125,18 @@ function reset(withOpening=false){
  $('result-stats').hidden=true;$('damage').style.opacity='0';subtitle('Vale: Your call, commander. Raid the camp ahead or take Kestrel to the sea. F boards the ship. Tab opens the planet atlas.',8);updateHud();
 }
 async function deploy(){
- if(!ready)return;
+ if(!ready||graphicsLost)return;
  sound.start(); if(state.mode!=='paused'){const saved=loadGame();if(!saved)reset(true);}setMenu('playing');
  await capturePointer();
 }
 $('deploy').addEventListener('click',()=>void deploy());
-$('new-expedition').onclick=()=>{if(!ready)return;sound.start();reset(true);setMenu('playing');saveGame();void capturePointer();};
+$('new-expedition').onclick=()=>{if(!ready||graphicsLost)return;sound.start();reset(true);setMenu('playing');saveGame();void capturePointer();};
 $('controls-button').onclick=()=>{$('settings').hidden=false;$('menu-content').hidden=true;};
 $('settings-close').onclick=()=>{$('settings').hidden=true;$('menu-content').hidden=false;};
 $<HTMLInputElement>('sensitivity').oninput=e=>{sensitivity=+(e.target as HTMLInputElement).value;};
 function toggleSound(){sound.toggle();$('audio-toggle').textContent=sound.muted?'SOUND OFF':'SOUND ON';}
 $('audio-toggle').onclick=toggleSound;
-$<HTMLSelectElement>('quality').onchange=()=>{if(!renderer)return;const value=$<HTMLSelectElement>('quality').value,high=value==='high'||(!touchMode&&value!=='low');resolutionScale=1;slowSeconds=0;renderer.setPixelRatio(renderRatio(touchMode,innerWidth,innerHeight,Math.min(devicePixelRatio,high?1.5:1)));renderer.shadowMap.enabled=high;composer.passes[1].enabled=high;resize();};
+$<HTMLSelectElement>('quality').onchange=()=>{if(!renderer||graphicsLost)return;const value=$<HTMLSelectElement>('quality').value,high=value==='high'||(!touchMode&&value!=='low');resolutionScale=1;slowSeconds=0;renderer.setPixelRatio(renderRatio(touchMode,innerWidth,innerHeight,Math.min(devicePixelRatio,high?1.5:1)));renderer.shadowMap.enabled=high;createComposer(high);resize();};
 function handleKey(code:string,repeat=false){
  if(journalOpen){if(code==='Escape'||code==='KeyI'){closeJournal();}return;}
  if(mapOpen){if(code==='Escape'){closeMap();}return;}
@@ -218,7 +220,7 @@ function syncEnemies(){
  for(const site of nearbySites){if(site.faction!=='pirate'||(campaign.completed.includes(site.id)||campaign.encountersCompleted?.includes(site.id))||Math.abs(site.elevation-camera.position.y)>230||Math.hypot(site.x-camera.position.x,site.z-camera.position.z)>650)continue;
   const count=(site as any).guardCount??(site.kind==='pirate-ship'?8:6);for(let i=0;i<count;i++){const angle=i/count*Math.PI*2,r=isEncounterId(site.id)?6+(i%2)*3:12+(i%2)*7,x=site.x+Math.cos(angle)*r,z=site.z+Math.sin(angle)*r;desired.push({id:`${site.id}:${i}`,site:site.id,x,y:site.elevation+.2,z});}
  }
- const ids=new Set(desired.map(d=>d.id));for(const e of enemies)if(!ids.has(e.id)){e.active=false;e.collider.setEnabled(false);e.visual.group.visible=false;}
+ desired.splice(48);const ids=new Set(desired.map(d=>d.id));for(const e of enemies)if(!ids.has(e.id)){e.active=false;e.collider.setEnabled(false);e.visual.group.visible=false;}
  for(const d of desired.slice(0,48)){let e=enemies.find(e=>e.id===d.id);if(e?.active){if(isEncounterId(d.site)){e.home.set(d.x,d.y,d.z);}continue;}e??=enemies.find(e=>!e.active);
   if(!e){const visual=createEnemy(scene),rb=world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased()),ec=world.createCollider(RAPIER.ColliderDesc.capsule(.6,.28),rb),ctrl=world.createCharacterController(.025);ctrl.enableSnapToGround(.65);ctrl.enableAutostep(.45,.2,true);e={id:'',site:'',active:false,home:new THREE.Vector3(),visual,position:new THREE.Vector3(),health:100,timer:2,alert:0,seed:enemies.length*2.7,body:rb,collider:ec,controller:ctrl,lastSeen:new THREE.Vector3(),flashUntil:0,moving:false,scan:0,threat:null};visual.group.traverse(o=>{if(o instanceof THREE.Mesh)o.castShadow=false;});enemies.push(e);}
   Object.assign(e,{id:d.id,site:d.site,active:true,health:enemyHealth.get(d.id)??100,timer:1.8,alert:0,scan:0,threat:null});e.position.set(d.x,d.y,d.z);e.home.copy(e.position);e.lastSeen.copy(e.position);e.body.setTranslation({x:d.x,y:d.y+.95,z:d.z},true);e.body.setNextKinematicTranslation({x:d.x,y:d.y+.95,z:d.z});e.collider.setEnabled(e.health>0);e.visual.group.position.copy(e.position);e.visual.group.visible=true;
@@ -291,12 +293,19 @@ function updateHud(){
  const recovery=recoveryTarget();if(recovery&&['cell','ship'].includes(campaign.onboarding.stage)&&siteDistance(camera.position,recovery)<5)prompt=campaign.onboarding.stage==='cell'?'HOLD E · RECOVER EMERGENCY CELL':'HOLD E · INSTALL CELL / RESTORE KESTREL';
  state.upload=near?(campaign.progress[near.id]??0):0;$('prompt').hidden=!prompt;$('prompt-text').textContent=mobileHint(prompt);$('objective-detail').textContent=mobileHint($('objective-detail').textContent||'');$('terminal-progress').style.width=`${campaign.onboarding?.progress?campaign.onboarding.progress/2*100:encounterPrompt?encounterPrompt.progress*100:near?state.upload/(near.faction==='friendly'?1.2:2.5)*100:(revivePrompt?.progress??0)*100}%`;$('damage').style.opacity=String(Math.max(state.health<30?.25:0,1-(state.time-state.lastDamage)*1.5)*.7);
 }
-function resize(){if(!renderer)return;if(touchMode)renderer.setPixelRatio(renderRatio(true,innerWidth,innerHeight,devicePixelRatio,resolutionScale));camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(innerWidth,innerHeight);}
+function createComposer(high:boolean){
+ // Disabled bloom still owns large framebuffers. Release them in Performance mode and on recovery.
+ if(composer){for(const pass of composer.passes)pass.dispose();composer.dispose();}
+ composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
+ if(high)composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.23,.5,1.2));
+ composer.addPass(new OutputPass());
+}
+function resize(){if(!renderer||graphicsLost)return;const high=$<HTMLSelectElement>('quality').value!=='low';renderer.setPixelRatio(renderRatio(touchMode,innerWidth,innerHeight,Math.min(devicePixelRatio,high?1.5:1),resolutionScale));camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(innerWidth,innerHeight);}
 window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',()=>{touch?.reset();resize();});
 let resolutionScale=1,slowSeconds=0;
 let last=performance.now(),frames=0,frameSum=0,lastRenderMs=0,shadowCell='';
 function animate(now:number){
- requestAnimationFrame(animate);const realElapsed=(now-last)/1000,elapsed=Math.min(.05,realElapsed);last=now;total+=elapsed;frames++;frameSum+=realElapsed;
+ requestAnimationFrame(animate);if(graphicsLost||document.hidden){last=now;accumulator=0;frames=0;frameSum=0;return;}const realElapsed=(now-last)/1000,elapsed=Math.min(.05,realElapsed);last=now;total+=elapsed;frames++;frameSum+=realElapsed;
  if(frameSum>=1){if(state.mode==='playing'&&$<HTMLSelectElement>('quality').value==='auto'){const fps=frames/frameSum;slowSeconds=fps<55?slowSeconds+1:Math.max(0,slowSeconds-1);if(slowSeconds>=3&&resolutionScale>.701){resolutionScale=Math.max(.7,resolutionScale-.1);renderer.setPixelRatio(renderRatio(touchMode,innerWidth,innerHeight,devicePixelRatio,resolutionScale));resize();slowSeconds=0;}}$('fps').textContent=`${Math.round(frames/frameSum)} FPS`;frames=0;frameSum=0;}
  if(state.mode==='playing'&&opening.active){const result=opening.step(elapsed);if(result.impact)sound.explosion();if(result.done)finishOpening();}
  else if(state.mode==='playing'){
@@ -332,16 +341,28 @@ window.addEventListener('pagehide',()=>saveGame());
 async function boot(){
  try{
   renderer=new THREE.WebGLRenderer({antialias:!touchMode,powerPreference:'high-performance'});renderer.setPixelRatio(renderRatio(touchMode,innerWidth,innerHeight,devicePixelRatio));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=!touchMode;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.outputColorSpace=THREE.SRGBColorSpace;$('viewport').append(renderer.domElement);
-  renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();setMenu('paused');$('loading').textContent='Graphics context interrupted. Restoring…';});renderer.domElement.addEventListener('webglcontextrestored',()=>location.reload());
+  renderer.domElement.addEventListener('webglcontextlost',e=>{
+   e.preventDefault();graphicsLost=true;if(ready)setMenu('paused');
+   $<HTMLButtonElement>('deploy').disabled=true;$<HTMLButtonElement>('new-expedition').disabled=true;
+   $('loading').textContent='Graphics interrupted. Your expedition is paused while the display recovers.';
+  });
+  renderer.domElement.addEventListener('webglcontextrestored',()=>{
+   graphicsLost=false;graphicsRecoveries++;last=performance.now();accumulator=0;
+   if(!composer)return;
+   $<HTMLSelectElement>('quality').value='low';resolutionScale=1;slowSeconds=0;
+   renderer.shadowMap.enabled=false;createComposer(false);resize();shadowCell='';
+   $<HTMLButtonElement>('deploy').disabled=!ready;$<HTMLButtonElement>('new-expedition').disabled=false;
+   $('loading').textContent='Graphics restored in Performance mode. Resume your expedition where you left off.';
+  });
   scene.add(camera,blastLight);renderer.info.autoReset=false;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
   await RAPIER.init();world=new RAPIER.World({x:0,y:-17,z:0});env=buildEnvironment(scene,world);env.sync(camera.position.set(REGION_START.x,heightAt(REGION_START.x,REGION_START.z)+1.7,REGION_START.z));weapon=createWeapon(camera);weapon.group.traverse(o=>{if(o instanceof THREE.Mesh){o.castShadow=false;o.receiveShadow=false;}});camera.position.set(REGION_START.x,heightAt(REGION_START.x,REGION_START.z)+1.7,REGION_START.z);
-  composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.23,.5,1.2));composer.addPass(new OutputPass());composer.passes[1].enabled=!touchMode;
+  createComposer(!touchMode);
   body=world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(REGION_START.x,heightAt(REGION_START.x,REGION_START.z)+1,REGION_START.z));collider=world.createCollider(RAPIER.ColliderDesc.capsule(.65,.3),body);controller=world.createCharacterController(.025);controller.enableAutostep(.4,.25,true);controller.enableSnapToGround(.6);controller.setMaxSlopeClimbAngle(Math.PI/3);controller.setApplyImpulsesToDynamicBodies(true);
   opening=createOpening(scene,camera,world);squad=createSquad(scene,world);flight=createFlight(scene,world);parkedShipPosition.copy(flight.position);marine=createMarine(scene,world);encounters=createEncounters(scene,world);spacePirates=createSpacePirates(scene);ensureProgression(campaign);syncEnemies();
-  world.step();scene.updateMatrixWorld(true);await renderer.compileAsync(scene,camera);ready=true;$<HTMLButtonElement>('deploy').disabled=false;$('deploy-label').textContent=peekSave()?'CONTINUE EXPEDITION':'BEGIN EXPEDITION';$('new-expedition').hidden=!peekSave();$('loading').textContent=touchMode?'Tap to begin · Touch controls appear in game':'New expedition: Crashfall   /   H · Locate your ship   /   Tab · Planet atlas';
+  world.step();scene.updateMatrixWorld(true);await renderer.compileAsync(scene,camera);ready=true;$<HTMLButtonElement>('deploy').disabled=graphicsLost;$('deploy-label').textContent=peekSave()?'CONTINUE EXPEDITION':'BEGIN EXPEDITION';$('new-expedition').hidden=!peekSave();$('loading').textContent=touchMode?'Tap to begin · Touch controls appear in game':'New expedition: Crashfall   /   H · Locate your ship   /   Tab · Planet atlas';
   last=performance.now();requestAnimationFrame(animate);
   // Read-only diagnostics in every build; deterministic QA controls only in local development.
-  const diagnostics={snapshot:()=>({mode:state.mode,opening:opening.snapshot(),touchMode,input:{move:{...touchMove},firing,aiming,held:[...keys]},pixelRatio:renderer.getPixelRatio(),health:state.health,ammo:state.ammo,reserve:state.reserve,grenades:state.grenades,kills:state.kills,stage:state.stage,upload:state.upload,time:state.time,position:camera.position.toArray(),region:currentRegion,campaign:JSON.parse(JSON.stringify(campaign)),flight:flight.snapshot(),marine:marine.snapshot(),climate:env.climate(),encounters:encounters.snapshot(),saveMessage,resolutionScale,airPirates:spacePirates.snapshot(),world:env.stats(),sites:nearbySites,guards:enemies.filter(e=>e.active).length,squad:squad.snapshot(),enemyPositions:enemies.map(e=>({id:e.id,site:e.site,active:e.active,position:e.position.toArray(),health:e.health})),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,renderCpuMs:lastRenderMs})};
+  const diagnostics={snapshot:()=>({mode:state.mode,opening:opening.snapshot(),touchMode,input:{move:{...touchMove},firing,aiming,held:[...keys]},pixelRatio:renderer.getPixelRatio(),graphics:{lost:graphicsLost,recoveries:graphicsRecoveries,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,enemyPool:enemies.length},health:state.health,ammo:state.ammo,reserve:state.reserve,grenades:state.grenades,kills:state.kills,stage:state.stage,upload:state.upload,time:state.time,position:camera.position.toArray(),region:currentRegion,campaign:JSON.parse(JSON.stringify(campaign)),flight:flight.snapshot(),marine:marine.snapshot(),climate:env.climate(),encounters:encounters.snapshot(),saveMessage,resolutionScale,airPirates:spacePirates.snapshot(),world:env.stats(),sites:nearbySites,guards:enemies.filter(e=>e.active).length,squad:squad.snapshot(),enemyPositions:enemies.map(e=>({id:e.id,site:e.site,active:e.active,position:e.position.toArray(),health:e.health})),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,renderCpuMs:lastRenderMs})};
   Object.assign(window,{blackline:diagnostics});
   type ToolContext={registerTool:(tool:{name:string,description:string,inputSchema:object,annotations:object,execute:(input:unknown)=>unknown},options:{signal:AbortSignal})=>void|Promise<void>};
   const context=(document as Document&{modelContext?:ToolContext}).modelContext;

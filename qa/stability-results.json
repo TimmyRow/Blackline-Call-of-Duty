@@ -1,0 +1,80 @@
+{
+  "browser": "152.0.4191.66",
+  "checks": [
+    "Real Edge takeoff and boost flight",
+    "18 settlement transitions: bounded scene resources and enemy pool",
+    "4K resize keeps framebuffer allocation within 3.69 megapixels",
+    "Performance mode releases unused bloom buffers across repeated quality changes",
+    "Two forced GPU interruptions preserve the same page, ship, progress, and resume controls"
+  ],
+  "samples": [
+    {
+      "lap": 0,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 224,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 14,
+        "colliders": 881,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 0
+      },
+      "heap": 19114052
+    },
+    {
+      "lap": 1,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 224,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 14,
+        "colliders": 881,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 0
+      },
+      "heap": 20444872
+    },
+    {
+      "lap": 2,
+      "graphics": {
+        "lost": false,
+        "recoveries": 0,
+        "geometries": 224,
+        "textures": 36,
+        "enemyPool": 33
+      },
+      "world": {
+        "terrainChunks": 49,
+        "loadedSites": 14,
+        "colliders": 881,
+        "chunkSize": 256,
+        "streamRadius": 768,
+        "procedural": true,
+        "roadRoutes": 5,
+        "roadKilometres": 2.7,
+        "roadFurniture": 0
+      },
+      "heap": 19250368
+    }
+  ],
+  "errors": [],
+  "note": "Windows Edge automated flight and repeated streaming; GPU interruptions injected deliberately. The reported spontaneous tab exit was not reproduced."
+}

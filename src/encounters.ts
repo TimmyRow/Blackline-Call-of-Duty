@@ -19,7 +19,7 @@ export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
  const boxGeo=new THREE.BoxGeometry(1,1,1),beaconGeo=new THREE.OctahedronGeometry(.38),wheelGeo=new THREE.CylinderGeometry(.67,.67,.4,12);
  const signal=new THREE.MeshBasicMaterial({color:0x72e5e5,toneMapped:false});
  const retaliation=new WeakMap<BattleEnemy,{next:number,shots:number}>();
- const scoutMemory=new Map<string,Scout[]>();
+ const scoutMemory=new Map<string,Pick<Scout,'health'|'shots'|'damage'>[]>();
  const matrix=new THREE.Matrix4(),quaternion=new THREE.Quaternion();
  function build(source:Site):Record{
   const group=new THREE.Group(),geometries:THREE.BufferGeometry[]=[],batches=new Map<THREE.Material,THREE.BufferGeometry[]>(),moving=['convoy','patrol','friendly'].includes(source.kind);
@@ -71,10 +71,13 @@ export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
   box(0,.58,5,1.3,.85,.8,material.orange,true);box(0,1.02,5,1.42,.08,.92,material.dark);box(0,.65,5.42,.28,.2,.025,material.cyan);
   for(const [mat,parts] of batches){const geometry=mergeGeometries(parts,false);parts.forEach(p=>p.dispose());if(!geometry)continue;geometries.push(geometry);const mesh=new THREE.Mesh(geometry,mat);mesh.receiveShadow=true;group.add(mesh);}
   const beacon=new THREE.Mesh(beaconGeo,signal);beacon.position.set(0,2,5);group.add(beacon);
-  scoutMemory.set(source.id,scouts);
+  scoutMemory.delete(source.id);
   return{source,site:{...source},group,beacon,geometries,body,scouts};
  }
- function remove(r:Record){scene.remove(r.group);r.geometries.forEach(g=>g.dispose());if(world&&r.body)world.removeRigidBody(r.body);for(const scout of r.scouts){scene.remove(scout.visual.group);scout.visual.group.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose();});}}
+ function remove(r:Record){
+  // Remember only gameplay values, never unloaded meshes, animation closures or enemy references.
+  if(r.scouts.length){scoutMemory.set(r.site.id,r.scouts.map(({health,shots,damage})=>({health,shots,damage})));if(scoutMemory.size>128)scoutMemory.delete(scoutMemory.keys().next().value!);}
+  scene.remove(r.group);r.geometries.forEach(g=>g.dispose());if(world&&r.body)world.removeRigidBody(r.body);for(const scout of r.scouts){scene.remove(scout.visual.group);scout.visual.group.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose();});}}
  function nearby(position:THREE.Vector3){return [...loaded.values()].filter(r=>!completed.has(r.site.id)&&r.site.kind!=='friendly'&&Math.hypot(position.x-r.site.x,position.z-r.site.z-5)<3.2&&Math.abs(position.y-r.site.elevation-1.7)<3).sort((a,b)=>Math.hypot(position.x-a.site.x,position.z-a.site.z-5)-Math.hypot(position.x-b.site.x,position.z-b.site.z-5))[0];}
  return{
   sync(position:THREE.Vector3){if(Math.hypot(position.x-lastSyncX,position.z-lastSyncZ)<100)return;lastSyncX=position.x;lastSyncZ=position.z;
@@ -132,7 +135,7 @@ export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
    completed.add(r.site.id);r.beacon.visible=false;progress=0;return{id:r.site.id,type:'salvage',amount:r.site.reward,message:`${r.site.name.toUpperCase()} · +${r.site.reward} SALVAGE`,site:r.site};
   },
   prompt(position:THREE.Vector3,guardCount:(id:string)=>number){const r=nearby(position);if(!r)return null;const guards=guardCount(r.site.id);return{text:guards?`${guards} HOSTILES · SECURE ${r.site.name.toUpperCase()}`:`HOLD E · RECOVER ${r.site.name.toUpperCase()}`,progress:interacting===r.site.id?Math.min(1,progress/2):0};},
-  snapshot(){return{scouts:[...loaded.values()].flatMap(r=>r.scouts.map((s,i)=>({id:`${r.site.id}:${i}`,health:s.health,shots:s.shots,damage:s.damage,position:s.visual.group.position.toArray(),engaged:!!s.target,down:s.health<=0}))),completed:[...completed],loaded:loaded.size,sites:[...loaded.values()].map(r=>({...r.site,completed:completed.has(r.site.id)})),progress};},
+  snapshot(){return{scouts:[...loaded.values()].flatMap(r=>r.scouts.map((s,i)=>({id:`${r.site.id}:${i}`,health:s.health,shots:s.shots,damage:s.damage,position:s.visual.group.position.toArray(),engaged:!!s.target,down:s.health<=0}))),completed:[...completed],rememberedPatrols:scoutMemory.size,loaded:loaded.size,sites:[...loaded.values()].map(r=>({...r.site,completed:completed.has(r.site.id)})),progress};},
   restore(ids:string[]){completed.clear();for(const id of ids)completed.add(id);},
   reset(){completed.clear();scoutMemory.clear();for(const r of loaded.values())for(const s of r.scouts){s.health=100;s.shots=0;s.damage=0;s.target=null;s.engagedUntil=0;}progress=0;interacting='';lastSyncX=Infinity;lastSyncZ=Infinity;},
  };

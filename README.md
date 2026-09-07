@@ -90,3 +90,11 @@ The large carrier, Corsair boarding vessel and station remain stationary; the la
 Kestrel uses an unobstructed pilot view with hull, energy, speed and altitude in the existing HUD. Move the mouse up/down/left/right to look; looking does not require holding fire, including browsers without pointer lock. WASD supplies thrust, Space/Ctrl changes altitude, Shift boosts, and left click fires. On touch devices, swipe to look; only Descend, Rise and Fire remain in the flight action row. Infantry buttons return on exit.
 
 Verified with `node qa/flight-view-test.mjs`: captured and uncaptured mouse directions, cannon input, iPhone/iPad landscape touch layouts and swipe input. Screenshots and results are in `qa/flight-clear-*.png` and `qa/flight-view-results.json`. Mobile checks use browser emulation, not physical Apple hardware. Six flight physics tests and the production build also pass.
+
+### Flight stability and planned upgrades
+
+The current build caps desktop framebuffer allocation at 3.69 megapixels (mobile keeps its 0.95 megapixel budget), releases bloom buffers in Performance mode, and pauses/rebuilds graphics after context loss without reloading the page. Unloaded scouts retain only bounded gameplay records; active enemy assignment is capped at 48.
+
+`node qa/stability-test.mjs` passed in installed Windows Edge: takeoff/boost, 18 settlement transitions, repeated quality changes, a 4K resize and two injected graphics interruptions. Repeated streaming held at 224 geometries and 36 textures in the sampled destination; collected JavaScript heap stayed around 19–21 MB. This is a bounded automated test, not a claim that every crash is eliminated. The reported spontaneous Edge tab exit was not reproduced. All 46 unit tests, seven mobile Chromium checks, the WebKit smoke check and the production build pass.
+
+See [the next-upgrade list](UPGRADES.md), led by matching tracked-objective pins on the map and compass. Pins are planned, not implemented in this stability update.
