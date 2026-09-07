@@ -162,9 +162,21 @@ document.addEventListener('pointerlockchange',()=>{if(!touchMode&&!document.poin
 window.addEventListener('contextmenu',e=>e.preventDefault());
 window.addEventListener('mousedown',e=>{if(state.mode!=='playing'||e.target!==renderer.domElement)return;if(e.button===0){firing=true;dragging=true;}if(e.button===2)aiming=true;});
 window.addEventListener('mouseup',e=>{if(e.button===0){firing=false;dragging=false;}if(e.button===2)aiming=false;});
-window.addEventListener('mousemove',e=>{if(state.mode!=='playing'||(!document.pointerLockElement&&!dragging))return;const scale=.0018*sensitivity*(aiming?.55:1);state.yaw-=e.movementX*scale;state.pitch=THREE.MathUtils.clamp(state.pitch-e.movementY*scale,-1.45,1.45);});
+let flightMouse:{x:number,y:number}|null=null;
+window.addEventListener('mouseout',e=>{if(e.target===renderer?.domElement)flightMouse=null;});
+window.addEventListener('mousemove',e=>{
+ if(state.mode!=='playing'||opening?.active){flightMouse=null;return;}
+ let dx=e.movementX,dy=e.movementY;
+ if(!document.pointerLockElement&&flight?.piloting&&!touchMode){
+  if(e.target!==renderer.domElement){flightMouse=null;return;}
+  const previous=flightMouse;flightMouse={x:e.clientX,y:e.clientY};
+  if(!previous)return;dx=e.clientX-previous.x;dy=e.clientY-previous.y;
+ }else{flightMouse=null;if(!document.pointerLockElement&&!dragging)return;}
+ const scale=.0018*sensitivity*(aiming?.55:1);state.yaw-=dx*scale;
+ state.pitch=THREE.MathUtils.clamp(state.pitch-dy*scale,-1.45,1.45);
+});
 
-async function capturePointer(){if(touchMode||!renderer?.domElement.requestPointerLock)return;try{await renderer.domElement.requestPointerLock();}catch{toast('HOLD LEFT MOUSE TO LOOK',3);}}
+async function capturePointer(){if(touchMode||!renderer?.domElement.requestPointerLock)return;try{await renderer.domElement.requestPointerLock();}catch{toast(flight?.piloting?'MOVE MOUSE TO LOOK':'HOLD LEFT MOUSE TO LOOK',3);}}
 function mobileHint(text:string){return touchMode?text.replace(/F boards/g,'Tap BOARD for').replace(/F beside the hull/g,'Tap BOARD beside the hull').replace(/HOLD E/g,'HOLD USE').replace(/\bF\b/g,'BOARD / EXIT').replace(/\bE\b/g,'USE').replace(/\bQ\b/g,'MORE → FOCUS').replace(/\bH\b/g,'MORE → FIND SHIP').replace(/\bTab\b|\bTAB\b/g,'MAP').replace(/\bSpace\b|\bSPACE\b/g,'RISE').replace(/\bCTRL\b/g,'DESCEND').replace(/\bSHIFT\b/g,'BOOST'):text;}
 function movementKeys(){const result=new Set(keys);if(touchMove.z<-.2)result.add('KeyW');if(touchMove.z>.2)result.add('KeyS');if(touchMove.x<-.2)result.add('KeyA');if(touchMove.x>.2)result.add('KeyD');return result;}
 if(touchMode)touch=createTouchControls({key:(code,down)=>{if(down)handleKey(code);else keys.delete(code);},move:(x,z)=>{touchMove.x=x;touchMove.z=z;},look:(dx,dy)=>{if(state.mode!=='playing'||opening.active)return;const scale=.003*sensitivity*(aiming?.55:1);state.yaw-=dx*scale;state.pitch=THREE.MathUtils.clamp(state.pitch-dy*scale,-1.45,1.45);},fire:down=>{firing=down&&state.mode==='playing'&&!opening.active;},aim:down=>{aiming=down&&state.mode==='playing';},skip:finishOpening,wake:()=>{if(ready)sound.start();}});
@@ -217,7 +229,7 @@ function toggleFlight(){
  if(marine.piloting){const exit=marine.tryExit();if(!exit){toast('STOP THE BOAT BEFORE LEAVING THE HELM');return;}placePlayer(exit);squad.disembark(exit,state.yaw);toast('LAUNCH STOPPED · SQUAD ON DECK');return;}
  if(!flight.piloting&&marine.board(camera.position)){squad.embark();collider.setEnabled(false);toast('W/S THROTTLE · A/D RUDDER · F EXIT WHEN STOPPED',5);return;}
  if(flight.piloting){const exit=flight.tryExit();if(!exit){toast('LAND FIRST · SLOW DOWN AND DESCEND ON SOLID GROUND',3);return;}body.setTranslation({x:exit.x,y:exit.y-.7,z:exit.z},true);body.setNextKinematicTranslation({x:exit.x,y:exit.y-.7,z:exit.z});collider.setEnabled(true);camera.position.copy(exit);state.vertical=0;state.pitch=0;squad.disembark(exit,state.yaw);syncEnemies();toast('KESTREL LANDED · SQUAD DISEMBARKING');}
- else if(flight.board(camera.position)){finishRecovery('complete');squad.embark();collider.setEnabled(false);const pose=flight.cameraPose();state.yaw=pose.yaw;state.pitch=pose.pitch;toast('WASD THRUST · SPACE UP · CTRL DOWN · SHIFT BOOST',6);subtitle('Rook: Squad aboard. Set your heading. The carrier is a safe place to refuel and regroup.',5);}
+ else if(flight.board(camera.position)){finishRecovery('complete');squad.embark();collider.setEnabled(false);const pose=flight.cameraPose();state.yaw=pose.yaw;state.pitch=pose.pitch;toast(touchMode?'SWIPE TO LOOK · RISE TO TAKE OFF':'MOUSE LOOK · WASD THRUST · SPACE UP · CTRL DOWN',4);subtitle('Rook: Squad aboard. Set your heading. The carrier is a safe place to refuel and regroup.',5);}
  else toast(flight.nearbyPrompt(camera.position)??'F · BOARD KESTREL FROM BESIDE ITS HULL');
  firing=false;aiming=false;
 }

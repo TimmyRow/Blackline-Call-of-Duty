@@ -7,3 +7,11 @@ body.touch-device .fm-close span{display:none}
 
 @media(max-width:640px) and (orientation:landscape){body.touch-device #compass{width:130px;left:34%}body.touch-device #climate-status{display:none}body.touch-device #objective{max-width:215px}body.touch-device #objective-detail{max-width:205px;font-size:9px}body.touch-device #subtitle{bottom:calc(var(--safe-b) + 120px);font-size:9px}body.touch-device .arrival-copy h2{font-size:22px}}
 @media(max-width:360px) and (orientation:portrait){body.touch-device #touch-move{width:96px;height:96px}body.touch-device #touch-move span{left:25px;top:25px}body.touch-device .touch-actions{grid-template-columns:44px 44px 56px;gap:5px}body.touch-device .touch-actions #touch-use{width:56px}body.touch-device #compass{width:200px}body.touch-device .fm-header{gap:10px}body.touch-device .fm-close{width:100px;white-space:normal;padding:8px}body.touch-device .fm-header h2{font-size:24px}}
+
+/* Flight keeps only the essential actions at the screen edge; the windshield stays clear. */
+body.touch-device .touch-flight .touch-actions{grid-template-columns:56px 56px 60px;grid-template-rows:48px;gap:6px}
+.touch-flight #touch-aim,.touch-flight #touch-reload,.touch-flight #touch-use{display:none}
+body.touch-device .touch-flight .touch-actions #touch-down{grid-column:1;grid-row:1}
+body.touch-device .touch-flight .touch-actions #touch-up{grid-column:2;grid-row:1}
+body.touch-device .touch-flight .touch-actions #touch-fire{grid-column:3;grid-row:1;font-size:11px}
+@media(max-width:360px) and (orientation:portrait){body.touch-device .touch-flight .touch-actions{grid-template-columns:48px 48px 52px;gap:4px}}

@@ -1,0 +1,25 @@
+{
+  "results": [
+    {
+      "name": "Mouse look in all four directions without holding fire, including pointer-lock fallback",
+      "pass": true
+    },
+    {
+      "name": "Captured mouse look in all four directions",
+      "pass": true
+    },
+    {
+      "name": "Cannons still fire on left click",
+      "pass": true
+    },
+    {
+      "name": "iPhone landscape compact controls, swipe look and infantry controls restored after exit",
+      "pass": true
+    },
+    {
+      "name": "iPad landscape compact controls, swipe look and infantry controls restored after exit",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

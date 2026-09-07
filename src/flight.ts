@@ -91,7 +91,7 @@ export function createFlight(scene:THREE.Scene,world:RAPIER.World,initial?:{x:nu
   for(const pad of pads)if(Math.hypot(x-pad.x,z-pad.z)<pad.radius&&pad.y<=altitude+3&&pad.y>=y){y=pad.y;safe=true;name=pad.name;}
   return {y,safe,name};
  }
- function reset(){const floor=surface(spawn.x,spawn.z,spawn.y??layout.heightAt(spawn.x,spawn.z)+GEAR_HEIGHT);position.set(spawn.x,spawn.y??floor.y+GEAR_HEIGHT,spawn.z);velocity.set(0,0,0);piloting=false;landed=true;health=maxHealth();energy=100;yaw=0;pitch=0;collisionCount=0;fireCooldown=0;padName=floor.name;group.position.copy(position);group.rotation.set(0,0,0);body.setTranslation(position,true);body.setNextKinematicTranslation(position);body.setRotation(identity,true);body.setNextKinematicRotation(identity);shell.visible=true;}
+ function reset(){const floor=surface(spawn.x,spawn.z,spawn.y??layout.heightAt(spawn.x,spawn.z)+GEAR_HEIGHT);position.set(spawn.x,spawn.y??floor.y+GEAR_HEIGHT,spawn.z);velocity.set(0,0,0);piloting=false;landed=true;health=maxHealth();energy=100;yaw=0;pitch=0;collisionCount=0;fireCooldown=0;padName=floor.name;group.position.copy(position);group.rotation.set(0,0,0);body.setTranslation(position,true);body.setNextKinematicTranslation(position);body.setRotation(identity,true);body.setNextKinematicRotation(identity);shell.visible=true;cockpit.visible=true;}
  reset();
  return {
   position,velocity,group,collider,
@@ -99,7 +99,7 @@ export function createFlight(scene:THREE.Scene,world:RAPIER.World,initial?:{x:nu
   reset,
   restoreAt(saved:{x:number,y:number,z:number}){if(![saved.x,saved.y,saved.z].every(Number.isFinite))return false;const floor=surface(saved.x,saved.z,saved.y);if(!floor.safe||Math.abs(saved.y-floor.y-GEAR_HEIGHT)>3)return false;reset();position.set(saved.x,floor.y+GEAR_HEIGHT,saved.z);group.position.copy(position);body.setTranslation(position,true);body.setNextKinematicTranslation(position);padName=floor.name;return true;},
   setUpgrades(levels:Partial<typeof upgrades>){const before=maxHealth();for(const key of ['engine','shield','cannon'] as const)if(levels[key]!==undefined)upgrades[key]=Math.min(3,Math.max(0,Math.floor(Number(levels[key])||0)));health=Math.min(maxHealth(),health+Math.max(0,maxHealth()-before));},
-  board(player:THREE.Vector3){if(piloting||!landed||health<=0||player.distanceTo(position)>9)return false;piloting=true;shell.visible=false;return true;},
+  board(player:THREE.Vector3){if(piloting||!landed||health<=0||player.distanceTo(position)>9)return false;piloting=true;shell.visible=false;cockpit.visible=false;return true;},
   tryExit(){
    if(!piloting||!landed)return null;
    for(const side of [1,-1])for(const aft of [0,3]){
@@ -108,7 +108,7 @@ export function createFlight(scene:THREE.Scene,world:RAPIER.World,initial?:{x:nu
     const candidate=new THREE.Vector3(x,floor.y+1.0,z);
     const obstruction=world.intersectionWithShape(candidate,identity,new RAPIER.Capsule(.58,.28),RAPIER.QueryFilterFlags.ONLY_FIXED);
     if(obstruction)continue;
-    piloting=false;shell.visible=true;velocity.set(0,0,0);return candidate.setY(floor.y+1.7);
+    piloting=false;shell.visible=true;cockpit.visible=true;velocity.set(0,0,0);return candidate.setY(floor.y+1.7);
    }
    return null;
   },
@@ -145,9 +145,10 @@ export function createFlight(scene:THREE.Scene,world:RAPIER.World,initial?:{x:nu
    if(next.y>8000){next.y=8000;velocity.y=Math.min(0,velocity.y);}
    position.copy(next);body.setNextKinematicTranslation(position);body.setNextKinematicRotation(shipRotation);
   },
+  // Clear pilot optics: telemetry lives in the HUD so the dashboard cannot obscure terrain.
   cameraPose(){eye.set(0,.65,-2.05).applyAxisAngle(THREE.Object3D.DEFAULT_UP,yaw).add(position);return {position:eye.clone(),yaw,pitch};},
   fire(){if(!piloting||health<=0||fireCooldown>0||energy<5)return null;fireCooldown=.14;energy-=5;const shotDirection=new THREE.Vector3(0,0,-1).applyEuler(new THREE.Euler(pitch,yaw,0,'YXZ'));return {origin:position.clone().add(new THREE.Vector3(0,.7,0)).addScaledVector(shotDirection,6),direction:shotDirection,damage:45+upgrades.cannon*12};},
-  render(_dt:number,time:number){damageFlash=Math.max(0,damageFlash-_dt*1.5);warning.opacity=damageFlash*.8+(health<30?(Math.sin(time*8)*.5+.5)*.38:0);gearBlend=THREE.MathUtils.damp(gearBlend,landed?1:0,3,_dt);gear.forEach(leg=>{leg.position.y=(1-gearBlend)*1.05;leg.scale.y=.25+gearBlend*.75;});drawInstruments(time);group.position.copy(position);group.rotation.set(0,yaw,0);shell.visible=!piloting;cockpit.visible=true;engines.forEach((engine,i)=>{engine.visible=!landed;engine.scale.y=.65+velocity.length()*.006+Math.sin(time*31+i)*.08;});},
-  snapshot(){const floor=surface(position.x,position.z,position.y);return {piloting,landed,health:Math.round(health),maxHealth:maxHealth(),upgrades:{...upgrades},gear:gearBlend>.8?'down':gearBlend<.2?'retracted':'moving',energy:Math.round(energy),position:position.toArray(),velocity:velocity.toArray(),speed:Math.round(velocity.length()),altitude:Math.max(0,Math.round(position.y-GEAR_HEIGHT-floor.y)),worldAltitude:Math.round(position.y),yaw,pitch,pad:landed?padName:null,collisionCount,controls:'WASD fly · SPACE rise · CTRL descend · SHIFT boost · F exit when landed · LMB cannons'};},
+  render(_dt:number,time:number){damageFlash=Math.max(0,damageFlash-_dt*1.5);warning.opacity=damageFlash*.8+(health<30?(Math.sin(time*8)*.5+.5)*.38:0);gearBlend=THREE.MathUtils.damp(gearBlend,landed?1:0,3,_dt);gear.forEach(leg=>{leg.position.y=(1-gearBlend)*1.05;leg.scale.y=.25+gearBlend*.75;});if(!piloting)drawInstruments(time);group.position.copy(position);group.rotation.set(0,yaw,0);shell.visible=!piloting;cockpit.visible=!piloting;engines.forEach((engine,i)=>{engine.visible=!landed;engine.scale.y=.65+velocity.length()*.006+Math.sin(time*31+i)*.08;});},
+  snapshot(){const floor=surface(position.x,position.z,position.y);return {piloting,landed,health:Math.round(health),maxHealth:maxHealth(),upgrades:{...upgrades},gear:gearBlend>.8?'down':gearBlend<.2?'retracted':'moving',energy:Math.round(energy),position:position.toArray(),velocity:velocity.toArray(),speed:Math.round(velocity.length()),altitude:Math.max(0,Math.round(position.y-GEAR_HEIGHT-floor.y)),worldAltitude:Math.round(position.y),yaw,pitch,pad:landed?padName:null,collisionCount,controls:'MOUSE look · WASD fly · SPACE rise · CTRL descend · SHIFT boost · F exit when landed · LMB cannons'};},
  };
 }
