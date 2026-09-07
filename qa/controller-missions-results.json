@@ -1,6 +1,6 @@
 {
   "checks": [
-    "View opens all missions; D-pad and A select and track Safe Harbour",
+    "View opens main story without revealing unaccepted side quests",
     "Analog sticks move/look; LT zooms; RT fires; Y switches exactly once per press",
     "Pause clears held input; resuming with RT held cannot shoot until release",
     "Disconnect and gamepad API failure safely pause and release input",
@@ -20,6 +20,7 @@
         231
       ]
     },
+    "crashfall": null,
     "touchMode": false,
     "input": {
       "controller": true,
@@ -46,12 +47,90 @@
       "label": "CORSAIR SECURED",
       "description": "The prisoner is safe and this vessel can resupply your squad."
     },
+    "story": {
+      "id": "main",
+      "name": "A Signal Home",
+      "title": "A voice in Pathfinder",
+      "description": "Meet Mara Voss beside the communications shelter in Pathfinder Landing.",
+      "stage": "briefing",
+      "chapter": 2,
+      "total": 8,
+      "target": {
+        "id": "person:mara",
+        "name": "Mara Voss / Pathfinder Landing",
+        "x": 10,
+        "z": 97,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3
+      },
+      "complete": false
+    },
+    "talking": null,
+    "people": [
+      {
+        "id": "person:mara",
+        "name": "Mara Voss / Pathfinder Landing",
+        "x": 10,
+        "z": 97,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "mara"
+      },
+      {
+        "id": "person:lia",
+        "name": "Lia Sen / Pathfinder Landing",
+        "x": -14,
+        "z": 126,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "lia"
+      },
+      {
+        "id": "person:tomas",
+        "name": "Tomas Reed / Pathfinder Landing",
+        "x": 17,
+        "z": 78,
+        "elevation": 16,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "tomas"
+      },
+      {
+        "id": "person:kito",
+        "name": "Kito Arlen / Sunfall Expedition Port",
+        "x": 42012,
+        "z": 10,
+        "elevation": 58,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "kito"
+      },
+      {
+        "id": "person:sela",
+        "name": "Sela Nadir / Sunfall Expedition Port",
+        "x": 41988,
+        "z": 15,
+        "elevation": 58,
+        "kind": "resident",
+        "faction": "friendly",
+        "radius": 3,
+        "personId": "sela"
+      }
+    ],
     "scanCooldown": 0,
     "graphics": {
       "lost": false,
       "recoveries": 0,
-      "geometries": 383,
-      "textures": 55,
+      "geometries": 370,
+      "textures": 56,
       "enemyPool": 33
     },
     "health": 100,
@@ -61,7 +140,7 @@
     "kills": 16,
     "stage": 1,
     "upload": 0,
-    "time": 30.49999999999955,
+    "time": 30.783333333332866,
     "position": [
       -649.9993286132812,
       10.675100459395962,
@@ -76,7 +155,7 @@
         "encounter:wreck:landing",
         "corsair"
       ],
-      "tracked": "corsair",
+      "tracked": "person:mara",
       "progress": {
         "carrier": 0,
         "corsair": 0,
@@ -88,10 +167,10 @@
         "camp:0:2": 0,
         "outpost:-2:3": 0
       },
-      "salvage": 500,
+      "salvage": 300,
       "raids": 1,
-      "distanceWalked": 28.178388699543667,
-      "distanceFlown": 95.89923524368234,
+      "distanceWalked": 28.19543266853842,
+      "distanceFlown": 94.90689578923143,
       "airKills": 0,
       "oceanKills": 0,
       "resuppliedAt": {},
@@ -108,38 +187,31 @@
         "medical": 0,
         "shieldCell": 0
       },
-      "contracts": {
-        "raider": "complete"
-      },
+      "contracts": {},
       "journal": [
-        {
-          "title": "Operation Safe Harbour",
-          "text": "Contract complete · 200 salvage",
-          "time": 20.666666666666774
-        },
         {
           "title": "Safe Harbour secured",
           "text": "Vector thrusters upgraded. The reclaimed vessel is now a friendly squad base.",
-          "time": 20.666666666666774
+          "time": 20.966666666666757
         },
         {
           "title": "Corsair Boarding Target",
           "text": "Pirate ocean raider. Board the aft deck and clear the bridge.",
-          "time": 17.900000000000265
+          "time": 18.200000000000248
         },
         {
           "title": "Crew rescued",
           "text": "The allied crew is safe. Pirate reinforcements are boarding at the stern. Defend the deck, then recover command codes.",
-          "time": 16.883333333333656
+          "time": 17.21666666666697
         },
         {
           "title": "Distress / Safe Harbour",
-          "text": "Pirates seized an allied vessel southwest of the colony. Open Missions to start Operation Safe Harbour. Approach by air, or use the aft sea stairs.",
+          "text": "Pirates seized an allied vessel southwest of the colony. Mara in Pathfinder is tracing the distress call. Approach by air, or use the aft sea stairs.",
           "time": 12.000000000000176
         },
         {
           "title": "Fallen Courier",
-          "text": "A courier fell here carrying unclaimed cargo.",
+          "text": "Isolate the damaged drive, then recover the courier flight data from its orange case.",
           "time": 0
         }
       ],
@@ -152,7 +224,13 @@
         "disabled": true
       },
       "planet": "orison",
-      "activeMission": "raider",
+      "activeMission": "main",
+      "metPeople": [],
+      "story": {
+        "briefed": false,
+        "finished": false,
+        "notified": "briefing"
+      },
       "safeHarbour": {
         "announced": true,
         "defending": true,
@@ -165,14 +243,14 @@
         "progress": 0
       },
       "trackedTarget": {
-        "id": "corsair",
-        "name": "Corsair Boarding Target",
-        "x": -650,
-        "z": 1140,
-        "elevation": 9,
-        "kind": "pirate-ship",
+        "id": "person:mara",
+        "name": "Mara Voss / Pathfinder Landing",
+        "x": 10,
+        "z": 97,
+        "elevation": 16,
+        "kind": "resident",
         "faction": "friendly",
-        "radius": 75
+        "radius": 3
       }
     },
     "flight": {
@@ -227,9 +305,9 @@
       ],
       "patrol": {
         "position": [
-          -437.93288222827624,
+          -437.85929684243916,
           0.7,
-          1102.1031221112041
+          1101.9944402401545
         ],
         "health": 150,
         "alive": true
@@ -237,7 +315,7 @@
       "controls": "W/S throttle · A/D rudder · SHIFT full power · F leave helm when stopped"
     },
     "climate": {
-      "hour": 9.504999999999995,
+      "hour": 9.507833333333329,
       "daylight": 1,
       "twilight": 0,
       "rain": 0,
@@ -262,9 +340,16 @@
           "radius": 30,
           "faction": "neutral",
           "guardCount": 0,
-          "description": "An old listening post still has a sealed supply locker.",
+          "description": "Override the listening post locker to release its sealed supplies.",
           "reward": 70,
-          "completed": false
+          "completed": false,
+          "step": 0,
+          "interaction": {
+            "x": 0,
+            "z": 5,
+            "seconds": 2.4,
+            "action": "OVERRIDE SEALED SUPPLY LOCKER"
+          }
         }
       ],
       "progress": 0
@@ -388,7 +473,7 @@
         "radius": 30,
         "faction": "neutral",
         "guardCount": 0,
-        "description": "An old listening post still has a sealed supply locker.",
+        "description": "Override the listening post locker to release its sealed supplies.",
         "reward": 70
       }
     ],
@@ -406,9 +491,9 @@
           "role": "MEDIC",
           "health": 100,
           "position": [
-            -657.2979736328125,
-            9.115091133117676,
-            1148.5557861328125
+            -657.2965087890625,
+            9.075226593017579,
+            1141.849609375
           ],
           "down": false,
           "status": "CATCHING UP",
@@ -422,9 +507,9 @@
           "role": "SUPPLY",
           "health": 100,
           "position": [
-            -646.8804931640625,
-            8.754525947570801,
-            1197.09765625
+            -646.9171142578125,
+            8.954263496398926,
+            1195.859619140625
           ],
           "down": false,
           "status": "FOLLOWING",
@@ -447,7 +532,8 @@
         ],
         "health": 0,
         "shield": 0,
-        "role": "sniper"
+        "role": "sniper",
+        "staggerUntil": 0
       },
       {
         "id": "camp:-2:1:1",
@@ -460,33 +546,8 @@
         ],
         "health": 0,
         "shield": 70,
-        "role": "shielded"
-      },
-      {
-        "id": "camp:-2:1:2",
-        "site": "camp:-2:1",
-        "active": true,
-        "position": [
-          -964.1976928710938,
-          15.517943191528321,
-          1090.0518798828125
-        ],
-        "health": 0,
-        "shield": 0,
-        "role": "heavy"
-      },
-      {
-        "id": "camp:-2:1:3",
-        "site": "camp:-2:1",
-        "active": true,
-        "position": [
-          -969.8607788085938,
-          15.517943191528321,
-          1071.8304443359375
-        ],
-        "health": 0,
-        "shield": 22,
-        "role": "drone"
+        "role": "shielded",
+        "staggerUntil": 0
       },
       {
         "id": "camp:-2:1:4",
@@ -499,46 +560,36 @@
         ],
         "health": 0,
         "shield": 22,
-        "role": "drone"
+        "role": "drone",
+        "staggerUntil": 0
       },
       {
-        "id": "camp:-1:2:0",
-        "site": "camp:-1:2",
+        "id": "camp:-2:1:2",
+        "site": "camp:-2:1",
         "active": true,
         "position": [
-          -466.2573547363281,
-          42.87369995117187,
-          1792.1444091796875
+          -964.1976928710938,
+          15.517943191528321,
+          1090.0518798828125
         ],
-        "health": 65,
+        "health": 0,
         "shield": 0,
-        "role": "scout"
+        "role": "heavy",
+        "staggerUntil": 0
       },
       {
-        "id": "camp:-1:2:1",
-        "site": "camp:-1:2",
+        "id": "camp:-2:1:3",
+        "site": "camp:-2:1",
         "active": true,
         "position": [
-          -472.3860168457031,
-          42.87369995117187,
-          1810.214599609375
+          -969.8607788085938,
+          15.517943191528321,
+          1071.8304443359375
         ],
-        "health": 185,
-        "shield": 0,
-        "role": "heavy"
-      },
-      {
-        "id": "camp:-1:2:2",
-        "site": "camp:-1:2",
-        "active": true,
-        "position": [
-          -487.9655456542969,
-          42.87369995117187,
-          1799.1978759765625
-        ],
-        "health": 75,
-        "shield": 0,
-        "role": "sniper"
+        "health": 0,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
       },
       {
         "id": "camp:-1:2:3",
@@ -551,7 +602,8 @@
         ],
         "health": 100,
         "shield": 70,
-        "role": "shielded"
+        "role": "shielded",
+        "staggerUntil": 0
       },
       {
         "id": "camp:-1:2:4",
@@ -564,137 +616,50 @@
         ],
         "health": 185,
         "shield": 0,
-        "role": "heavy"
+        "role": "heavy",
+        "staggerUntil": 0
       },
       {
-        "id": "camp:-1:0:4",
-        "site": "camp:-1:0",
-        "active": false,
+        "id": "camp:-1:2:0",
+        "site": "camp:-1:2",
+        "active": true,
         "position": [
-          -315.63347506243736,
-          16.343085195966598,
-          538.4911440263706
-        ],
-        "health": 185,
-        "shield": 0,
-        "role": "heavy"
-      },
-      {
-        "id": "camp:-1:0:5",
-        "site": "camp:-1:0",
-        "active": false,
-        "position": [
-          -300.13347506243736,
-          16.343085195966598,
-          532.4289661998796
-        ],
-        "health": 48,
-        "shield": 22,
-        "role": "drone"
-      },
-      {
-        "id": "camp:0:-1:0",
-        "site": "camp:0:-1",
-        "active": false,
-        "position": [
-          371.79375317459926,
-          44.90169713932332,
-          -213.59640904003754
-        ],
-        "health": 48,
-        "shield": 22,
-        "role": "drone"
-      },
-      {
-        "id": "camp:0:-1:1",
-        "site": "camp:0:-1",
-        "active": false,
-        "position": [
-          369.29375317459926,
-          44.90169713932332,
-          -197.1419263681332
-        ],
-        "health": 75,
-        "shield": 0,
-        "role": "sniper"
-      },
-      {
-        "id": "camp:0:-1:2",
-        "site": "camp:0:-1",
-        "active": false,
-        "position": [
-          353.79375317459926,
-          44.90169713932332,
-          -203.20410419462428
-        ],
-        "health": 100,
-        "shield": 70,
-        "role": "shielded"
-      },
-      {
-        "id": "camp:0:-1:3",
-        "site": "camp:0:-1",
-        "active": false,
-        "position": [
-          340.79375317459926,
-          44.90169713932332,
-          -213.59640904003754
+          -466.2573547363281,
+          42.87369995117187,
+          1792.1444091796875
         ],
         "health": 65,
         "shield": 0,
-        "role": "scout"
+        "role": "scout",
+        "staggerUntil": 0
       },
       {
-        "id": "camp:0:-1:4",
-        "site": "camp:0:-1",
-        "active": false,
+        "id": "camp:-1:2:2",
+        "site": "camp:-1:2",
+        "active": true,
         "position": [
-          353.79375317459926,
-          44.90169713932332,
-          -223.9887138854508
+          -487.9655456542969,
+          42.87369995117187,
+          1799.1978759765625
         ],
         "health": 75,
         "shield": 0,
-        "role": "sniper"
+        "role": "sniper",
+        "staggerUntil": 0
       },
       {
-        "id": "camp:0:-1:5",
-        "site": "camp:0:-1",
-        "active": false,
+        "id": "camp:-1:2:1",
+        "site": "camp:-1:2",
+        "active": true,
         "position": [
-          369.29375317459926,
-          44.90169713932332,
-          -230.0508917119419
-        ],
-        "health": 100,
-        "shield": 70,
-        "role": "shielded"
-      },
-      {
-        "id": "outpost:0:0:0",
-        "site": "outpost:0:0",
-        "active": false,
-        "position": [
-          355.99713256862015,
-          32.26597049376859,
-          205.62230017967522
+          -472.3860168457031,
+          42.87369995117187,
+          1810.214599609375
         ],
         "health": 185,
         "shield": 0,
-        "role": "heavy"
-      },
-      {
-        "id": "outpost:0:0:1",
-        "site": "outpost:0:0",
-        "active": false,
-        "position": [
-          353.49713256862015,
-          32.26597049376859,
-          222.07678285157957
-        ],
-        "health": 65,
-        "shield": 0,
-        "role": "scout"
+        "role": "heavy",
+        "staggerUntil": 0
       },
       {
         "id": "outpost:0:0:2",
@@ -707,33 +672,8 @@
         ],
         "health": 75,
         "shield": 0,
-        "role": "sniper"
-      },
-      {
-        "id": "outpost:0:0:3",
-        "site": "outpost:0:0",
-        "active": false,
-        "position": [
-          324.99713256862015,
-          32.26597049376859,
-          205.62230017967522
-        ],
-        "health": 48,
-        "shield": 22,
-        "role": "drone"
-      },
-      {
-        "id": "outpost:0:0:4",
-        "site": "outpost:0:0",
-        "active": false,
-        "position": [
-          337.99713256862015,
-          32.26597049376859,
-          195.22999533426196
-        ],
-        "health": 65,
-        "shield": 0,
-        "role": "scout"
+        "role": "sniper",
+        "staggerUntil": 0
       },
       {
         "id": "outpost:0:0:5",
@@ -746,46 +686,36 @@
         ],
         "health": 100,
         "shield": 70,
-        "role": "shielded"
+        "role": "shielded",
+        "staggerUntil": 0
       },
       {
-        "id": "encounter:distress:coast:0",
-        "site": "encounter:distress:coast",
+        "id": "outpost:0:0:0",
+        "site": "outpost:0:0",
         "active": false,
         "position": [
-          -169,
-          19.2,
-          140
+          355.99713256862015,
+          32.26597049376859,
+          205.62230017967522
         ],
         "health": 185,
         "shield": 0,
-        "role": "heavy"
+        "role": "heavy",
+        "staggerUntil": 0
       },
       {
-        "id": "encounter:distress:coast:1",
-        "site": "encounter:distress:coast",
+        "id": "outpost:0:0:1",
+        "site": "outpost:0:0",
         "active": false,
         "position": [
-          -184,
-          19.2,
-          140
+          353.49713256862015,
+          32.26597049376859,
+          222.07678285157957
         ],
         "health": 65,
         "shield": 0,
-        "role": "scout"
-      },
-      {
-        "id": "encounter:convoy:arsenal:0",
-        "site": "encounter:convoy:arsenal",
-        "active": false,
-        "position": [
-          332,
-          36.0555594971133,
-          -122
-        ],
-        "health": 100,
-        "shield": 70,
-        "role": "shielded"
+        "role": "scout",
+        "staggerUntil": 0
       },
       {
         "id": "encounter:convoy:arsenal:1",
@@ -798,7 +728,8 @@
         ],
         "health": 65,
         "shield": 0,
-        "role": "scout"
+        "role": "scout",
+        "staggerUntil": 0
       },
       {
         "id": "encounter:convoy:arsenal:2",
@@ -811,7 +742,22 @@
         ],
         "health": 185,
         "shield": 0,
-        "role": "heavy"
+        "role": "heavy",
+        "staggerUntil": 0
+      },
+      {
+        "id": "encounter:convoy:arsenal:0",
+        "site": "encounter:convoy:arsenal",
+        "active": false,
+        "position": [
+          332,
+          36.0555594971133,
+          -122
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
       },
       {
         "id": "encounter:convoy:arsenal:3",
@@ -824,7 +770,8 @@
         ],
         "health": 48,
         "shield": 22,
-        "role": "drone"
+        "role": "drone",
+        "staggerUntil": 0
       },
       {
         "id": "encounter:patrol:north:0",
@@ -837,7 +784,8 @@
         ],
         "health": 65,
         "shield": 0,
-        "role": "scout"
+        "role": "scout",
+        "staggerUntil": 0
       },
       {
         "id": "encounter:patrol:north:1",
@@ -850,7 +798,8 @@
         ],
         "health": 100,
         "shield": 70,
-        "role": "shielded"
+        "role": "shielded",
+        "staggerUntil": 0
       },
       {
         "id": "encounter:patrol:north:2",
@@ -863,11 +812,180 @@
         ],
         "health": 75,
         "shield": 0,
-        "role": "sniper"
+        "role": "sniper",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:3",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          340.79375317459926,
+          44.90169713932332,
+          -213.59640904003754
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:2",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          353.79375317459926,
+          44.90169713932332,
+          -203.20410419462428
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:1",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          369.29375317459926,
+          44.90169713932332,
+          -197.1419263681332
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:4",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          353.79375317459926,
+          44.90169713932332,
+          -223.9887138854508
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:0",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          371.79375317459926,
+          44.90169713932332,
+          -213.59640904003754
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:0:-1:5",
+        "site": "camp:0:-1",
+        "active": false,
+        "position": [
+          369.29375317459926,
+          44.90169713932332,
+          -230.0508917119419
+        ],
+        "health": 100,
+        "shield": 70,
+        "role": "shielded",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:5",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -300.13347506243736,
+          16.343085195966598,
+          532.4289661998796
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:0",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -297.63347506243736,
+          16.343085195966598,
+          548.8834488717839
+        ],
+        "health": 65,
+        "shield": 0,
+        "role": "scout",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:4",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -315.63347506243736,
+          16.343085195966598,
+          538.4911440263706
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:1",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -300.13347506243736,
+          16.343085195966598,
+          565.3379315436882
+        ],
+        "health": 185,
+        "shield": 0,
+        "role": "heavy",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:3",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -328.63347506243736,
+          16.343085195966598,
+          548.8834488717839
+        ],
+        "health": 75,
+        "shield": 0,
+        "role": "sniper",
+        "staggerUntil": 0
+      },
+      {
+        "id": "camp:-1:0:2",
+        "site": "camp:-1:0",
+        "active": false,
+        "position": [
+          -315.63347506243736,
+          16.343085195966598,
+          559.2757537171972
+        ],
+        "health": 48,
+        "shield": 22,
+        "role": "drone",
+        "staggerUntil": 0
       }
     ],
     "drawCalls": 211,
     "triangles": 336797,
-    "renderCpuMs": 4.600000023841858
+    "renderCpuMs": 6.599999904632568
   }
 }

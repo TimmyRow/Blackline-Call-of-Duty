@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {heightAt} from './region-layout.mjs';
+import {CRASHFALL_RALLY} from './opening-mission.mjs';
 
 /** Short in-world arrival. Simulation stays suspended until the operator leaves the wreck. */
 export function createOpening(scene:THREE.Scene,camera:THREE.Camera,world:RAPIER.World){
@@ -14,6 +15,10 @@ export function createOpening(scene:THREE.Scene,camera:THREE.Camera,world:RAPIER
  for(let i=0;i<5;i++){part([.18,3, .25],[-3.5,1.5,-6+i*3],glow);part([.16,1.4,.3],[3.6,.7,-6+i*3],dark);}
  for(let i=0;i<12;i++){const a=i*2.4,r=8+i*.55;part([1+i%3,.22,1.6],[Math.cos(a)*r,.1,Math.sin(a)*r],i%3?dark:hull,a);}
  part([1.6,.8,1.4],[0,.55,-14],dark);part([1.2,.15,1],[0,1.02,-14],cyan);
+ // A visible rally and waist-high cover, batched into the existing wreck materials.
+ const rally=CRASHFALL_RALLY,ry=rally.elevation-ground,rz=rally.z-220;
+ for(const side of [-1,1]){part([2.2,.9,1],[rally.x+side*3.4,ry+.45,rz-2],hull);part([1.8,.06,.08],[rally.x+side*3.4,ry+.93,rz-2.5],cyan);world.createCollider(RAPIER.ColliderDesc.cuboid(1.1,.45,.5).setTranslation(rally.x+side*3.4,rally.elevation+.45,rally.z-2));}
+ part([.14,2,.14],[rally.x,ry+1,rz],dark);part([.32,.4,.32],[rally.x,ry+2.05,rz],cyan);part([1,.45,.8],[rally.x,ry+.225,rz+1.5],dark);
  for(const [mat,geometries]of batches){const merged=mergeGeometries(geometries);const m=new THREE.Mesh(merged,mat);m.castShadow=true;m.receiveShadow=true;wreck.add(m);geometries.forEach(g=>g.dispose());}
  for(const x of [-4.8,4.8]){const engine=new THREE.Mesh(new THREE.CylinderGeometry(1.25,1.1,3.8,12,1,true),dark);engine.rotation.x=Math.PI/2;engine.position.set(x,1.3,5);wreck.add(engine);const rim=new THREE.Mesh(new THREE.TorusGeometry(1.1,.13,6,16),hull);rim.position.set(x,1.3,7);wreck.add(rim);}
  for(const x of [-4,4])world.createCollider(RAPIER.ColliderDesc.cuboid(.3,1.4,6).setTranslation(x,ground+1.4,220));

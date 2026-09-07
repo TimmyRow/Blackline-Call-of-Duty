@@ -1,3 +1,6 @@
 #shield-label{font-size:9px;color:#87d9f2;letter-spacing:1px}#shield-track{height:3px;width:170px;background:#112e38}#shield-fill{display:block;width:100%;height:100%;background:#80dffe;transition:width .15s}#jump-transition{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at center,#337a96,#071522 55%,#02070d);display:grid;place-items:center;color:#e5f5ff;letter-spacing:6px;font-size:14px}#jump-transition[hidden]{display:none}body.touch-device #shield-track{width:75px}body.touch-device #shield-label{font-size:8px;letter-spacing:0}body.touch-device #touch-orders{max-height:65vh;overflow-y:auto}
 
 body:not(.touch-device) #squad-cluster{bottom:155px}body.touch-device #world-waypoint small{width:190px;max-width:190px;white-space:normal;text-align:center}
+
+#hitmarker[data-kind="shield"]{color:#72e9ff;text-shadow:0 0 9px #46c6ef}
+#hitmarker[data-kind="kill"]{color:#ffc37c;text-shadow:0 0 9px #e59944}

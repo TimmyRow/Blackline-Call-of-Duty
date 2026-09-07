@@ -1,0 +1,11 @@
+{
+  "checks": [
+    "First A deploys without mouse",
+    "D-pad and stick adjust settings; A toggles invert",
+    "Long settings panel scrolls focused control into view",
+    "Menu exits settings safely to pause screen",
+    "Controller preferences survive page reload",
+    "Reset restores default controller preferences"
+  ],
+  "errors": []
+}

@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "wreck: separate actions and positions; reward only after both steps",
+    "distress: separate actions and positions; reward only after both steps",
+    "completed encounters and rewards survive reload"
+  ],
+  "errors": []
+}

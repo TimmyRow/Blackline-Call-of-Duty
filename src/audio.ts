@@ -50,7 +50,7 @@ export class Sound {
   shieldBreak(){this.tone(360,.4,.2,45);this.noise(.26,.3,4200);}
   scan(){this.tone(340,.3,.12,1200);}
   dispose(){for(const osc of this.engineOscillators){osc.stop();osc.disconnect();}this.engineOscillators=[];this.ambienceSource?.stop();this.ambienceSource?.disconnect();this.ambienceFilter?.disconnect();this.ambience?.disconnect();this.engine?.disconnect();this.master?.disconnect();if(this.ctx)void this.ctx.close().catch(()=>{});this.ctx=null;this.master=null;this.engine=null;this.noiseBuffers.clear();this.voices=0;}
-  hit(){this.tone(1200,.055,.13,550);}
+  hit(kind='hit'){this.tone(kind==='kill'?1550:kind==='shield'?1850:1200,kind==='kill'?.10:.055,.13,kind==='kill'?800:550);}
   reload(){this.noise(.15,.3,2800);this.tone(430,.08,.09,200);}
   step(){this.noise(.15,.18,480);}
   explosion(){this.noise(1.1,1.6,900);this.tone(85,.7,1.2,25);}

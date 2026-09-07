@@ -53,3 +53,17 @@ Procedural visuals and simplified AI remain prototype-scale. No multiplayer, mov
 - Lia, Tomas, Iris, Kito and Sela offer eight optional side quests in person. Only accepted or completed side quests appear in Missions; the previous all-contract menu is superseded. Already accepted quests from older saves stay accepted.
 - Track the main quest again at any time from Missions. Find Ship and manual map pins still work independently. Conversations, chapter progress and the final one-time reward persist.
 - Verified with 76 rule tests, a desktop story lifecycle playtest, simulated Xbox conversation input and mobile WebKit interaction/layout checks. Physical controller and Apple device testing remains unverified.
+
+
+## Xbox comfort and first expedition pass
+
+- Controller settings now persist: general look speed, independent aiming/flight speed, movement/look deadzones and vertical inversion. Left/right stick or D-pad adjusts settings; the focused control stays visible. Reset restores defaults.
+- Menu transitions require held sticks and buttons to return to neutral, so closing a journal cannot accidentally fire, jump or fly away. Disconnects release all input and pause. Audio activation attempts are throttled.
+- Fresh arrivals regroup at the crash survivor rally and repel three scout raiders before restoring Kestrel. The defense grants 60 salvage once. Existing saves retain their recovery route.
+- Residents acknowledge accepted and completed quests and give more specific directions.
+- Wrecks require drive isolation then flight-data retrieval; distress signals require a transmitter repair then cache recovery. Beacons move to the next interaction. Friendly survey patrols can share supplies once. Partial interaction steps restart after reload; completed rewards persist.
+- Hits briefly interrupt hostile fire, with a cooldown preventing permanent stun. Shield breaks and kills have distinct sounds/hit colors. Enemies recheck cover before firing; closest hostile groups get priority in the existing 48-soldier pool. Companion damage is unchanged.
+- Tracer count is capped, and pause/blur clears stale keyboard/controller keys. The rally uses supplies and a beacon batched into the wreck; encounter enemy capacity stays bounded.
+- Xbox inputs are verified with simulated standard gamepads. A physical Xbox One controller remains a required user playtest; browser testing does not certify hardware behavior.
+
+Verification: 94 automated rule/input tests passed, plus Edge controller, opening/quest, encounter and streaming/recovery checks. Mobile settings were tested at phone/tablet dimensions; WebKit touch dialogue and journal checks preserve the touch path.

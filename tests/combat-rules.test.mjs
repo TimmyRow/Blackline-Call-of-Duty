@@ -23,3 +23,11 @@ test('shields require a damage-free window and energy cells require a firing pau
  assert.equal(rechargeShield(s,100,10,3),130);
  assert.equal(rechargeEnergy(10,1,.5),10);assert.equal(rechargeEnergy(10,1,2),25);
 });
+import {impactResponse} from '../src/combat-rules.mjs';
+test('shield breaks interrupt a shot, but repeated hits cannot permanently stun',()=>{
+ const response=impactResponse('shielded',{damage:24,shieldBefore:20,shieldAfter:0,time:10,lastImpact:8});
+ assert.equal(response.shieldBreak,true);assert(response.duration>.3);
+ assert.equal(impactResponse('scout',{damage:32,time:10.1,lastImpact:10}).duration,0);
+ assert(impactResponse('heavy',{damage:32,time:12,lastImpact:10}).duration<impactResponse('scout',{damage:32,time:12,lastImpact:10}).duration);
+ assert.equal(impactResponse('scout',{damage:0}).duration,0);
+});

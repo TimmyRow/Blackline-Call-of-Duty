@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {createIndustrialMaterials} from './industrial-materials';
-import {getEncounterSites,encounterPosition} from './encounter-layout.mjs';
+import {getEncounterSites,encounterPosition,encounterInteractionSteps,createEncounterInteraction,encounterRewardMessage} from './encounter-layout.mjs';
 import {heightAt} from './region-layout.mjs';
 import {createEnemy} from './actors';
 export {isEncounterId} from './encounter-layout.mjs';
@@ -15,7 +15,8 @@ export type EncounterReward={id:string,type:'salvage',amount:number,message:stri
 /** Small optional stories streamed independently of settlement objectives. */
 export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
  const material=createIndustrialMaterials(),loaded=new Map<string,Record>(),completed=new Set<string>();
- let progress=0,interacting='',lastSyncX=Infinity,lastSyncZ=Infinity;
+ const interaction=createEncounterInteraction(completed);
+ let lastSyncX=Infinity,lastSyncZ=Infinity;
  const boxGeo=new THREE.BoxGeometry(1,1,1),beaconGeo=new THREE.OctahedronGeometry(.38),wheelGeo=new THREE.CylinderGeometry(.67,.67,.4,12);
  const signal=new THREE.MeshBasicMaterial({color:0x72e5e5,toneMapped:false});
  const retaliation=new WeakMap<BattleEnemy,{next:number,shots:number}>();
@@ -78,7 +79,8 @@ export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
   // Remember only gameplay values, never unloaded meshes, animation closures or enemy references.
   if(r.scouts.length){scoutMemory.set(r.site.id,r.scouts.map(({health,shots,damage})=>({health,shots,damage})));if(scoutMemory.size>128)scoutMemory.delete(scoutMemory.keys().next().value!);}
   scene.remove(r.group);r.geometries.forEach(g=>g.dispose());if(world&&r.body)world.removeRigidBody(r.body);for(const scout of r.scouts){scene.remove(scout.visual.group);scout.visual.group.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose();});}}
- function nearby(position:THREE.Vector3){return [...loaded.values()].filter(r=>!completed.has(r.site.id)&&r.site.kind!=='friendly'&&Math.hypot(position.x-r.site.x,position.z-r.site.z-5)<3.2&&Math.abs(position.y-r.site.elevation-1.7)<3).sort((a,b)=>Math.hypot(position.x-a.site.x,position.z-a.site.z-5)-Math.hypot(position.x-b.site.x,position.z-b.site.z-5))[0];}
+ function interactionDistance(position:THREE.Vector3,r:Record){const step=encounterInteractionSteps(r.site)[interaction.stage(r.site)];return Math.hypot(position.x-r.site.x-step.x,position.z-r.site.z-step.z);}
+ function nearby(position:THREE.Vector3){return [...loaded.values()].filter(r=>!completed.has(r.site.id)&&interactionDistance(position,r)<3.2&&Math.abs(position.y-r.site.elevation-1.7)<3).sort((a,b)=>interactionDistance(position,a)-interactionDistance(position,b))[0];}
  return{
   sync(position:THREE.Vector3){if(Math.hypot(position.x-lastSyncX,position.z-lastSyncZ)<100)return;lastSyncX=position.x;lastSyncZ=position.z;
    const desired=getEncounterSites(position.x,position.z,760).sort((a,b)=>Math.hypot(a.x-position.x,a.z-position.z)-Math.hypot(b.x-position.x,b.z-position.z)).slice(0,6),ids=new Set(desired.map(s=>s.id));
@@ -88,7 +90,7 @@ export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
   update(dt:number,time:number,position:THREE.Vector3){for(const r of loaded.values()){
    const p=completed.has(r.site.id)?r.site:encounterPosition(r.source,time);r.site.x=p.x;r.site.z=p.z;r.site.elevation=heightAt(p.x,p.z);r.group.position.set(p.x,r.site.elevation,p.z);r.group.visible=position.distanceTo(r.group.position)<900;
    if(r.body&&['convoy','patrol','friendly'].includes(r.source.kind))r.body.setNextKinematicTranslation(r.group.position);
-   r.beacon.visible=!completed.has(r.site.id);r.beacon.rotation.y=time*.8;r.beacon.position.y=2.1+Math.sin(time*2)*.1;
+   const step=encounterInteractionSteps(r.site)[interaction.stage(r.site)];r.beacon.visible=!completed.has(r.site.id);r.beacon.rotation.y=time*.8;r.beacon.position.set(step.x,2.1+Math.sin(time*2)*.1,step.z);
    for(let i=0;i<r.scouts.length;i++){
     const scout=r.scouts[i],visual=scout.visual,engaged=scout.engagedUntil>time&&scout.health>0,x=p.x+3+i*2,z=p.z+8+i*3;
     if(scout.health>0&&!engaged)visual.group.position.set(x,heightAt(x,z),z);
@@ -130,13 +132,12 @@ export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
   },
   sites(){return [...loaded.values()].map(r=>r.site);},
   interact(position:THREE.Vector3,held:boolean,dt:number,guardCount:(id:string)=>number):EncounterReward|null{
-   const r=nearby(position);if(!r||!held||guardCount(r.site.id)>0){progress=0;interacting='';return null;}
-   if(interacting!==r.site.id){interacting=r.site.id;progress=0;}progress+=dt;if(progress<2)return null;
-   completed.add(r.site.id);r.beacon.visible=false;progress=0;return{id:r.site.id,type:'salvage',amount:r.site.reward,message:`${r.site.name.toUpperCase()} · +${r.site.reward} SALVAGE`,site:r.site};
+   const r=nearby(position);if(!interaction.step(r?.site??null,held,dt,r?guardCount(r.site.id):0)||!r)return null;
+   r.beacon.visible=false;return{id:r.site.id,type:'salvage',amount:r.site.reward,message:encounterRewardMessage(r.site),site:r.site};
   },
-  prompt(position:THREE.Vector3,guardCount:(id:string)=>number){const r=nearby(position);if(!r)return null;const guards=guardCount(r.site.id);return{text:guards?`${guards} HOSTILES · SECURE ${r.site.name.toUpperCase()}`:`HOLD E · RECOVER ${r.site.name.toUpperCase()}`,progress:interacting===r.site.id?Math.min(1,progress/2):0};},
-  snapshot(){return{scouts:[...loaded.values()].flatMap(r=>r.scouts.map((s,i)=>({id:`${r.site.id}:${i}`,health:s.health,shots:s.shots,damage:s.damage,position:s.visual.group.position.toArray(),engaged:!!s.target,down:s.health<=0}))),completed:[...completed],rememberedPatrols:scoutMemory.size,loaded:loaded.size,sites:[...loaded.values()].map(r=>({...r.site,completed:completed.has(r.site.id)})),progress};},
-  restore(ids:string[]){completed.clear();for(const id of ids)completed.add(id);},
-  reset(){completed.clear();scoutMemory.clear();for(const r of loaded.values())for(const s of r.scouts){s.health=100;s.shots=0;s.damage=0;s.target=null;s.engagedUntil=0;}progress=0;interacting='';lastSyncX=Infinity;lastSyncZ=Infinity;},
+  prompt(position:THREE.Vector3,guardCount:(id:string)=>number){const r=nearby(position);if(!r)return null;const guards=guardCount(r.site.id),steps=encounterInteractionSteps(r.site),index=interaction.stage(r.site),prefix=interaction.requiresRelease()?'RELEASE, THEN HOLD E':'HOLD E';return{text:guards?`${guards} HOSTILES · SECURE ${r.site.name.toUpperCase()}`:`${prefix} · ${steps[index].action}${steps.length>1?` (${index+1}/${steps.length})`:''}`,progress:interaction.fraction(r.site)};},
+  snapshot(){return{scouts:[...loaded.values()].flatMap(r=>r.scouts.map((s,i)=>({id:`${r.site.id}:${i}`,health:s.health,shots:s.shots,damage:s.damage,position:s.visual.group.position.toArray(),engaged:!!s.target,down:s.health<=0}))),completed:[...completed],rememberedPatrols:scoutMemory.size,loaded:loaded.size,sites:[...loaded.values()].map(r=>({...r.site,completed:completed.has(r.site.id),step:interaction.stage(r.site),interaction:encounterInteractionSteps(r.site)[interaction.stage(r.site)]})),progress:interaction.snapshot().progress};},
+  restore(ids:string[]){completed.clear();for(const id of ids)completed.add(id);interaction.reset();},
+  reset(){completed.clear();scoutMemory.clear();for(const r of loaded.values())for(const s of r.scouts){s.health=100;s.shots=0;s.damage=0;s.target=null;s.engagedUntil=0;}interaction.reset();lastSyncX=Infinity;lastSyncZ=Infinity;},
  };
 }

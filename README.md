@@ -108,3 +108,12 @@ The current build caps desktop framebuffer allocation at 3.69 megapixels (mobile
 See [the next-upgrade list](UPGRADES.md), led by matching tracked-objective pins on the map and compass. That earlier planning list is now implemented as the frontier expansion described in UPGRADES.md.
 
 Expansion validation: 64 unit tests, seven desktop expedition checks, four new mobile expedition checks, seven existing mobile checks plus WebKit, and five Edge stability scenarios pass. Three subagents implemented/reviewed combat, navigation and world destinations; actual screenshots exposed and corrected blocked observation glazing, deleted compass markers and dry-world horizon holes.
+
+
+## Xbox controller comfort
+
+Connect an Xbox One/standard-mapping controller and press A. Sticks move/look; LT aims; RT fires; A jumps/rises; B crouches/descends; X reloads; Y switches weapons; LB throws a grenade; hold RB to interact; L3 sprints/boosts; R3 boards/exits; View opens missions; Menu pauses. D-pad up scans, down opens the map, left opens squad orders and right finds Kestrel.
+
+Controls & Settings saves look speed, aiming speed, flight speed, separate stick deadzones and inversion. Use D-pad/left stick to navigate, left/right to adjust, A to select, and B to return. Release held controls after changing menus or reconnecting. The game pauses on disconnect. Hardware behavior still needs a physical controller playtest.
+
+New expeditions now include a visible survivor rally and three-raider defense before ship recovery. Existing saves keep their current progression. Wrecks and distress signals have separate interaction steps and residents respond to completed work.

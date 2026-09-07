@@ -13,8 +13,8 @@
       "graphics": {
         "lost": false,
         "recoveries": 0,
-        "geometries": 230,
-        "textures": 36,
+        "geometries": 247,
+        "textures": 37,
         "enemyPool": 33
       },
       "world": {
@@ -28,15 +28,15 @@
         "roadKilometres": 2.7,
         "roadFurniture": 0
       },
-      "heap": 23933864
+      "heap": 24045940
     },
     {
       "lap": 1,
       "graphics": {
         "lost": false,
         "recoveries": 0,
-        "geometries": 230,
-        "textures": 36,
+        "geometries": 247,
+        "textures": 37,
         "enemyPool": 33
       },
       "world": {
@@ -50,15 +50,15 @@
         "roadKilometres": 2.7,
         "roadFurniture": 0
       },
-      "heap": 23974600
+      "heap": 25583936
     },
     {
       "lap": 2,
       "graphics": {
         "lost": false,
         "recoveries": 0,
-        "geometries": 230,
-        "textures": 36,
+        "geometries": 247,
+        "textures": 37,
         "enemyPool": 33
       },
       "world": {
@@ -72,7 +72,7 @@
         "roadKilometres": 2.7,
         "roadFurniture": 0
       },
-      "heap": 23921656
+      "heap": 25178060
     }
   ],
   "errors": [],

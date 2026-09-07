@@ -2,12 +2,20 @@ import {MAIN_CONTRACTS,QUEST_PEOPLE} from './quest-data.mjs';
 import {CONTRACTS,ensureProgression,acceptContract} from './progression.mjs';
 import {AUTHORED_SITES} from './mission-rules.mjs';
 import {heightAt} from './region-layout.mjs';
+import {recoveryBrief} from './opening-mission.mjs';
 export function personTarget(person){return {id:'person:'+person.id,name:person.name+' / '+person.town,x:person.x,z:person.z,elevation:heightAt(person.x,person.z),kind:'resident',faction:'friendly',radius:3};}
 export function personAvailable(person,c){return !person.requires||c.completed.includes(person.requires);}
+export function personDialogue(person,c){
+ const completed=person.quests.filter(id=>c.contracts?.[id]==='complete'),active=person.quests.filter(id=>c.contracts?.[id]==='active');
+ if(completed.length===person.quests.length&&completed.length)return person.thanks||'You made a difference here. Thank you for helping us.';
+ if(active.length)return person.followup||person.greeting;
+ if(completed.length)return (person.thanks||'Thank you for helping us.')+' '+person.greeting;
+ return person.greeting;
+}
 export function mainQuest(c){
  ensureProgression(c);const mara=personTarget(QUEST_PEOPLE[0]);
  const chapters=[
-  {stage:'recovery',title:'Survive the crash',description:'Recover the emergency cell and restore Kestrel. Your squad’s beacons lead the way.',done:c.onboarding.stage==='complete',target:null},
+  {...recoveryBrief(c),stage:'recovery',done:c.onboarding.stage==='complete',target:null},
   {stage:'briefing',title:'A voice in Pathfinder',description:'Meet Mara Voss beside the communications shelter in Pathfinder Landing.',done:c.story.briefed,target:mara},
   ...MAIN_CONTRACTS.map((id,i)=>{const contract=CONTRACTS.find(k=>k.id===id),site=AUTHORED_SITES.find(s=>s.id===contract.bearing);const descriptions=[
    'Recover the route ledger from Cold Harbour. It identifies the relay the pirates use to jam the settlements.',

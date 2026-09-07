@@ -13,6 +13,12 @@ export function enemyTactic(role,{distance,time=0,id=0}){
  const stats=roleStats(role),advance=distance>stats.preferredRange+5?1:distance<stats.preferredRange*.6?-.65:0;
  return {advance,strafe:Math.sin(time*.8+Number(id||0))*stats.strafe,canFire:distance<=stats.range};
 }
+/** Short, rate-limited reaction windows reward hits without allowing permanent stun. */
+export function impactResponse(role,{damage=0,shieldBefore=0,shieldAfter=0,time=0,lastImpact=-10}={}){
+ const shieldBreak=shieldBefore>0&&shieldAfter<=0;
+ if(damage<=0||time-lastImpact<.65)return {duration:0,shieldBreak};
+ return {duration:shieldBreak?.42:role==='heavy'?.08:damage>=20?.19:.09,shieldBreak};
+}
 export const WEAPONS=Object.freeze({
  ballistic:{name:'BR-7 / BALLISTIC',damage:32,headMultiplier:2.2,shieldMultiplier:.65,range:125,interval:.11,capacity:30,reload:1.85,recoil:.026,color:0xffd391},
  energy:{name:'ARC-9 / ENERGY',damage:24,headMultiplier:1.5,shieldMultiplier:2,range:100,interval:.24,capacity:100,cost:9,recharge:15,rechargeDelay:1.6,reload:0,recoil:.012,color:0x67eaff},
