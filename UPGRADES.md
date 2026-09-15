@@ -107,3 +107,18 @@ Unit coverage verifies these exact bindings, held-action cancellation, neutral-s
 - Controller mode persists and blocks emulated keyboard/mouse input from taking over gameplay. Real gamepad actions remain mapped to the requested layout.
 - Added a live Controller Setup test for actual button/stick input, missing browser input and unrecognized mappings. No settings outside BLACKLINE are changed.
 - Regression coverage combines raw gamepad actions with desktop mouse events, matching the reported A-shoots / left-stick-camera symptom. Physical validation by the player is still required.
+
+## September 15 — ten requested expansion areas
+
+1. Flight stability: nearby structures receive streaming priority after local terrain; the two-build frame cap remains. A 60-second Edge boost run passed with bounded world pools.
+2. Mission variety: five resident-given operations covering infiltration, rescue/escort, defense, sabotage and escape, with saved phases and one-time rewards.
+3. Base variety: fortified island village, relay bunker shell, mine passage, rock-covered archive rooms and additional generated district styles.
+4. Enemy tactics: wounded retreats, timed flanks, physics-validated cover and investigation of last seen positions. Existing bounded reinforcement calls remain.
+5. Exploration: ten inspectable roadside, cave, wreck and ocean discoveries, including reusable blueprint discounts and story records.
+6. Towns: repairs, field-supply purchases, quest offers and dialogue acknowledging completed work.
+7. Ship handling: optional precision descent, release-to-hover, explicit station docking status and correct low-hull warning.
+8. Road/ocean events: relief-team defense, convoy sabotage, survivor escort, floating distress signal and carrier boarding party.
+9. Squad base: Pathfinder command room, regroup/treatment, nearby vehicle repairs, shared ammunition/grenade locker and preparation through the journal.
+10. Save recovery: three manual slots, current and previous safe-base checkpoints, menu recovery entry, validated older saves and storage-denial handling.
+
+These are bounded playable additions to the existing prototype. Terrain is still a streamed heightfield; the archive and mine use roofed, rock-covered spaces rather than excavated underground terrain. The flight crash reported on the user's machine remains unconfirmed despite passing the automated boost run.

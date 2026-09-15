@@ -1,0 +1,7 @@
+{
+  "checks": [
+    "Stopped launch recovers buoy, carrier boarders spawn on deck, completion awards once",
+    "Xbox bumper navigation, D-pad, A save and B return operate new Saves UI"
+  ],
+  "errors": []
+}

@@ -11,7 +11,7 @@ import {REGION_START,getLandingPads} from '../src/region-layout.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const cache=path.join(root,'node_modules/.cache');await mkdir(cache,{recursive:true});
 const temporary=path.join(cache,`blackline-flight-${process.pid}.mjs`);
-const source=(await readFile(path.join(root,'src/flight.ts'),'utf8')).replace("'./region-layout.mjs'",JSON.stringify(pathToFileURL(path.join(root,'src/region-layout.mjs')).href));
+const source=(await readFile(path.join(root,'src/flight.ts'),'utf8')).replace("'./region-layout.mjs'",JSON.stringify(pathToFileURL(path.join(root,'src/region-layout.mjs')).href)).replace("'./tactical-planner.mjs'",JSON.stringify(pathToFileURL(path.join(root,'src/tactical-planner.mjs')).href));
 await writeFile(temporary,ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText);
 const {createFlight}=await import(pathToFileURL(temporary));await unlink(temporary);
 await RAPIER.init();
@@ -22,9 +22,9 @@ test('VTOL requires nearby boarding and landed safe disembarkation',()=>{
  const world=new RAPIER.World({x:0,y:-9.81,z:0}),ship=createFlight(new THREE.Scene(),world);
  assert.equal(ship.board(new THREE.Vector3(500,0,500)),false);
  assert.equal(ship.board(ship.position.clone()),true);
- const start=ship.position.y;tick(ship,['Space'],120);
+ ship.setAssist(false);const start=ship.position.y;tick(ship,['Space'],120);
  assert.ok(ship.position.y>start+90);assert.equal(ship.landed,false);assert.equal(ship.tryExit(),null);
- tick(ship,['KeyC'],240);
+ tick(ship,['KeyC'],720);
  assert.equal(ship.landed,true);assert.ok(ship.tryExit() instanceof THREE.Vector3);assert.equal(ship.piloting,false);world.free();
 });
 
@@ -42,8 +42,8 @@ test('ship can land on an elevated station deck and exit at deck height',()=>{
  const world=new RAPIER.World({x:0,y:-9.81,z:0});
  world.createCollider(RAPIER.ColliderDesc.cuboid(40,1,40).setTranslation(pad.x,pad.y-1,pad.z));world.step();
  const ship=createFlight(new THREE.Scene(),world,{x:pad.x,z:pad.z,y:pad.y+65});
- ship.board(ship.position.clone());tick(ship,['Space']);tick(ship,['KeyC'],240);
- assert.equal(ship.landed,true);assert.equal(ship.snapshot().pad,pad.name);assert.ok(Math.abs(ship.position.y-(pad.y+2.15))<.001);
+ ship.board(ship.position.clone());tick(ship,['Space']);tick(ship,['KeyC'],720);
+ assert.equal(ship.landed,true);assert.equal(ship.snapshot().pad,pad.name);assert.equal(ship.snapshot().docked,true);assert.equal(ship.health,100);assert.ok(Math.abs(ship.position.y-(pad.y+2.15))<.001);
  const exit=ship.tryExit();assert.ok(exit);assert.ok(Math.abs(exit.y-(pad.y+1.7))<.001);world.free();
 });
 

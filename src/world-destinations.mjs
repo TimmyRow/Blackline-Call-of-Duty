@@ -31,10 +31,10 @@ export function vesperHeight(x,z){
 }
 export const DESTINATION_SITES=[
  {id:'vesper-port',name:'Sunfall Expedition Port',x:42000,z:0,elevation:58,kind:'outpost',district:'market',faction:'friendly',radius:72,description:'A colonial refit stop above Vesper’s amber dunes. Explore the exchange and resupply.'},
- {id:'vesper-vault',name:'The Echo Vault',x:41320,z:-540,elevation:72,kind:'ruin',faction:'neutral',radius:64,description:'Ancient resonators surround a sheltered archive. Recover a lost survey blueprint.'},
+ {id:'vesper-vault',name:'The Echo Vault',x:41320,z:-540,elevation:72,kind:'ruin',district:'facility',faction:'neutral',radius:64,description:'Rock-covered pressure rooms protect a forgotten research archive. Recover a lost survey blueprint.'},
  {id:'vesper-mine',name:'Obsidian Extraction',x:40900,z:120,elevation:82,kind:'camp',district:'mining',faction:'pirate',radius:65,description:'Pirates strip rare crystals from the volcanic escarpment.'},
  {id:'vesper-salt',name:'Glass Basin Survey',x:42450,z:960,elevation:32,kind:'ruin',faction:'neutral',radius:60,description:'A forgotten alien observatory rises out of the salt flats.'},
- {id:'island-redoubt',name:'Breakwater Redoubt',x:650,z:960,elevation:8,kind:'camp',district:'salvage',faction:'pirate',radius:70,description:'An occupied island salvage battery guards the carrier approach.'}
+ {id:'island-redoubt',name:'Breakwater Redoubt',x:650,z:960,elevation:8,kind:'camp',district:'village',faction:'pirate',radius:70,description:'A fortified island village and watch battery guard the carrier approach.'}
 ];
 
 /** Solid wall segments share these tested open routes with the scene builder. */

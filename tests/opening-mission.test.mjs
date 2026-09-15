@@ -30,5 +30,5 @@ test('older expeditions never get a new tutorial gate and leaving the rally canc
 test('town residents acknowledge accepted and completed work without changing rewards',()=>{
  const c=fresh(),lia=QUEST_PEOPLE.find(p=>p.id==='lia');assert.equal(personDialogue(lia,c),lia.greeting);
  c.contracts.survey='active';assert.equal(personDialogue(lia,c),lia.followup);c.contracts.survey='complete';assert(personDialogue(lia,c).includes(lia.thanks));
- c.contracts.surveyor='complete';assert.equal(personDialogue(lia,c),lia.thanks);assert.equal(c.salvage,0);
+ c.contracts.surveyor='complete';assert(personDialogue(lia,c).includes(lia.thanks));for(const id of lia.quests)c.contracts[id]='complete';assert.equal(personDialogue(lia,c),lia.thanks);assert.equal(c.salvage,0);
 });

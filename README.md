@@ -12,6 +12,16 @@ Track Corsair to follow the new engine-disable, boarding, prisoner rescue and ca
 
 Validation includes `node qa/expansion-test.mjs`, `node qa/expansion-mobile-test.mjs`, `node qa/stability-test.mjs`, and the navigation/world browser scripts in `tests/`. These use Edge, Chromium mobile emulation and WebKit; physical Apple-device certification is not available in this workspace.
 
+## Lost Fleet operations and base services
+
+Meet Lia and Tomas in Pathfinder for four new operations; Iris offers convoy sabotage after Cold Harbour is secured. The stages include infiltration with live sentries, a recorder escape with pursuers, a two-wave road defense, a survivor escort to extraction, and two-truck sabotage. Hold Interact at the current marker; release between stages.
+
+Use **Journal → Equipment & Travel** for settlement repairs, ammunition, a shared squad locker and optional landing assistance. **Journal → Saves** has three independent manual slots and two safe-base recovery checkpoints. Manual slots are never overwritten by autosave. Progress remains local to this browser.
+
+Scan roadside records, enter wrecks and caves for rare refit schematics, or stop the Wayfarer launch beside the distress buoy north of its carrier. That call leads to a pirate boarding defense. Added world layouts include fortified villages, mining passages, a hardened relay bunker and the rock-covered Echo Vault facility.
+
+Validation: 110 rule/physics tests; `qa/expansion-upgrades-test.mjs`, `qa/expansion-world-test.mjs`, mobile controller checks, and a 60-second Edge maximum-boost run. This does not certify physical Xbox hardware, physical iOS devices, or eliminate all possible GPU/browser crashes.
+
 ## Play locally
 
 ```sh
@@ -19,7 +29,7 @@ npm install
 npm run dev -- --port 5180
 ```
 
-WebGL 2 with hardware acceleration is required. Desktop uses keyboard and mouse; iPhone and iPad receive touch controls automatically. Start a **New Expedition** to play Crashfall: a short, skippable transport descent and crash, followed by recovering a power cell and restoring Kestrel. Existing saves continue without replaying the opening. On desktop, use a normal browser tab for mouse capture; when capture is unavailable, hold left mouse to look and fire.
+WebGL 2 with hardware acceleration is required. Desktop uses keyboard and mouse; iPhone and iPad receive touch controls automatically. Start a **New Expedition** to play Crashfall: a short, skippable transport descent and crash, followed by recovering a power cell and defending the survivors. Earn flight clearance on foot, then buy Kestrel in Port Astra. Existing saves continue without replaying the opening. On desktop, use a normal browser tab for mouse capture; when capture is unavailable, hold left mouse to look and fire.
 
 | Controls | On foot | In Kestrel |
 | --- | --- | --- |

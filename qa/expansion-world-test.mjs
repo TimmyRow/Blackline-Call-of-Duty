@@ -1,0 +1,17 @@
+import {chromium} from '@playwright/test';
+import assert from 'node:assert/strict';
+import {writeFile} from 'node:fs/promises';
+const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'}),errors=[],checks=[];
+const page=await browser.newPage({viewport:{width:1440,height:900}});page.on('pageerror',e=>errors.push(e.message));
+const snap=()=>page.evaluate(()=>window.blacklineQA.snapshot());
+try{
+ await page.goto('http://localhost:5180');await page.waitForFunction(()=>window.blacklineQA,null,{timeout:90000});await page.selectOption('#quality','high',{force:true});await page.evaluate(()=>{window.blacklineQA.start();window.blacklineQA.setClimate({hour:11,weather:'clear'});});
+ for(const [name,x,z,yaw,pitch]of [['wreck-interior',340,-558,0,-.03],['mining-adit',752,-376,0,0],['fortified-village',650,1020,0,-.05],['archive-facility',41320,-494,0,-.06],['command-room',-34,131,0,0]]){await page.evaluate(({x,z,yaw,pitch})=>{window.blacklineQA.teleport(x,z);window.blacklineQA.look(yaw,pitch);window.blacklineQA.clear();window.blacklineQA.photo();},{x,z,yaw,pitch});await page.waitForTimeout(650);await page.screenshot({path:'qa/expansion-'+name+'.png'});}
+ // Restore play at an authored water signal, board using the actual F binding, recover with E.
+ await page.evaluate(()=>{const q=window.blacklineQA;q.start();q.teleport3(240,3,780);if(!q.marine.restoreAt({x:240,y:.7,z:780}))throw new Error('buoy launch placement blocked');});await page.keyboard.press('f');assert((await snap()).marine.piloting);await page.keyboard.down('e');await page.waitForTimeout(1600);await page.keyboard.up('e');assert.equal((await snap()).campaign.oceanEvent,1);await page.keyboard.press('f');await page.evaluate(()=>window.blacklineQA.teleport3(240,13.7,948));await page.waitForTimeout(850);assert.equal((await snap()).enemyPositions.filter(e=>e.id.startsWith('wayfarer:boarding:')&&e.active).length,2);await page.evaluate(()=>window.blacklineQA.clear());await page.waitForTimeout(150);assert.equal((await snap()).campaign.oceanEvent,2);checks.push('Stopped launch recovers buoy, carrier boarders spawn on deck, completion awards once');
+ // Xbox can reach the new Saves tab and activate a slot without mouse or keyboard input.
+ await page.evaluate(()=>{window.pad={index:0,id:'Xbox simulated',connected:true,mapping:'standard',axes:[0,0,0,0],buttons:Array.from({length:17},()=>({pressed:false,value:0}))};Object.defineProperty(navigator,'getGamepads',{configurable:true,value:()=>[window.pad]});window.blacklineQA.openJournal('missions');});
+ const tap=async i=>{await page.evaluate(i=>window.pad.buttons[i]={pressed:true,value:1},i);await page.waitForTimeout(140);await page.evaluate(i=>window.pad.buttons[i]={pressed:false,value:0},i);await page.waitForTimeout(140);};
+ await page.waitForTimeout(350);await tap(5);await tap(5);await tap(5);assert.equal(await page.locator('[data-section="saves"]').getAttribute('aria-pressed'),'true');await tap(13);await tap(0);assert(await page.evaluate(()=>!!localStorage.getItem('blackline.vault.v1.slot1')));await tap(1);assert.equal((await snap()).mode,'playing');checks.push('Xbox bumper navigation, D-pad, A save and B return operate new Saves UI');
+ assert.deepEqual(errors,[]);await writeFile('qa/expansion-world-results.json',JSON.stringify({checks,errors},null,2));console.log(JSON.stringify({checks,errors}));
+}finally{await browser.close();}

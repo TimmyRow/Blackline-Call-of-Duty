@@ -1,9 +1,12 @@
+import {OPERATIONS,operationTarget} from './field-operations.mjs';
+import {heightAt} from './region-layout.mjs';
 import {MAIN_CONTRACTS,QUEST_PEOPLE} from './quest-data.mjs';
 import {CONTRACTS,contractProgress} from './progression.mjs';
 import {REGION_SITES,SPECIAL_SITES,getPlanetAt} from './region-layout.mjs';
 import {DESTINATION_SITES} from './world-destinations.mjs';
 export const AUTHORED_SITES=[...REGION_SITES,...SPECIAL_SITES,...DESTINATION_SITES];
 export function missionDestination(contract,c,sites,position){
+ if(contract.kind==='operation'){const op=OPERATIONS.find(o=>o.id===contract.id);return op?operationTarget(c,op,{x:op.x,z:op.z,elevation:heightAt(op.x,op.z)}):null;}
  if(contract.bearing)return AUTHORED_SITES.find(s=>s.id===contract.bearing)||sites.find(s=>s.id===contract.bearing)||null;
  const candidates=sites.filter(s=>contract.kind==='discoveries'?!c.discovered.includes(s.id):contract.kind==='scanned'?!c.scanned.includes(s.id):contract.kind==='signals'?s.id.startsWith('encounter:')&&!c.encountersCompleted.includes(s.id):false);
  return candidates.sort((a,b)=>Math.hypot(a.x-position.x,a.z-position.z)-Math.hypot(b.x-position.x,b.z-position.z))[0]??null;

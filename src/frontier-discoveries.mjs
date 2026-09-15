@@ -1,0 +1,17 @@
+import {ROADSIDE_STORIES,WORLD_LANDMARKS,heightAt} from './region-layout.mjs';
+export const DISCOVERIES=[
+ ...ROADSIDE_STORIES.map((s,i)=>({id:'clue:'+s.id,name:s.name,x:s.x+3,z:s.z+3,reward:20,blueprint:null,ocean:false,story:[
+ 'A passenger list records civilians reaching Pathfinder. Someone stayed behind to keep the road open.',
+ 'The repair crew left a field manual. Their final radio call came from the northern listening post.',
+ 'A cut cable still carries a burst transmission: the pirates are listening for the missing fleet.',
+ 'The manifest names two armed trucks on the arsenal road. Iris at Cold Harbour needs their route stopped.',
+ 'The coastwatch log records a supply buoy north of CNS Wayfarer. Approach by launch and stop beside its light.'
+ ][i]})),
+ ...WORLD_LANDMARKS.filter(s=>s.kind==='cave'||s.kind==='wreck').map(s=>({id:'clue:'+s.id,name:s.name+' archive',x:s.x+(s.kind==='cave'?3.4:0),z:s.z-6,reward:55,blueprint:s.kind==='cave'?'scanner':'handling',ocean:false,story:s.kind==='cave'?'Sheltered survey equipment holds a rare calibration schematic. Refit costs fall by 25%.':'The recorder describes the lost fleet crossing this world before the blockade. A recovered stabilizer schematic reduces refit costs by 25%.'})),
+ {id:'clue:wayfarer-buoy',name:'Wayfarer distress buoy',x:240,z:780,reward:40,blueprint:null,ocean:true,story:'Wayfarer reports pirates boarding its deck. Return to the carrier and help its crew repel the boarding party.'}
+];
+export function discoverySites(){return DISCOVERIES.map(s=>({...s,elevation:s.ocean?1:heightAt(s.x,s.z),kind:'signal',faction:'neutral',radius:4,description:s.story}));}
+export function claimDiscovery(c,id){const item=DISCOVERIES.find(s=>s.id===id);c.clues??=[];if(!item||c.clues.includes(id))return null;c.clues.push(id);c.salvage+=item.reward;if(item.blueprint&&!c.blueprints.includes(item.blueprint))c.blueprints.push(item.blueprint);if(item.ocean)c.oceanEvent=1;return item;}
+export const BOARDERS=['wayfarer:boarding:0','wayfarer:boarding:1'];
+export function oceanBoarders(c,position){if(c.oceanEvent!==1||Math.hypot(position.x-240,position.z-900)>500)return [];return BOARDERS.map((id,i)=>({id,site:'carrier',x:232+i*16,y:12.2,z:948}));}
+export function finishOceanEvent(c,health){if(c.oceanEvent!==1||!BOARDERS.every(id=>health.has(id)&&health.get(id)<=0))return false;c.oceanEvent=2;c.salvage+=80;return true;}

@@ -6,6 +6,8 @@ export const SEA_LEVEL = 0;
 export const REGION_START = {x:0,z:110};
 const building=(a,c,w,d,h,label)=>({a,c,w,d,h,label});
 const BUILDING_LAYOUTS={
+ village:[building(-29,-24,16,18,6,'WATCH QUARTERS'),building(29,-24,16,18,7,'VILLAGE CONTROL'),building(-30,22,17,18,6,'CREW QUARTERS'),building(30,22,17,18,6,'SUPPLY WORKSHOP')],
+ facility:[building(-28,-22,18,28,6,'ARCHIVE CONTROL'),building(28,-22,18,28,6,'RESEARCH QUARTERS')],
  city:[...[-72,-38,38,72].flatMap((a,i)=>[-65,-25].map((c,j)=>building(a,c,24,27,18+(i+j)%3*8,['ASTRA RESIDENCES','CIVIC EXCHANGE','COLONIAL MEDICAL','TRANSIT OFFICES'][i]))),building(-48,37,29,32,16,'HANGAR WORKSHOPS'),building(48,37,29,32,20,'FLIGHT ACADEMY'),building(-43,79,26,20,12,'MARKET ARCADE'),building(43,79,26,20,15,'CREW LODGINGS')],
  landing:[building(-33,-25,18,21,12,'PATHFINDER / 01'),building(32,-27,17,21,10,'FLIGHT STORES'),building(-34,15,18,19,9,'SQUAD QUARTERS'),building(34,18,17,21,11,'ORBITAL TRANSIT')],
  harbour:[building(-29,-23,15,24,11,'NORTH FREIGHT'),building(29,-26,16,22,10,'CUSTOMS / 12'),building(-30,25,16,19,8,'SERVICE / 04'),building(31,26,16,20,9,'ENGINEERING'),building(-28,63,15,21,10,'DOCKYARD / 08'),building(29,65,17,20,8,'FLIGHT STORES')],
@@ -14,7 +16,7 @@ const BUILDING_LAYOUTS={
  market:[building(-29,-26,17,22,9,'EXCHANGE STORES'),building(31,26,18,20,7,'TRANSIT CONTROL')],
  salvage:[building(-30,25,17,20,7,'BREAKER WORKSHOP')],ruin:[]
 };
-export function settlementStyle(site){if(!site.id||site.id==='landing-services')return 'landing';if(site.id==='harbour'||site.id==='relay')return site.id;if(site.kind==='ruin')return 'ruin';if(site.id==='depot')return 'mining';return site.district||'mining';}
+export function settlementStyle(site){if(!site.id||site.id==='landing-services')return 'landing';if(site.id==='harbour'||site.id==='relay')return site.id;if(site.district==='facility')return 'facility';if(site.kind==='ruin')return 'ruin';if(site.id==='depot')return 'mining';return site.district||'mining';}
 export function getSettlementBuildings(site){return BUILDING_LAYOUTS[settlementStyle(site)]||BUILDING_LAYOUTS.mining;}
 export const ROADSIDE_STORIES=[
  {id:'evacuation-stop',name:'Last Evacuation',x:-150,z:55,kind:'evacuation'},
@@ -73,7 +75,7 @@ function makeGeneratedSite(cx,cz){
  const y=rawHeight(x,z);if(y<9)return null;
  const roll=worldHash(cx,cz,3),kind=roll<.18?'ruin':roll<.56?'camp':'outpost';
  const names=['Blackglass','Wraith','Cinder','Redwater','Hollow','Vesper','Ashfall','Ironwake'];
- const districtRoll=worldHash(cx,cz,5),district=districtRoll<.34?'mining':districtRoll<.68?'market':'salvage';
+ const districtRoll=worldHash(cx,cz,5),district=districtRoll<.22?'mining':districtRoll<.44?'market':districtRoll<.65?'salvage':districtRoll<.84?'village':'facility';
  return {id:`${kind}:${cx}:${cz}`,name:`${names[Math.floor(worldHash(cx,cz,4)*names.length)]} ${kind==='ruin'?'Relic':kind==='camp'?'Encampment':district==='mining'?'Extraction':district==='salvage'?'Breaker Yard':'Freeport'}`,x,z,elevation:y,kind,district,faction:kind==='ruin'?'neutral':'pirate',description:kind==='ruin'?'An abandoned alien survey structure. Search the remains for supplies.':district==='salvage'?'A scrapyard of broken survey ships, stripped engines and a working salvage workshop.':district==='mining'?'An occupied extraction town with workshops, ore conveyors and crew quarters.':'A pirate trading settlement of supply stalls, cargo warehouses and operations rooms.',radius:kind==='ruin'?45:62};
 }
 export function getWorldSites(x,z,radius=1800){
@@ -100,7 +102,7 @@ export function heightAt(x,z){
  }}
  if(nearestFootprint<17)h=foundationHeight+(h-foundationHeight)*smooth(8,17,nearestFootprint);
  // A cave has an actual graded, unobstructed tunnel floor. The roof is geometry.
- for(const landmark of WORLD_LANDMARKS)if(landmark.kind==='cave'){
+ for(const landmark of WORLD_LANDMARKS)if(landmark.kind==='cave'||landmark.kind==='wreck'){
   const distance=Math.hypot(x-landmark.x,z-landmark.z);
   if(distance<40){const floor=rawHeight(landmark.x,landmark.z);h=floor+(h-floor)*smooth(26,40,distance);}
  }

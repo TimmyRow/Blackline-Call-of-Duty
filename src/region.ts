@@ -84,7 +84,7 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
    const lx=landmark.x,lz=landmark.z,ly=heightAt(lx,lz),matrices:THREE.Matrix4[]=[];
    const add=(dx:number,dy:number,dz:number,w:number,h:number,d:number)=>{dummy.position.set(lx+dx,ly+dy,lz+dz);dummy.rotation.set(0,0,0);dummy.scale.set(w,h,d);dummy.updateMatrix();matrices.push(dummy.matrix.clone());collider(data,lx+dx,ly+dy,lz+dz,w,h,d);};
    if(landmark.kind==='cave'){for(const side of [-1,1]){add(side*8,5,0,7,10,30);add(side*9,3,-13,9,6,8);}add(0,11,-2,24,4,30);}
-   else {add(-7,2,0,6,4,20);add(6,1,-4,9,2,12);add(0,1,6,19,1.2,5);}
+   else {add(0,.04,0,16,.16,32);add(-7.5,3,0,1,6,32);add(7.5,3,-6,1,6,20);add(0,6,-8,16,.6,16);for(const c of [-13,-5,3,11]){add(-6.8,2.8,c,.35,5.6,.4);add(6.8,2.8,c,.35,5.6,.4);}add(-5,1,-9,2,2,4);add(5,1,-9,2,2,4);}
    const mesh=new THREE.InstancedMesh(sharedBox,landmark.kind==='cave'?rockMat:rust,matrices.length);matrices.forEach((m,i)=>mesh.setMatrixAt(i,m));mesh.receiveShadow=true;mesh.castShadow=true;mesh.computeBoundingSphere();data.group.add(mesh);data.meshes.push(mesh);occluders.push(mesh);
    if(landmark.kind==='cave'){
     const crags=new THREE.InstancedMesh(rockGeo,rockMat,8);let index=0;for(const side of [-1,1])for(const dz of [-12,-4,4,12]){dummy.position.set(lx+side*12,ly+5,lz+dz);dummy.rotation.set(0,dz*.12,0);dummy.scale.set(5,12+Math.abs(dz)*.2,6);dummy.updateMatrix();crags.setMatrixAt(index++,dummy.matrix);}crags.computeBoundingSphere();data.detail.add(crags);
@@ -213,7 +213,7 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
    const side=Math.sign(a),head=a-side*1.25;block(a,3.9,c,.18,7.8,.18,steel);block(a,.15,c,.6,.3,.6,concrete);deco(a-side*.65,7.7,c,1.6,.14,.18,steel);deco(head,7.6,c,.75,.18,.45,black);deco(head,7.5,c,.62,.035,.32,side<0?cyan:amber);
    const list=practicalLamps.get(s.id)||[];list.push({x:x+head,y:y+7.4,z:z+c,color:side<0?'#73cfff':'#ffb35c'});practicalLamps.set(s.id,list);
   }
-  if(s.id==='landing-services'){surfacedYard(true);for(const a of [-19,19])for(const c of [-24,20])streetlight(a,c);}
+  if(s.id==='landing-services'){deco(-34,3.1,6.05,8,3,.12,dark);for(let i=0;i<4;i++)deco(-36+i*1.3,3.2,6.13,.06,2.3,.04,pale);sign('PATHFINDER COMMAND','VALE / ROOK / EQUIPMENT LOCKER',-34,5.1,6.2,11,1.4);surfacedYard(true);for(const a of [-19,19])for(const c of [-24,20])streetlight(a,c);}
   else if(s.kind==='camp'||s.kind==='outpost'){surfacedYard();settlementStreets();for(const a of [-9,9])for(const c of [-30,0])streetlight(a,c);}
   if(s.id==='landing-services'){
    building(-33,-25,18,21,12,'PATHFINDER / 01');building(32,-27,17,21,10,'FLIGHT STORES');
@@ -239,13 +239,13 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
    furnish(-66,-18,45,74,22,'SHIP REPAIR');sign('HANGAR / 01','PRESSURE DECK / SHIP REFITS',-66,18,19.4,20,2);
    for(const side of [-1,1]){block(side*98,2,0,2,4,150,steel);block(side*98,4.2,0,.5,.4,146,cyan,false);block(side*148,-7,-8,70,1.3,100,dark);for(let i=-3;i<=3;i++)block(side*148,-6.2,i*13,66,.15,.5,cyan,false);block(side*89,38,-51,6,75,6,steel);block(side*89,75,-51,7,.7,7,amber,false);}
    container(-29,-27,teal,0,'A7');container(28,-27,orange,0,'B4');container(28,-27,blue,1);for(const a of [-32,32]){barrier(a,13);yard(a-2,0);}gantry(-33,83,16);block(0,.55,-76,200,1.1,2,steel);block(0,.55,76,200,1.1,2,steel);for(const i of [-2,-1,1,2])block(i*27,15,-64,2,30,2,steel);
-  }else if(s.kind==='ruin'){
+  }else if(s.kind==='ruin'&&settlementStyle(s)!=='facility'){
    for(let i=0;i<7;i++){const angle=i/7*Math.PI*2,a=Math.cos(angle)*24,c=Math.sin(angle)*24;block(a,6+(i%3)*2,c,5,12+(i%3)*4,5,steel);deco(a,5,c+2.53,.15,8,.08,cyan);for(let q=0;q<4;q++)deco(a,3+q*1.9,c+2.54,2,.1,.08,cyan);}
    block(-18,16,-18,31,2,4,wall);block(22,4,5,11,8,7,dark);pad(0,35,13);
    for(const side of [-1,1]){block(side*8,4,-12,3,8,16,dark);deco(side*6.45,3.5,-12,.08,5,12,cyan);}block(0,8.5,-12,19,1,16,steel);sign('ANCIENT SIGNAL','ARCHIVE / SURVEY CACHE',0,6.8,-3.8,7,1);
   }else{
    const style=settlementStyle(s),harbour=style==='harbour';
-   for(const room of getSettlementBuildings(s))building(room.a,room.c,room.w,room.d,room.h,room.label);
+   for(const room of getSettlementBuildings(s)){building(room.a,room.c,room.w,room.d,room.h,room.label);if(s.id==='relay'&&room.label==='ARRAY CONTROL'){for(const side of [-1,1])block(room.a+side*(room.w/2+2),2.8,room.c,3.5,5.6,room.d+3,ore);block(room.a,6.7,room.c,room.w+5,1.4,room.d+3,concrete);sign('NORTHWATCH BUNKER','HARDENED RELAY CONTROL',room.a,4.6,room.c+room.d/2+.1,10,1.2);}}
    // Shared landing/recovery space stays clear; each district has a distinct perimeter.
    pad(0,35,13);
    if(style==='city'){
@@ -273,10 +273,16 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
     deco(-29,15,-17,.25,11,.25,steel);deco(-29,20,-17,2,.8,1.4,amber);
     for(const [a,c,h]of [[-42,7,20],[40,-46,27],[24,3,15]]){block(a,.3,c,5,.6,5,concrete);block(a,h/2,c,.65,h,.65,steel);for(let k=3;k<h;k+=4){deco(a,k,c,5,.16,.3,pale);deco(a,k+.65,c,.2,1.4,4.5,steel);}deco(a,h+.3,c,.65,.5,.65,amber);}
     container(29,5,blue,0,'RF');barrier(-8,-29);barrier(8,-29);sign('NORTHWATCH ARRAY','LISTENING SECTOR / KEEP TRANSMITTERS CLEAR',0,5,-43,12,1.7);
+   }else if(style==='village'){
+    for(const side of [-1,1]){block(side*49,2.5,0,2,5,90,concrete);for(const end of [-1,1]){block(side*32,2.5,end*46,32,5,2,concrete);block(side*46,4,end*43,7,8,7,dark);deco(side*46,8.2,end*43,8,.4,8,rust);deco(side*46,7.1,end*43+3.55,4,.25,.08,amber);}}
+    sign('FORTIFIED QUARTERS','WATCH POSTS / CIVILIAN SHELTERS',-30,3.4,47.05,12,1.5);
+   }else if(style==='facility'){
+    for(const side of [-1,1]){block(side*28,7.2,-22,24,2.4,34,ore);block(side*40,3,-22,6,6,32,ore);for(const c of [-31,-21,-11])deco(side*28,5.8,c,10,.12,.4,cyan);}
+    for(const side of [-1,1])block(side*4.8,1.9,-42,.16,3.8,.16,steel);sign('DEEP ARCHIVE','PRESSURE ROOMS / RESEARCH WING',0,4.6,-42,12,1.6);barrier(-8,-16);barrier(8,-16);
    }else if(style==='mining'){
     // Open excavation machinery takes two warehouse footprints, with a conveyor
     // and terraced ore stockpile instead of another four-building courtyard.
-    for(let level=0;level<3;level++)block(-31,level*.9+.45,-27,23-level*4,.9,22-level*4,ore);
+    block(-28,-.08,-25,18,.16,32,concrete);for(const side of [-1,1]){block(-28+side*6.5,4,-25,5,8,32,ore);for(const c of [-36,-26,-16]){block(-28+side*4.1,3,c,.35,6,.45,steel);deco(-28+side*3.8,4.8,c,.1,.18,2,amber);}}block(-28,8.4,-25,19,1.2,33,ore);for(const c of [-36,-26,-16])block(-28,6,c,8.5,.4,.5,steel);sign('EXTRACTION ADIT','LOW CLEARANCE / ORE FACE',-28,6.7,-8.3,8,1);
     block(29,1.4,22,17,2.8,15,rust);for(const side of [-1,1]){block(29+side*7,6,22,.6,12,.6,steel);deco(29+side*7,12.5,22,.8,.35,15,yellow);}deco(29,12,22,16,.6,8,yellow);block(29,7,22,1.2,10,1.2,dark);
     for(let k=0;k<8;k++){const c=-24+k*4;block(-40,2.2,c,3.5,.35,3.8,steel);deco(-40,2.42,c,3.1,.08,3.6,black);for(const side of [-1,1])deco(-40+side*1.8,2.65,c,.1,.5,3.9,yellow);if(k%2===0)block(-40,1,c,.3,2,.3,steel);deco(-40,2.7,c,1.3,.5,1.7,ore);}
     crane(-43,-43,24);container(17,-24,orange,0,'ORE');yard(24,1);barrier(-8,-27);sign('TIDEBREAK EXTRACTION','ORE TRANSFER / ACTIVE MACHINERY',29,4,30.1,10,1.4);
@@ -324,7 +330,9 @@ export function buildRegion(scene:THREE.Scene,world:RAPIER.World,occluders:THREE
   // A flight frame uploads at most two new assets; late frames never catch up with a giant batch.
   while(pendingTerrain.length||pendingSites.length||pendingHorizon){
    if(!immediate&&built>0&&(built>=2||performance.now()-start>=4))break;
-   if(pendingTerrain.length){const k=pendingTerrain.shift()!,[a,b]=k.split(':').map(Number);if(!chunks.has(k))chunks.set(k,terrain(a,b));}
+   const [ccx,ccz]=current.split(':').map(Number),nearSite=pendingSites.findIndex(site=>Math.hypot(site.x-(ccx+.5)*CHUNK,site.z-(ccz+.5)*CHUNK)<350);
+   if(chunks.has(current)&&nearSite>=0){const [site]=pendingSites.splice(nearSite,1);if(!sites.has(site.id))sites.set(site.id,structure(site));}
+   else if(pendingTerrain.length){const k=pendingTerrain.shift()!,[a,b]=k.split(':').map(Number);if(!chunks.has(k))chunks.set(k,terrain(a,b));}
    else if(pendingSites.length){const site=pendingSites.shift()!;if(!sites.has(site.id))sites.set(site.id,structure(site));}
    else if(pendingHorizon){updateHorizon(pendingHorizon.x,pendingHorizon.z);pendingHorizon=null;}
    built++;

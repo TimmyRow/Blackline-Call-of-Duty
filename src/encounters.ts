@@ -80,15 +80,15 @@ export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
   if(r.scouts.length){scoutMemory.set(r.site.id,r.scouts.map(({health,shots,damage})=>({health,shots,damage})));if(scoutMemory.size>128)scoutMemory.delete(scoutMemory.keys().next().value!);}
   scene.remove(r.group);r.geometries.forEach(g=>g.dispose());if(world&&r.body)world.removeRigidBody(r.body);for(const scout of r.scouts){scene.remove(scout.visual.group);scout.visual.group.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose();});}}
  function interactionDistance(position:THREE.Vector3,r:Record){const step=encounterInteractionSteps(r.site)[interaction.stage(r.site)];return Math.hypot(position.x-r.site.x-step.x,position.z-r.site.z-step.z);}
- function nearby(position:THREE.Vector3){return [...loaded.values()].filter(r=>!completed.has(r.site.id)&&interactionDistance(position,r)<3.2&&Math.abs(position.y-r.site.elevation-1.7)<3).sort((a,b)=>interactionDistance(position,a)-interactionDistance(position,b))[0];}
+ function nearby(position:THREE.Vector3,excluded:string[]=[]){return [...loaded.values()].filter(r=>!excluded.includes(r.site.id)&&!completed.has(r.site.id)&&interactionDistance(position,r)<3.2&&Math.abs(position.y-r.site.elevation-1.7)<3).sort((a,b)=>interactionDistance(position,a)-interactionDistance(position,b))[0];}
  return{
   sync(position:THREE.Vector3){if(Math.hypot(position.x-lastSyncX,position.z-lastSyncZ)<100)return;lastSyncX=position.x;lastSyncZ=position.z;
    const desired=getEncounterSites(position.x,position.z,760).sort((a,b)=>Math.hypot(a.x-position.x,a.z-position.z)-Math.hypot(b.x-position.x,b.z-position.z)).slice(0,6),ids=new Set(desired.map(s=>s.id));
    for(const [id,record] of loaded)if(!ids.has(id)){remove(record);loaded.delete(id);}
    for(const site of desired)if(!loaded.has(site.id))loaded.set(site.id,build(site));
   },
-  update(dt:number,time:number,position:THREE.Vector3){for(const r of loaded.values()){
-   const p=completed.has(r.site.id)?r.site:encounterPosition(r.source,time);r.site.x=p.x;r.site.z=p.z;r.site.elevation=heightAt(p.x,p.z);r.group.position.set(p.x,r.site.elevation,p.z);r.group.visible=position.distanceTo(r.group.position)<900;
+  update(dt:number,time:number,position:THREE.Vector3,lockedSites:string[]=[]){for(const r of loaded.values()){
+   const p=lockedSites.includes(r.site.id)?r.source:completed.has(r.site.id)?r.site:encounterPosition(r.source,time);r.site.x=p.x;r.site.z=p.z;r.site.elevation=heightAt(p.x,p.z);r.group.position.set(p.x,r.site.elevation,p.z);r.group.visible=position.distanceTo(r.group.position)<900;
    if(r.body&&['convoy','patrol','friendly'].includes(r.source.kind))r.body.setNextKinematicTranslation(r.group.position);
    const step=encounterInteractionSteps(r.site)[interaction.stage(r.site)];r.beacon.visible=!completed.has(r.site.id);r.beacon.rotation.y=time*.8;r.beacon.position.set(step.x,2.1+Math.sin(time*2)*.1,step.z);
    for(let i=0;i<r.scouts.length;i++){
@@ -130,12 +130,13 @@ export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
     retaliation.set(target,returnFire);
    }
   },
+  setObjective(id:string,target:{x:number,z:number,elevation?:number}|null){const r=loaded.get(id);if(r&&target){r.beacon.visible=true;r.beacon.position.set(target.x-r.site.x,(target.elevation??r.site.elevation)-r.site.elevation+2.2,target.z-r.site.z);}},
   sites(){return [...loaded.values()].map(r=>r.site);},
-  interact(position:THREE.Vector3,held:boolean,dt:number,guardCount:(id:string)=>number):EncounterReward|null{
-   const r=nearby(position);if(!interaction.step(r?.site??null,held,dt,r?guardCount(r.site.id):0)||!r)return null;
+  interact(position:THREE.Vector3,held:boolean,dt:number,guardCount:(id:string)=>number,excluded:string[]=[]):EncounterReward|null{
+   const r=nearby(position,excluded);if(!interaction.step(r?.site??null,held,dt,r?guardCount(r.site.id):0)||!r)return null;
    r.beacon.visible=false;return{id:r.site.id,type:'salvage',amount:r.site.reward,message:encounterRewardMessage(r.site),site:r.site};
   },
-  prompt(position:THREE.Vector3,guardCount:(id:string)=>number){const r=nearby(position);if(!r)return null;const guards=guardCount(r.site.id),steps=encounterInteractionSteps(r.site),index=interaction.stage(r.site),prefix=interaction.requiresRelease()?'RELEASE, THEN HOLD E':'HOLD E';return{text:guards?`${guards} HOSTILES · SECURE ${r.site.name.toUpperCase()}`:`${prefix} · ${steps[index].action}${steps.length>1?` (${index+1}/${steps.length})`:''}`,progress:interaction.fraction(r.site)};},
+  prompt(position:THREE.Vector3,guardCount:(id:string)=>number,excluded:string[]=[]){const r=nearby(position,excluded);if(!r)return null;const guards=guardCount(r.site.id),steps=encounterInteractionSteps(r.site),index=interaction.stage(r.site),prefix=interaction.requiresRelease()?'RELEASE, THEN HOLD E':'HOLD E';return{text:guards?`${guards} HOSTILES · SECURE ${r.site.name.toUpperCase()}`:`${prefix} · ${steps[index].action}${steps.length>1?` (${index+1}/${steps.length})`:''}`,progress:interaction.fraction(r.site)};},
   snapshot(){return{scouts:[...loaded.values()].flatMap(r=>r.scouts.map((s,i)=>({id:`${r.site.id}:${i}`,health:s.health,shots:s.shots,damage:s.damage,position:s.visual.group.position.toArray(),engaged:!!s.target,down:s.health<=0}))),completed:[...completed],rememberedPatrols:scoutMemory.size,loaded:loaded.size,sites:[...loaded.values()].map(r=>({...r.site,completed:completed.has(r.site.id),step:interaction.stage(r.site),interaction:encounterInteractionSteps(r.site)[interaction.stage(r.site)]})),progress:interaction.snapshot().progress};},
   restore(ids:string[]){completed.clear();for(const id of ids)completed.add(id);interaction.reset();},
   reset(){completed.clear();scoutMemory.clear();for(const r of loaded.values())for(const s of r.scouts){s.health=100;s.shots=0;s.damage=0;s.target=null;s.engagedUntil=0;}interaction.reset();lastSyncX=Infinity;lastSyncZ=Infinity;},

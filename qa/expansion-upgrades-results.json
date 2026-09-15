@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Resident offers and accepts new operation through the conversation UI",
+    "Courier recorder triggers pursuers and escape completes at the rendezvous",
+    "Defense holds until each actual spawned wave is defeated",
+    "Freed survey survivors visibly follow using capsule navigation",
+    "Both survivors reach extraction before the rescue can complete",
+    "Base locker, assistance toggle, independent slot save/load and checkpoint UI work",
+    "Walkable wreck contains a collectable rare schematic that survives reload",
+    "Save management fits a phone viewport without horizontal overflow"
+  ],
+  "errors": []
+}

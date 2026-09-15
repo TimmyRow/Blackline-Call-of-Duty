@@ -1,3 +1,6 @@
+import {DISCOVERIES} from './frontier-discoveries.mjs';
+import {OPERATIONS,OPERATION_CONTRACTS,normalizeOperations} from './field-operations.mjs';
+import {normalizeBase} from './base-services.mjs';
 /** Persistent expedition progression, with validated browser storage and one-time rewards. */
 export const SAVE_KEY='blackline.expedition.v1';
 export const UPGRADES=[
@@ -11,7 +14,7 @@ export const UPGRADES=[
  {id:'medical',name:'Field medical kit',description:'Requested medic aid restores 10 more health per level.',cost:100,max:3},
  {id:'shieldCell',name:'Personal shield cell',description:'Increase rechargeable personal shield capacity by 20 per level.',cost:130,max:3}
 ];
-export const CONTRACTS=[
+export const CONTRACTS=[...OPERATION_CONTRACTS,
  {id:'glass-basin',title:'The silent observatory',description:'Recover the Glass Basin Survey archive for Sela in Sunfall.',kind:'site',target:'vesper-salt',reward:170,bearing:'vesper-salt'},
  {id:'vesper-mine',title:'Break the extraction ring',description:'Liberate the Obsidian Extraction camp on Vesper.',kind:'site',target:'vesper-mine',reward:180,bearing:'vesper-mine'},
  {id:'echo-vault',title:'Voices in the dunes',description:'Travel to Vesper and recover the Echo Vault archive.',kind:'site',target:'vesper-vault',reward:160,bearing:'vesper-vault'},
@@ -26,9 +29,9 @@ export const CONTRACTS=[
  {id:'rescue',title:'Bring them home',description:'Rescue a captive from the disabled Corsair.',kind:'rescued',target:1,rescuedId:'corsair',reward:220,bearing:'corsair'},
  {id:'surveyor',title:'A wider horizon',description:'Scan five points of interest with the survey pulse.',kind:'scanned',target:5,reward:160}
 ];
-export function ensureProgression(c){c.upgrades??={};c.contracts??={};c.journal??=[];c.encountersCompleted??=[];c.oceanKills??=0;c.blueprints??=[];c.scanned??=[];c.rescued??=[];c.boarding??={disabled:false};c.planet??='orison';c.activeMission??='main';c.metPeople??=[];c.story??={briefed:false,finished:false,notified:''};c.safeHarbour??={announced:false,defending:false,repelled:false,rewarded:false};c.onboarding??={stage:'launch',introSeen:true,progress:0};return c;}
+export function ensureProgression(c){c.clues??=[];c.oceanEvent??=0;c.operations??={};c.baseLocker??=normalizeBase(null);c.upgrades??={};c.contracts??={};c.journal??=[];c.encountersCompleted??=[];c.oceanKills??=0;c.blueprints??=[];c.scanned??=[];c.rescued??=[];c.boarding??={disabled:false};c.planet??='orison';c.activeMission??='main';c.metPeople??=[];c.story??={briefed:false,finished:false,notified:''};c.safeHarbour??={announced:false,defending:false,repelled:false,rewarded:false};c.onboarding??={stage:'launch',introSeen:true,progress:0};return c;}
 export function journal(c,title,text,time=0){ensureProgression(c);c.journal.unshift({title:String(title).slice(0,100),text:String(text).slice(0,400),time:Math.max(0,time)});c.journal=c.journal.slice(0,40);}
-export function contractProgress(c,contract){const n=contract.kind==='site'?(c.completed.includes(contract.target)?1:0):contract.kind==='discoveries'?c.discovered.length:contract.kind==='air'?c.airKills:contract.kind==='rescued'?(contract.rescuedId?Number(c.rescued?.includes(contract.rescuedId)):(c.rescued?.length||0)):contract.kind==='scanned'?(c.scanned?.length||0):c.encountersCompleted?.length||0;return {current:n,target:contract.kind==='site'?1:contract.target};}
+export function contractProgress(c,contract){const n=contract.kind==='operation'?(c.operations?.[contract.id]?.stage>=(OPERATIONS.find(o=>o.id===contract.id)?.phases.length??Infinity)?1:0):contract.kind==='site'?(c.completed.includes(contract.target)?1:0):contract.kind==='discoveries'?c.discovered.length:contract.kind==='air'?c.airKills:contract.kind==='rescued'?(contract.rescuedId?Number(c.rescued?.includes(contract.rescuedId)):(c.rescued?.length||0)):contract.kind==='scanned'?(c.scanned?.length||0):c.encountersCompleted?.length||0;return {current:n,target:contract.kind==='site'?1:contract.target};}
 export function acceptContract(c,id){ensureProgression(c);const contract=CONTRACTS.find(x=>x.id===id);if(!contract||c.contracts[id])return false;c.contracts[id]='active';return true;}
 export function resolveContracts(c){ensureProgression(c);const rewards=[];for(const contract of CONTRACTS){if(c.contracts[contract.id]!=='active')continue;const p=contractProgress(c,contract);if(p.current<p.target)continue;c.contracts[contract.id]='complete';c.salvage+=contract.reward;rewards.push(contract);}return rewards;}
 export function upgradeCost(c,item){return Math.ceil(item.cost*((c.upgrades?.[item.id]||0)+1)*(c.blueprints?.includes(item.id)?.75:1));}
@@ -49,6 +52,7 @@ export function validateSave(raw){
  if(c.completed.includes('corsair')){if(!v.safeHarbour)c.safeHarbour={announced:true,defending:true,repelled:true,rewarded:true};c.boarding.disabled=true;if(!c.rescued.includes('corsair'))c.rescued.push('corsair');}
  for(const u of UPGRADES)c.upgrades[u.id]=Math.floor(num(v.upgrades?.[u.id],0,u.max));for(const k of CONTRACTS)if(['active','complete'].includes(v.contracts?.[k.id]))c.contracts[k.id]=v.contracts[k.id];
  c.journal=Array.isArray(v.journal)?v.journal.filter(e=>e&&typeof e.title==='string'&&typeof e.text==='string').slice(0,40).map(e=>({title:e.title.slice(0,100),text:e.text.slice(0,400),time:num(e.time,0,1e9)})):[];
+ c.baseLocker=normalizeBase(v.baseLocker);c.operations=normalizeOperations(v.operations);c.clues=strings(v.clues).filter(id=>DISCOVERIES.some(d=>d.id===id));c.oceanEvent=Math.floor(num(v.oceanEvent,0,2));
  const counters=raw.state||{},enemyHealth=Array.isArray(raw.enemyHealth)?raw.enemyHealth.filter(e=>Array.isArray(e)&&typeof e[0]==='string'&&e[0].length<140&&Number.isFinite(e[1])).slice(-1600).map(([k,n])=>[k,num(n,-2000,185)]):[];
  return {version:1,campaign:c,position:raw.position,state:{weapon:counters.weapon==='energy'?'energy':'ballistic',energy:num(counters.energy,0,100,100),shield:num(counters.shield,0,130,70),time:num(counters.time,0,1e9),health:num(counters.health,1,100,100),ammo:num(counters.ammo,0,30,30),reserve:num(counters.reserve,0,360,180),grenades:num(counters.grenades,0,5,3),kills:num(counters.kills,0,1e6),shots:num(counters.shots,0,1e8),hits:num(counters.hits,0,1e8),yaw:num(counters.yaw,-1e8,1e8),pitch:num(counters.pitch,-1.45,1.45)},enemyHealth,ship:vector(raw.ship),marine:vector(raw.marine),marineYaw:num(raw.marineYaw,-1e8,1e8),savedAt:num(raw.savedAt,0,1e15)};
 }
