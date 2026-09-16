@@ -1,0 +1,45 @@
+{
+  "samples": [
+    {
+      "scouts": 2,
+      "privateMaterialsReleased": 10
+    },
+    {
+      "scouts": 2,
+      "privateMaterialsReleased": 10
+    },
+    {
+      "scouts": 2,
+      "privateMaterialsReleased": 10
+    },
+    {
+      "scouts": 2,
+      "privateMaterialsReleased": 10
+    },
+    {
+      "scouts": 2,
+      "privateMaterialsReleased": 10
+    },
+    {
+      "scouts": 2,
+      "privateMaterialsReleased": 10
+    },
+    {
+      "scouts": 2,
+      "privateMaterialsReleased": 10
+    },
+    {
+      "scouts": 2,
+      "privateMaterialsReleased": 10
+    }
+  ],
+  "graphics": {
+    "antialias": false,
+    "lost": false,
+    "recoveries": 0,
+    "geometries": 325,
+    "textures": 51,
+    "enemyPool": 33
+  },
+  "errors": []
+}

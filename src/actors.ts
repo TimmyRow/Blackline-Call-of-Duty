@@ -268,7 +268,7 @@ function buildRifle(parent: THREE.Object3D, detailed: boolean) {
     for (let i = 0; i < 3; i++) box(rifle, .04, .006, -.405 - i * .008, .001, .009, .002, tan);
   }
   const muzzle = new THREE.Object3D(); muzzle.position.set(0, .008, -.9); rifle.add(muzzle);
-  return { rifle, mag, muzzle };
+  return { rifle, mag, muzzle, opticsMaterials: [glass, dotMaterial] };
 }
 
 export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle: THREE.Object3D; update: (dt: number, opts: WeaponState) => void; flash: () => void; setWeapon:(kind:string)=>void } {
@@ -357,7 +357,7 @@ export function createWeapon(camera: THREE.Camera): { group: THREE.Group; muzzle
   };
 }
 
-export function createEnemy(scene: THREE.Scene, resident?: {color:number}): { group: THREE.Group; hitMeshes: THREE.Object3D[]; update: (dt: number, opts: EnemyState) => void; hit:()=>void; setRole:(role:string)=>void } {
+export function createEnemy(scene: THREE.Scene, resident?: {color:number}): { group: THREE.Group; hitMeshes: THREE.Object3D[]; update: (dt: number, opts: EnemyState) => void; hit:()=>void; setRole:(role:string)=>void; dispose:()=>void } {
   if(!enemySolid.bumpMap){
     const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const c=canvas.getContext('2d')!;
     c.fillStyle='#858585';c.fillRect(0,0,128,128);
@@ -436,7 +436,7 @@ export function createEnemy(scene: THREE.Scene, resident?: {color:number}): { gr
     arm.traverse(o => { if (o instanceof THREE.Mesh) hitMeshes.push(o); });
   }
   const weapon = new THREE.Group(); weapon.position.set(.103, .076, -.309); weapon.rotation.x = -.025; torso.add(weapon);
-  const { rifle: enemyRifle, muzzle } = buildRifle(weapon, false); weapon.scale.setScalar(.82);
+  const { rifle: enemyRifle, muzzle, opticsMaterials } = buildRifle(weapon, false); weapon.scale.setScalar(.82);
   // Broad body meshes are included for reliable picking through gaps between armor pouches.
   torso.children.forEach(o => { if (o instanceof THREE.Mesh && !hitMeshes.includes(o)) hitMeshes.push(o); });
   mergeEnemyRigid(enemyRifle, true);
@@ -467,8 +467,19 @@ export function createEnemy(scene: THREE.Scene, resident?: {color:number}): { gr
   let death = 0;
   let walk = 0;
   let impact=0,crouch=0;
+  let disposed=false;
   return {
     group, hitMeshes, setRole, hit:()=>{impact=1;},
+    dispose(){
+      if(disposed)return;disposed=true;group.removeFromParent();
+      const geometries=new Set<THREE.BufferGeometry>();
+      group.traverse(o=>{if(o instanceof THREE.Mesh)geometries.add(o.geometry);});
+      geometries.forEach(geometry=>geometry.dispose());
+      // Palette, role effects and rifle optics belong to this actor. World-shared
+      // armor materials and their weave texture must outlive streamed scouts.
+      for(const material of [suit,armor,webbing,cyan,violet,flashMaterial,...opticsMaterials])material.dispose();
+      hitMeshes.length=0;
+    },
     update: (dt, opts) => {
       impact=Math.max(0,impact-dt*6);crouch=THREE.MathUtils.damp(crouch,opts.crouching&&!opts.dead?1:0,8,dt);
       death = THREE.MathUtils.damp(death, opts.dead ? 1 : 0, opts.dead ? 5 : 20, dt);

@@ -78,7 +78,7 @@ export function createEncounters(scene:THREE.Scene,world?:RAPIER.World){
  function remove(r:Record){
   // Remember only gameplay values, never unloaded meshes, animation closures or enemy references.
   if(r.scouts.length){scoutMemory.set(r.site.id,r.scouts.map(({health,shots,damage})=>({health,shots,damage})));if(scoutMemory.size>128)scoutMemory.delete(scoutMemory.keys().next().value!);}
-  scene.remove(r.group);r.geometries.forEach(g=>g.dispose());if(world&&r.body)world.removeRigidBody(r.body);for(const scout of r.scouts){scene.remove(scout.visual.group);scout.visual.group.traverse(o=>{if(o instanceof THREE.Mesh)o.geometry.dispose();});}}
+  scene.remove(r.group);r.geometries.forEach(g=>g.dispose());if(world&&r.body)world.removeRigidBody(r.body);for(const scout of r.scouts)scout.visual.dispose();}
  function interactionDistance(position:THREE.Vector3,r:Record){const step=encounterInteractionSteps(r.site)[interaction.stage(r.site)];return Math.hypot(position.x-r.site.x-step.x,position.z-r.site.z-step.z);}
  function nearby(position:THREE.Vector3,excluded:string[]=[]){return [...loaded.values()].filter(r=>!excluded.includes(r.site.id)&&!completed.has(r.site.id)&&interactionDistance(position,r)<3.2&&Math.abs(position.y-r.site.elevation-1.7)<3).sort((a,b)=>interactionDistance(position,a)-interactionDistance(position,b))[0];}
  return{
