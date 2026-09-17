@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "A real recovered roadside record unlocks a journal lead; choosing it saves the marked destination without accepting a side quest",
+    "Following the destination awards its existing schematic once, clears its pin and closes the resolved lead",
+    "Older saves expose recovered-record leads immediately; the phone journal has no horizontal overflow and can track the ocean buoy"
+  ],
+  "errors": []
+}

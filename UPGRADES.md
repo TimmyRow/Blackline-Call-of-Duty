@@ -20,6 +20,7 @@ Halo-inspired military sci-fi with No Man's Sky-inspired exploration. The number
 16. **Exploration tools/rewards:** Scanner reveals signals and grants first-scan salvage; ancient caches unlock refit blueprints; survey/rescue contracts provide optional goals.
 17. **Atmosphere and sound:** Distinct ballistic/energy sounds, positional gunfire, bounded engine/boost audio, shield-break and scan feedback, gradual day/night/weather and a dry, warm Vesper atmosphere.
 18. **Second planet:** Travel between Orison and Vesper through the journal while piloting. Vesper has an expedition port, extraction site, vault, salt-basin survey and distinct terrain. This uses two coordinate sectors and a transit transition, not spherical orbital simulation or an infinite universe.
+19. **Exploration clue trails:** Recovered roadside records unlock five optional journal leads to hidden schematics, another transmission or the ocean distress buoy. Choose a lead to save its map/compass bearing; recover its destination to close the lead. Existing saves gain leads from records already collected.
 
 ## New controls
 
