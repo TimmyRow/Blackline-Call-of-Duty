@@ -1,5 +1,12 @@
 # BLACKLINE maintenance
 
+## 2026-09-18 — maintenance fix: preserve rescued survivors on reload
+
+- Reproduced an escort-save regression: reloading `No one left behind` moved both freed survivors approximately 10.8m back toward their original capture positions. The mission stage persisted but the actor positions did not.
+- Save the two survivors' physics positions during the escort stage and restore them when the rescue area activates. The common save validator preserves them for autosaves, manual slots and recovery checkpoints. Older saves still initialize survivors at their original positions; malformed or out-of-area positions are discarded. Saving immediately after loading preserves pending positions, and extraction requires initialized, visible survivors.
+- Validation: all 116 tests and the production build passed. Edge reproduced the failure before the fix; afterward both survivors resumed within 0.61m, immediate load/save/load preserved them, extraction completed, and completion/reward stayed stable on another reload. No page errors. Reviewed `qa/rescue-save-restored.png`; results in `qa/rescue-save-results.json`. Physical controllers and Apple devices were not tested.
+- Next priority (feature upgrade): give town residents a useful response to completed field operations, building on the existing conversation and mission systems. Keep the existing schedule and alternate upgrades with maintenance.
+
 ## 2026-09-17 — feature upgrade: exploration clue trails
 
 - Added five optional leads unlocked by recovered roadside records. The journal connects evacuation, repair, relay, shipment and coastwatch records to existing caves, wrecks and the Wayfarer buoy. Tracking a lead marks the map and compass and persists its destination. Collecting the destination removes the lead and clears its tracked pin; existing schematic/reward rules still pay once.

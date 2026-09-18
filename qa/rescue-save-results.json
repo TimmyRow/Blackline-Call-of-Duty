@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "Both freed survivors resume within 1m of their saved escort positions",
+    "Immediate load/save/load preserves pending survivor state",
+    "Resumed survivors reach extraction; completed mission and reward remain stable on reload"
+  ],
+  "reloadDisplacements": [
+    0.6086168811666288,
+    0.6000672776877267
+  ],
+  "errors": []
+}

@@ -8,7 +8,12 @@ export const OPERATIONS=[
  {id:'op-escape',site:'encounter:wreck:landing',x:83,z:176,title:'The courier’s last message',description:'Recover the lost flight recorder, then evade the pirate recovery team and deliver it at the rendezvous.',reward:170,phases:[phase(0,5,'RECOVER FLIGHT RECORDER'),phase(36,-30,'DELIVER RECORDER AT RENDEZVOUS',false,1)]}
 ];
 export const OPERATION_CONTRACTS=OPERATIONS.map(o=>({id:o.id,title:o.title,description:o.description,kind:'operation',target:1,reward:o.reward,bearing:o.site}));
-export function normalizeOperations(raw){const result={};for(const op of OPERATIONS){const n=raw?.[op.id];if(n&&typeof n==='object')result[op.id]={stage:Math.max(0,Math.min(op.phases.length,Math.floor(Number(n.stage)||0)))};}return result;}
+export function normalizeRescuePositions(raw){
+ if(!Array.isArray(raw)||raw.length!==2)return null;
+ const valid=raw.every(p=>Array.isArray(p)&&p.length===3&&p.every(n=>typeof n==='number'&&Number.isFinite(n))&&Math.hypot(p[0]+175,p[2]-140)<220&&p[1]>-100&&p[1]<500);
+ return valid?raw.map(p=>[...p]):null;
+}
+export function normalizeOperations(raw){const result={};for(const op of OPERATIONS){const n=raw?.[op.id];if(n&&typeof n==='object'){const stage=Math.max(0,Math.min(op.phases.length,Math.floor(Number(n.stage)||0))),survivors=op.id==='op-rescue'&&stage===2?normalizeRescuePositions(n.survivors):null;result[op.id]=survivors?{stage,survivors}:{stage};}}return result;}
 export function operationForSite(c,id){return OPERATIONS.find(o=>o.site===id&&c.contracts?.[o.id]==='active')??null;}
 export function operationStage(c,op){return Math.min(op.phases.length,c.operations?.[op.id]?.stage??0);}
 export function operationPhase(c,op){return op.phases[operationStage(c,op)]??null;}
