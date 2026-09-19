@@ -1,5 +1,12 @@
 # BLACKLINE maintenance
 
+## 2026-09-19 — feature upgrade: town operation debriefs
+
+- Return to Lia, Tomas or Iris after their field operations for specific news about the people and routes helped. Each of the five operations offers one optional cache of 60 rounds and one grenade, stored in the shared squad locker for collection at a friendly base. Completed mission entries mention returning to the resident.
+- Claims persist through the common save validator, including older saves with completed operations. Full lockers retain unclaimed rewards. Debriefs require the correct, available resident and a nearby conversation; they do not replace the active objective or repeat mission salvage rewards. No new world actors or per-frame work added.
+- Validation: all 119 tests and the production build passed. Edge exercised Tomas's conversation, a cache claim, withdrawing usable ammunition/grenades, reloading without a duplicate, and a second claim in a 390px phone viewport. No page errors or horizontal overflow. Reviewed desktop and phone captures in `qa/operation-debriefs-*.png`. Physical controller and Apple-device behavior remain unverified.
+- Next priority (maintenance): inspect dialogue and journal input focus after disabled actions, including simulated controller navigation. Preserve the existing bindings and seven-day schedule.
+
 ## 2026-09-18 — maintenance fix: preserve rescued survivors on reload
 
 - Reproduced an escort-save regression: reloading `No one left behind` moved both freed survivors approximately 10.8m back toward their original capture positions. The mission stage persisted but the actor positions did not.

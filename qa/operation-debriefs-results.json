@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "A real conversation with Tomas offers completed-operation debriefs; accepting a cache preserves salvage and mission tracking",
+    "The awarded cache can be withdrawn into usable ammunition and grenades at Pathfinder",
+    "Claimed caches remain claimed after reload; a second operation can be debriefed in the phone layout without horizontal overflow"
+  ],
+  "errors": []
+}
