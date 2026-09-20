@@ -36,7 +36,17 @@ export function createExpeditionUI(parent:HTMLElement,callbacks:{close:()=>void;
  if(data.war)systemSection(data.war.label,data.war.description);
  if(data.boarding)systemSection(data.boarding.label,data.boarding.description);
  root.querySelector('[data-close]')!.addEventListener('click',callbacks.close);root.querySelector('[data-save]')!.addEventListener('click',callbacks.save);
- root.querySelectorAll<HTMLElement>('button,input,select').forEach((el,i)=>{const action=['section','order','upgrade','travel','personQuest','mainTalk','leaveConversation','close','save','scan'].find(key=>key in el.dataset);el.dataset.focus??=action?action+':'+el.dataset[action]:'control:'+i;});if(focusKey){const enabled=Array.from(root.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled)')).filter(el=>!el.closest('[hidden]'));(enabled.find(el=>el.dataset.focus===focusKey)??enabled.find(el=>el.dataset.section===section)??enabled[0])?.focus({preventScroll:true});}root.scrollTop=scroll;
+ root.querySelectorAll<HTMLElement>('button,input,select').forEach((el,i)=>{const action=['section','order','upgrade','travel','personQuest','mainTalk','leaveConversation','close','save','scan'].find(key=>key in el.dataset);el.dataset.focus??=action?action+':'+el.dataset[action]:'control:'+i;});root.scrollTop=scroll;
+ if(focusKey){
+  const visible=Array.from(root.querySelectorAll<HTMLElement>('button,input,select')).filter(el=>!el.closest('[hidden]'));
+  const available=(el:HTMLElement)=>!el.matches(':disabled'),index=visible.findIndex(el=>el.dataset.focus===focusKey);
+  const same=index>=0&&available(visible[index])?visible[index]:undefined;
+  const next=index>=0?(visible.slice(index+1).find(available)??visible.slice(0,index).reverse().find(available)):undefined;
+  const target=same??next??visible.find(el=>available(el)&&el.dataset.section===section)??visible.find(available);
+  target?.focus({preventScroll:true});
+  if(target&&!same)target.scrollIntoView({block:'center',inline:'nearest'});
+ }
+
  }
  root.addEventListener('keydown',e=>{if(e.key!=='Tab')return;const items=Array.from(root.querySelectorAll<HTMLButtonElement>('button:not(:disabled),select')).filter(e=>e.getClientRects().length>0),i=items.indexOf(document.activeElement as HTMLButtonElement);e.preventDefault();items[(i+(e.shiftKey?-1:1)+items.length)%items.length]?.focus();});
  return{open(value:Data,tab='missions'){data=value;section=tab;root.hidden=false;paint();root.scrollTop=0;(section==='people'?root.querySelector<HTMLButtonElement>('[data-main-talk]:not(:disabled),[data-debrief]:not(:disabled),[data-person-quest]:not(:disabled),[data-leave-conversation]'):root.querySelector<HTMLButtonElement>('[data-section="'+section+'"]'))?.focus();},update(value:Data){data=value;if(!root.hidden)paint();},close(){root.hidden=true;},get visible(){return !root.hidden;}};

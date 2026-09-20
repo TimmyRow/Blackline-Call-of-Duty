@@ -1,0 +1,18 @@
+[
+  {
+    "viewport": 1280,
+    "nextActions": [
+      "debrief:op-defense",
+      "personQuest:signals"
+    ],
+    "errors": []
+  },
+  {
+    "viewport": 390,
+    "nextActions": [
+      "debrief:op-defense",
+      "personQuest:signals"
+    ],
+    "errors": []
+  }
+]

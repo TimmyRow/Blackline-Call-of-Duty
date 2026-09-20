@@ -1,5 +1,12 @@
 # BLACKLINE maintenance
 
+## 2026-09-20 — maintenance fix: journal focus after completed actions
+
+- Reproduced a controller-navigation regression: accepting a debrief cache disabled its button and moved focus back to the Conversation tab, requiring players to navigate down again for the next reward.
+- Journal refreshes now retain an available focused action or select the next available control after a disabled action, falling back to the previous control when needed. A replacement focus is brought into view; ordinary refreshes preserve the current focus and scroll position. Existing Xbox bindings are unchanged.
+- Validation: all 119 unit tests and the production build passed. The new Edge browser regression failed before the fix and passed afterward at 1280px and 390px. Simulated Xbox input opened the actual resident conversation with X, claimed two caches with A, skipped disabled buttons using the D-pad, closed with B, opened the map with Menu and paused with View. No page errors; reviewed both focused-action screenshots in `qa/journal-focus-*.png`. These are simulated inputs, not physical controller or Apple-device tests.
+- Next priority (feature upgrade): improve discovery usefulness with nearby lead distance and terrain context in the journal, without adding persistent HUD clutter. Keep the original schedule and end date.
+
 ## 2026-09-19 — feature upgrade: town operation debriefs
 
 - Return to Lia, Tomas or Iris after their field operations for specific news about the people and routes helped. Each of the five operations offers one optional cache of 60 rounds and one grenade, stored in the shared squad locker for collection at a friendly base. Completed mission entries mention returning to the resident.
