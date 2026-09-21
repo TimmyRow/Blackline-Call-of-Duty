@@ -1,5 +1,12 @@
 # BLACKLINE maintenance
 
+## 2026-09-21 — feature upgrade: exploration planning details
+
+- Journal leads now sort nearest first and show straight-line distance, compass bearing, elevation difference, planet/biome and a destination-specific approach: cave, wreck interior, roadside record or ocean signal requiring a launch. The journal explains that terrain can require detours.
+- Leads on another planet show return/jump guidance instead of misleading distances between coordinate sectors. A signal directly above or below the player omits an arbitrary compass bearing. Viewing and sorting leads does not change saved progress or mission tracking, and no persistent HUD or world actors were added.
+- Validation: all 122 tests and the production build passed. Edge checked three existing-save leads, their ordering and navigation details, cave/wreck/ocean hints, tracking to the compass, the 390px phone layout, and planet-jump guidance when viewing Orison leads from Vesper. No page errors or horizontal overflow. Reviewed `qa/exploration-briefs-desktop.png` and `qa/exploration-briefs-phone.png`. Physical controller and Apple-device behavior remain unverified.
+- Next maintenance candidate: check tracked-objective consistency across planet jumps and save/load. Preserve the original seven-day schedule and end date; no extension created.
+
 ## 2026-09-20 — maintenance fix: journal focus after completed actions
 
 - Reproduced a controller-navigation regression: accepting a debrief cache disabled its button and moved focus back to the Conversation tab, requiring players to navigate down again for the next reward.

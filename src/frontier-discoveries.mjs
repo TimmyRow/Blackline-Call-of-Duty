@@ -1,4 +1,5 @@
-import {ROADSIDE_STORIES,WORLD_LANDMARKS,heightAt} from './region-layout.mjs';
+import {ROADSIDE_STORIES,WORLD_LANDMARKS,heightAt,getPlanetAt,biomeAt} from './region-layout.mjs';
+import {targetNavigation,bearingTo,cardinal} from './navigation.mjs';
 export const DISCOVERIES=[
  ...ROADSIDE_STORIES.map((s,i)=>({id:'clue:'+s.id,name:s.name,x:s.x+3,z:s.z+3,reward:20,blueprint:null,ocean:false,story:[
  'A passenger list records civilians reaching Pathfinder. Someone stayed behind to keep the road open.',
@@ -26,6 +27,18 @@ export function explorationLeads(c){
   const source=DISCOVERIES.find(s=>s.id===link.from),target=sites.find(s=>s.id===link.to);
   return source&&target?[{source,target,hint:link.hint}]:[];
  });
+}
+export function explorationBriefs(c,position){
+ const current=getPlanetAt(position.x,position.z);
+ return explorationLeads(c).map(lead=>{
+  const t=lead.target,planet=getPlanetAt(t.x,t.z),local=planet.id===current.id;
+  const landmark=WORLD_LANDMARKS.find(s=>'clue:'+s.id===t.id);
+  const approach=t.ocean?'Ocean signal · Bring a launch':landmark?.kind==='cave'?'Cave archive · Approach on foot':landmark?.kind==='wreck'?'Wreck interior · Approach on foot':'Roadside record · Approach on foot';
+  const nav=local?targetNavigation(position,0,t):null;
+  return {...lead,distance:nav?.distance??null,
+   travelLabel:nav?(nav.distance<5?'At the signal':`${nav.distanceLabel}${Math.hypot(t.x-position.x,t.z-position.z)>=1?' '+cardinal(bearingTo(position,t)):''} · ${nav.verticalLabel}`):`Return to ${planet.name} · Planet jump required`,
+   context:`${planet.name} / ${t.ocean?'Ocean':biomeAt(t.x,t.z).name} · ${approach}`};
+ }).sort((a,b)=>(a.distance??Infinity)-(b.distance??Infinity));
 }
 export function claimDiscovery(c,id){const item=DISCOVERIES.find(s=>s.id===id);c.clues??=[];if(!item||c.clues.includes(id))return null;c.clues.push(id);c.salvage+=item.reward;if(item.blueprint&&!c.blueprints.includes(item.blueprint))c.blueprints.push(item.blueprint);if(item.ocean)c.oceanEvent=1;return item;}
 export const BOARDERS=['wayfarer:boarding:0','wayfarer:boarding:1'];

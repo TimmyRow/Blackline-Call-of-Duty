@@ -22,6 +22,7 @@ Halo-inspired military sci-fi with No Man's Sky-inspired exploration. The number
 18. **Second planet:** Travel between Orison and Vesper through the journal while piloting. Vesper has an expedition port, extraction site, vault, salt-basin survey and distinct terrain. This uses two coordinate sectors and a transit transition, not spherical orbital simulation or an infinite universe.
 19. **Exploration clue trails:** Recovered roadside records unlock five optional journal leads to hidden schematics, another transmission or the ocean distress buoy. Choose a lead to save its map/compass bearing; recover its destination to close the lead. Existing saves gain leads from records already collected.
 20. **Town debriefs:** Return to Lia, Tomas or Iris after their field operations for specific follow-up dialogue and a one-time squad supply cache. Collect its 60 rounds and grenade through Equipment & Travel at a friendly base. Full lockers leave the reward available for later.
+21. **Exploration planning:** Journal leads sort nearest first and show distance, compass bearing, elevation, biome and approach hints. Ocean leads identify the need for a launch; leads on another planet show jump guidance instead of a misleading walking distance.
 
 ## New controls
 

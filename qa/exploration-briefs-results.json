@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "Journal sorts nearby leads, presents distance/bearing/elevation and cave/wreck/ocean approach hints, and tracks the selected destination on the compass",
+    "Distance and approach information fit the 390px phone layout without horizontal overflow",
+    "Viewing Orison leads from Vesper shows planet-jump guidance instead of a false walkable distance"
+  ],
+  "errors": []
+}
