@@ -1,3 +1,4 @@
+import {jumpTrackedId} from './navigation.mjs';
 import {debriefOffers,claimDebrief} from './operation-debriefs.mjs';
 import {createOperationActors} from './operation-actors';
 import {OPERATIONS,operationTarget,operationPhase,operationEnemies,operationBlocked,createOperationRunner} from './field-operations.mjs';
@@ -460,6 +461,7 @@ function journalData(){const fs=flight.snapshot(),planet=getPlanetAt(camera.posi
 async function jumpPlanet(id:string){
  if(jumping||graphicsLost||!ready)return;const option=journalData().destinations.find(p=>p.id===id),arrival=getPlanetArrival(id);if(!option||!arrival)return;
  if(!option.available){toast(option.reason||'JUMP UNAVAILABLE');return;}
+ const trackedBeforeJump=resolvedTarget();
  setMenu('paused');jumping=true;$('menu').hidden=true;$('jump-transition').hidden=false;
  try{
   await new Promise(resolve=>setTimeout(resolve,700));if(graphicsLost)return;
@@ -467,7 +469,7 @@ async function jumpPlanet(id:string){
   if(!flight.transferTo(target))throw new Error('Drive transfer unavailable');
   campaign.planet=id;state.yaw=state.pitch=0;camera.position.copy(flight.cameraPose().position);collider.setEnabled(false);squad.embark();world.step();syncEnemies();
   safePosition.set(arrival.x+6,arrival.y+1.7,arrival.z);parkedShipPosition.set(arrival.x,arrival.y+2.15,arrival.z);
-  jumpReady=state.time+Math.max(15,45-10*(campaign.upgrades?.reactor||0));const missionTarget=campaign.activeMission==='main'?mainQuest(campaign).target:missionBoard(campaign,AUTHORED_SITES,camera.position).find(m=>m.id===campaign.activeMission&&m.status==='active')?.target;campaign.tracked=missionTarget&&getPlanetAt(missionTarget.x,missionTarget.z).id===id?missionTarget.id:id==='vesper'?'vesper-port':'kestrel';if(missionTarget&&campaign.tracked===missionTarget.id)knownSites.set(missionTarget.id,missionTarget as Site);
+  jumpReady=state.time+Math.max(15,45-10*(campaign.upgrades?.reactor||0));campaign.tracked=jumpTrackedId(trackedBeforeJump,id);if(trackedBeforeJump&&trackedBeforeJump.id!=='kestrel')knownSites.set(campaign.tracked,{...trackedBeforeJump,id:campaign.tracked} as Site);
   const port=getWorldSites(arrival.x,arrival.z,200).find(s=>s.id===campaign.tracked);if(port)knownSites.set(port.id,port);
   journal(campaign,'Arrival / '+option.name,'Slipstream transit complete. A new landscape, settlements and signals await.',state.time);saveGame();
   await new Promise(resolve=>setTimeout(resolve,500));

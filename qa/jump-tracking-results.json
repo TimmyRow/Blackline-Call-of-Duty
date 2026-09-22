@@ -1,0 +1,7 @@
+{
+  "checks": [
+    "A tracked exploration clue survives an actual Orison-to-Vesper jump and validated save/load with identical coordinates",
+    "Main-quest tracking retains Mara’s canonical ID and coordinates across the return jump and save/load"
+  ],
+  "errors": []
+}

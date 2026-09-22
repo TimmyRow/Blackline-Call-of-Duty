@@ -3,6 +3,12 @@ export function bearingTo(from,to){return (Math.atan2(to.x-from.x,from.z-to.z)*1
 export function bearingDelta(target,heading){return ((target-heading+540)%360)-180;}
 export function cardinal(heading){return ['N','NE','E','SE','S','SW','W','NW'][Math.round(heading/45)%8];}
 export function formatDistance(distance){return distance>=1000?`${(distance/1000).toFixed(1)} km`:`${Math.round(distance)} m`;}
+// A jump changes location, not the player's chosen objective. Ship-only/no-target
+// tracking can use the arrival landmark; boarding phases keep their campaign ID.
+export function jumpTrackedId(target,destination){
+ if(target&&target.id!=='kestrel')return target.id==='corsair-objective'?'corsair':target.id;
+ return destination==='vesper'?'vesper-port':'kestrel';
+}
 // Shared by atlas, compass and the world pin so every surface describes one signal.
 export function targetNavigation(position,yaw,target){
  if(!target)return null;

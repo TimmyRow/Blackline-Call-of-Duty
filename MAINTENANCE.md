@@ -1,5 +1,12 @@
 # BLACKLINE maintenance
 
+## 2026-09-22 — maintenance fix: retain objectives during planet jumps
+
+- Reproduced a tracking regression: jumping from Orison to Vesper replaced a manually tracked Basalt Gate clue with Sunfall Expedition Port, and saved the replacement. The old jump selection could also pair an arrival ID with a main-quest target resolved elsewhere.
+- Jumps now retain the resolved objective and its coordinates, including clues, residents and operation stages. Corsair boarding phases keep their canonical campaign ID. Only an absent or own-ship objective selects the arrival landmark. Mission progress, input bindings and ship-purchase requirements are unchanged.
+- Validation: all 124 tests and the production build passed. The Edge regression failed before the fix, then passed an actual Orison-to-Vesper jump and save/load with the clue ID and coordinates intact. Returning with the main quest selected retained Mara's canonical ID and coordinates through another save/load. No page errors. No presentation changes or physical-device tests in this pass.
+- Next maintenance candidate: make cross-planet compass/map guidance explicitly identify the required jump, matching the journal's planet-aware leads. Preserve the original schedule and end date; no recurring extension created.
+
 ## 2026-09-21 — feature upgrade: exploration planning details
 
 - Journal leads now sort nearest first and show straight-line distance, compass bearing, elevation difference, planet/biome and a destination-specific approach: cave, wreck interior, roadside record or ocean signal requiring a launch. The journal explains that terrain can require detours.
